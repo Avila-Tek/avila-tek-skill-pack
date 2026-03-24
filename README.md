@@ -1,0 +1,291 @@
+# Avila Tek Planning Skills
+
+**AI-assisted planning skills that create shared context across planning and development.**
+
+A set of skills for Claude Code that encode the end-to-end planning process — from first discovery to a repo ready for engineers to execute. Every artifact has a defined home, every step has a clear owner, and every collaborator (PM, lead, developer) works from the same source of truth.
+
+---
+
+## The Problem This Solves
+
+Planning knowledge lives in people's heads, scattered docs, and lost Slack threads. By the time development starts, the context has degraded — engineers lack the "why", PMs lack traceability, and teams waste cycles re-aligning. These skills fix that by producing structured, AI-assisted artifacts that persist in the repo and in Lark, keeping the full team in sync from day one.
+
+---
+
+## The Planning Process
+
+The process has two parallel tracks that converge at the epic level:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        INPUT                                    │
+│              Design Doc (written manually by team)              │
+│                    Lives in: Lark Wiki                          │
+└────────────────────┬───────────────────┬────────────────────────┘
+                     │                   │
+          ┌──────────▼──────┐   ┌────────▼───────────┐
+          │  Project Context │   │  Spec Funcional    │
+          │   (iterative)    │   │  (per epic,        │
+          │  skill-0 ✅      │   │   optional but     │
+          │  Lives in: repo  │   │   recommended)     │
+          │  docs/           │   │  skill-1 ✅        │
+          │  project_context │   │  Lives in:         │
+          │  .md             │   │  Lark Wiki         │
+          └──────────────────┘   └────────┬───────────┘
+                                          │
+                                 ┌────────▼───────────┐
+                                 │      Epic          │
+                                 │  skill-2 🚧        │
+                                 │  Lives in: repo    │
+                                 │  docs/epics/       │
+                                 │  E-XXX_name/       │
+                                 │  epic.md           │
+                                 └────────┬───────────┘
+                                          │
+                                 ┌────────▼───────────┐
+                                 │     Stories (HUs)  │
+                                 │  skill-3 🚧        │
+                                 │  Lives in: repo    │
+                                 │  docs/epics/       │
+                                 │  E-XXX_name/       │
+                                 │  stories/          │
+                                 └────────┬───────────┘
+                                          │
+                                 ┌────────▼───────────┐
+                                 │   Lark Base Sync   │
+                                 │  skill-4 ✅        │
+                                 │  Pushes epics +    │
+                                 │  stories to the    │
+                                 │  project Base      │
+                                 └────────────────────┘
+```
+
+---
+
+## Artifact Map
+
+| Artifact | Who creates it | Tool | Where it lives |
+|---|---|---|---|
+| Design Doc | PM / CTO — manually | — | Lark Wiki |
+| Project Context | AI-assisted | skill-0 | `docs/project_context.md` (repo) |
+| Spec Funcional | AI-assisted | skill-1 | Lark Wiki |
+| Epic (`epic.md`) | AI-assisted | skill-2 | `docs/epics/E-XXX_name/epic.md` (repo) |
+| Stories | AI-assisted | skill-3 | `docs/epics/E-XXX_name/stories/` (repo) |
+| Lark Base records | Automated | skill-4 | Lark Base |
+
+---
+
+## Repository Structure
+
+All planning artifacts that live in the repo follow this layout:
+
+```
+docs/
+├── project_context.md          ← Master context (single source of truth)
+├── epics/
+│   ├── E-000_tech_platform/
+│   │   ├── epic.md
+│   │   └── stories/
+│   │       ├── E-000_S-001_monorepo_bootstrap.md
+│   │       └── E-000_S-002_app_scaffolding.md
+│   ├── E-001_public_home/
+│   │   ├── epic.md
+│   │   └── stories/
+│   └── E-XXX_slug/
+│       ├── epic.md
+│       └── stories/
+├── plans/                      ← Technical implementation plans
+├── specs/                      ← Additional technical specs
+└── adrs/                       ← Architecture Decision Records
+```
+
+---
+
+## Skills Reference
+
+### skill-0 — Project Context Generator ✅
+
+Generates or updates `docs/project_context.md` from a Design Doc or Intake Brief.
+
+This is the **canonical shared context** for the entire project — the single document that all derived artifacts reference. It captures the WHY, WHAT, glossary, business rules, scope, and constraints in a stable, structured format that both humans and AI agents can rely on.
+
+- **Input:** Design Doc (PDF/DOCX/MD) or Intake Brief
+- **Output:** `docs/project_context.md`
+- **Cadence:** Created once, updated iteratively as the project evolves
+- **Trigger phrases:** "generate project context", "update the project context", "create master context"
+
+### skill-1 — Functional Spec Generator ✅
+
+Generates a complete Spec Funcional from a Design Doc for a specific epic.
+
+The Spec Funcional is the bridge between the Design Doc and the engineering backlog. It documents flows step by step, business rules, integrations, edge cases, acceptance criteria, and open questions — giving the team a shared reference before stories are written.
+
+- **Input:** Design Doc + epic name
+- **Output:** Spec Funcional document (DOCX or MD)
+- **Cadence:** One per epic, generated before creating the epic.md
+- **Where it lives:** Lark Wiki (under Design Docs)
+- **Trigger phrases:** "generate the spec for this epic", "create a functional spec", "spec funcional"
+
+### skill-2 — Epic Generator 🚧
+
+Generates `epic.md` from a Spec Funcional or Design Doc for a specific epic.
+
+The epic file is the engineering entry point. It contains the objective, scope, acceptance criteria, open questions, and all metadata needed for development to begin.
+
+- **Input:** Spec Funcional (recommended) or Design Doc section
+- **Output:** `docs/epics/E-XXX_slug/epic.md`
+- **Status:** Under construction
+
+### skill-3 — Story Generator ✅
+
+Generates all user stories (HUs) for an epic from its `epic.md`.
+
+Each story follows a consistent structure with user story statement, acceptance criteria, dependencies, t-shirt size, readiness, and open questions. Stories are written to be independently implementable by a developer.
+
+- **Input:** `epic.md`
+- **Output:** `docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug.md` (one file per story)
+- **Trigger phrases:** "generate stories for E-XXX", "write the stories for this epic"
+
+### skill-4 — Lark Base Sync ✅
+
+Reads epic and story `.md` files from the repo, translates content to Spanish, and pushes them to the Lark Base via the Avila Tools API.
+
+Supports upsert — existing records are updated, new records are created. Requires: Epic IDs, API Key, and Base ID.
+
+- **Input:** Epic IDs (e.g. `E-002 E-003`), API Key, Base ID
+- **Output:** Epics and stories synced to Lark Base
+- **Trigger phrases:** "sync to Lark", "push epic to Lark", "sincroniza el backlog"
+
+---
+
+## Step-by-Step Workflow
+
+### 1. Write the Design Doc (manual)
+
+The PM or CTO writes the Design Doc in Lark Wiki. This is the primary source of truth for the product. It covers product vision, flows, integrations, security constraints, and the full epic list.
+
+No skill yet — this step is manual.
+
+### 2. Generate the Project Context
+
+Open Claude Code in the project repository and run:
+
+> "Generate the project context from this design doc"
+
+The skill will ask clarifying questions, then write `docs/project_context.md`. This document is referenced by all downstream artifacts — keep it updated as the project evolves.
+
+### 3. Generate Spec Funcionales (per epic)
+
+For each epic you are about to plan:
+
+> "Generate a functional spec for the [epic name] epic from this design doc"
+
+The skill produces a structured Spec Funcional and saves it as a DOCX. Upload it to Lark Wiki under the project's Design Docs space. This is optional but strongly recommended — it surfaces ambiguities before stories are written.
+
+### 4. Generate the Epic
+
+> "Generate the epic for [Epic Name] from the spec"
+
+The skill creates `docs/epics/E-XXX_slug/epic.md` with the full epic structure.
+
+### 5. Generate Stories
+
+> "Generate stories for E-XXX from the epic"
+
+The skill reads the `epic.md` and creates one `.md` file per story under `docs/epics/E-XXX_slug/stories/`.
+
+### 6. Sync to Lark Base
+
+Once epics and stories are committed to the repo:
+
+> "Sync E-002 E-003 to Lark" (+ provide API Key and Base ID when prompted)
+
+The skill reads the `.md` files, translates content to Spanish, and pushes everything to the Lark Base. Run this after any update to keep Lark in sync with the repo.
+
+---
+
+## Installation
+
+### Claude Desktop
+
+No installation required. The skills are configured at the Avila Tek organization level and are available automatically to all team members.
+
+To use them:
+
+1. Open the Claude app and make sure you are logged in with your Avila Tek organization account
+2. Create or open a **Project** for the product you are planning (e.g. "Zoom Emprendedores")
+3. Start a conversation inside that Project and the skills will be active
+
+That's it. You do not need to paste or configure anything.
+
+---
+
+### Claude Code
+
+**Step 1 — Install Claude Code** (one time per machine)
+
+Open your terminal and run:
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+> If you see an error, download Node.js first from [nodejs.org](https://nodejs.org) and then run the command again.
+
+**Step 2 — Copy the skills into your project**
+
+Inside your project repository, create the folder `.claude/skills/` if it does not exist. Then copy the skill folders from this repository into it:
+
+```
+your-project/
+└── .claude/
+    └── skills/
+        ├── 0-project-context-generator/
+        │   └── SKILL.md
+        ├── 1-functional-spec-generator/
+        │   ├── SKILL.md
+        │   └── references/
+        │       └── template.md
+        ├── 2-epic-generator/
+        │   └── SKILL.md
+        ├── 3-story-generator/
+        │   └── SKILL.md
+        └── 4-write-epics-and-hu-in-base/
+            └── SKILL.md
+```
+
+You can do this in Finder (Mac) or Explorer (Windows) — copy the `skills/` folder from this repository and paste it inside the `.claude/` folder of your project. Commit this folder to the repo so the whole team gets the skills when they clone the project.
+
+**Step 3 — Open Claude Code inside your project**
+
+```bash
+cd your-project
+claude
+```
+
+Claude Code starts and detects the skills automatically. No further setup needed.
+
+---
+
+## Lark Setup
+
+The sync skill requires access to the Avila Tools API:
+
+| Input | Description |
+|---|---|
+| API Key | Bearer token (`sk-xxxx...`) — obtain from the project lead |
+| Base ID | Target Lark Base identifier — found in the Base URL |
+
+The endpoint used is `https://avila-tools-api-qa.onrender.com/api/v1/projects/records`.
+
+---
+
+## Design Principles
+
+**Artifacts have one home.** Project context lives in the repo. Specs and the Design Doc live in Lark Wiki. Backlog records live in Lark Base. No duplication, no ambiguity about which version is current.
+
+**The repo is the execution layer.** When development starts, everything needed is already in `docs/` — epics with scope and acceptance criteria, stories with dependencies and t-shirt sizing, a project context with business rules and glossary. Engineers don't need to chase context across wikis.
+
+**Planning is iterative.** The project context is updated as decisions are made. Stories are refined before they are scheduled. The Lark Base reflects the repo — sync is one command.
+
+**AI assists, humans decide.** Skills ask questions before generating. They flag gaps and open questions. They never invent business rules. The final content is always reviewed and committed by the team.
