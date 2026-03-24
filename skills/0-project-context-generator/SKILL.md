@@ -52,9 +52,12 @@ If ambiguous, ask the user which mode they intend.
 **Create mode:**
 
 The source can be:
-- An uploaded PDF (Design Doc) or DOCX (Intake Brief) in `/mnt/user-data/uploads/`
+- A file in `docs/inputs/` of the project repo (preferred for Claude Code — e.g. `docs/inputs/design_doc.pdf`)
+- An uploaded PDF (Design Doc) or DOCX (Intake Brief) in `/mnt/user-data/uploads/` (Claude Desktop)
 - A file already in the conversation context
 - A path the user provides
+
+If no path is specified, check `docs/inputs/` first before asking the user.
 
 Determine the document type:
 - **Design Doc:** Comprehensive technical document with architecture, flows, security layers, epics, glossary, risks, testing strategy. Much richer — expect most sections to be fillable directly.

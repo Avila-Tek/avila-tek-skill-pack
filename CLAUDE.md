@@ -33,6 +33,9 @@ Skills generate artifacts into this layout inside the target project:
 
 ```
 docs/
+├── inputs/                                ← Source documents placed here before running skills
+│   ├── design_doc.pdf                     ← Design Doc exported from Lark Wiki
+│   └── intake_brief.docx                  ← Intake Brief (alternative starting point)
 ├── project_context.md                     ← Master context (WHY/WHAT/constraints/glossary)
 ├── epics/
 │   ├── E-000_slug/

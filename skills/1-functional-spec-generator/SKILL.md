@@ -21,24 +21,31 @@ Output format: flexible — infer from user context (default: `.docx`; also supp
 
 ## Step 1 — Read the Input Design Doc
 
-Determine the file type from the upload path and extract text accordingly.
+Locate the source document using this priority order:
+1. `docs/inputs/` in the project repo (preferred for Claude Code — e.g. `docs/inputs/design_doc.pdf`)
+2. `/mnt/user-data/uploads/` (Claude Desktop uploads)
+3. A path explicitly provided by the user
+
+If no path is specified, check `docs/inputs/` first before asking the user.
+
+Determine the file type from the path and extract text accordingly.
 
 **PDF:**
 ```python
 from pypdf import PdfReader
-r = PdfReader("/mnt/user-data/uploads/<file>")
+r = PdfReader("docs/inputs/<file>.pdf")
 text = "\n".join(page.extract_text() for page in r.pages)
 print(text)
 ```
 
 **DOCX:**
 ```bash
-pandoc /mnt/user-data/uploads/<file>.docx -t markdown
+pandoc docs/inputs/<file>.docx -t markdown
 ```
 
 **MD / TXT:**
 ```bash
-cat /mnt/user-data/uploads/<file>.md
+cat docs/inputs/<file>.md
 ```
 
 Always read the full document before generating anything.
