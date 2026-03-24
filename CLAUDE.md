@@ -49,8 +49,8 @@ docs/
 │   └── E-XXX_slug/
 │       ├── epic.md
 │       └── stories/
-├── plans/                                 ← Technical implementation plans
-├── specs/                                 ← Additional technical specs
+├── plans/                                 ← Implementation plans — written by devs per story (after spec)
+├── specs/                                 ← Technical specs — written by devs per story (before plan)
 └── adrs/                                  ← Architecture Decision Records
 ```
 
