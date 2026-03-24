@@ -97,10 +97,17 @@ docs/
 │   └── E-XXX_slug/
 │       ├── epic.md
 │       └── stories/
-├── plans/                      ← Technical implementation plans
-├── specs/                      ← Additional technical specs
+├── plans/                      ← Implementation plans — written by devs per story (after spec)
+├── specs/                      ← Technical specs — written by devs per story (before plan)
 └── adrs/                       ← Architecture Decision Records
 ```
+
+**`docs/specs/` and `docs/plans/`** are created by developers when working on each story — not by the planning skills. The per-story flow is:
+
+1. **Technical spec** (`docs/specs/`) — the dev analyzes the story, documents the technical approach, dependencies, and design decisions.
+2. **Implementation plan** (`docs/plans/`) — once the spec is approved, the dev details the concrete implementation steps.
+
+These artifacts are owned by the development team and are elaborated during sprint execution.
 
 ---
 
