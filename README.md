@@ -44,7 +44,7 @@ The process has two parallel tracks that converge at the epic level:
                                           │
                                  ┌────────▼───────────┐
                                  │     Stories (HUs)  │
-                                 │  skill-3 🚧        │
+                                 │  skill-3 ✅        │
                                  │  Lives in: repo    │
                                  │  docs/epics/       │
                                  │  E-XXX_name/       │
@@ -66,7 +66,7 @@ The process has two parallel tracks that converge at the epic level:
 
 | Artifact | Who creates it | Tool | Where it lives |
 |---|---|---|---|
-| Design Doc | PM / CTO — manually | — | Lark Wiki |
+| Design Doc | PM / Tech Lead — manually | — | Lark Wiki |
 | Project Context | AI-assisted | skill-0 | `docs/project_context.md` (repo) |
 | Spec Funcional | AI-assisted | skill-1 | Lark Wiki |
 | Epic (`epic.md`) | AI-assisted | skill-2 | `docs/epics/E-XXX_name/epic.md` (repo) |
@@ -162,7 +162,7 @@ Supports upsert — existing records are updated, new records are created. Requi
 
 ### 1. Write the Design Doc (manual)
 
-The PM or CTO writes the Design Doc in Lark Wiki. This is the primary source of truth for the product. It covers product vision, flows, integrations, security constraints, and the full epic list.
+The PM or Tech Lead writes the Design Doc in Lark Wiki. This is the primary source of truth for the product. It covers product vision, flows, integrations, security constraints, and the full epic list.
 
 No skill yet — this step is manual.
 
