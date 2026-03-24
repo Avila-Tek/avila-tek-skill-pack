@@ -17,11 +17,17 @@ avila-tek-skill-pack/
     │   ├── SKILL.md                       ← Generates Spec Funcional (Lark Wiki)
     │   └── references/
     │       └── template.md                ← Spec Funcional canonical template
-    ├── 2-epic-generator/
-    │   └── SKILL.md                       ← Generates docs/epics/E-XXX_slug/epic.md
-    ├── 3-story-generator/
+    ├── 2-technical-design-document/
+    │   ├── SKILL.md                       ← Generates TDD (.docx/.md)
+    │   └── references/
+    │       └── template.md                ← TDD canonical template
+    ├── 3-epic-generator/
+    │   ├── SKILL.md                       ← Generates docs/epics/E-XXX_slug/epic.md
+    │   └── references/
+    │       └── template.md                ← Epic document canonical template
+    ├── 4-story-generator/
     │   └── SKILL.md                       ← Generates docs/epics/E-XXX_slug/stories/
-    └── 4-write-epics-and-hu-in-base/
+    └── 5-write-epics-and-hu-in-base/
         └── SKILL.md                       ← Syncs epics + stories to Lark Base
 ```
 
@@ -66,9 +72,10 @@ docs/
 |---|---|---|---|
 | 0 | project-context-generator | ✅ | "generate project context", "create master context" |
 | 1 | functional-spec-generator | ✅ | "generate functional spec", "spec funcional" |
-| 2 | epic-generator | 🚧 | "generate epic for E-XXX" |
-| 3 | story-generator | ✅ | "generate stories for E-XXX" |
-| 4 | lark-backlog-sync | ✅ | "sync to Lark", "push E-XXX to Lark" |
+| 2 | technical-design-document | 🚧 | "generate a technical design", "write a design doc", "create a TDD" |
+| 3 | epic-generator | 🚧 | "generate epic for E-XXX" |
+| 4 | story-generator | ✅ | "generate stories for E-XXX" |
+| 5 | lark-backlog-sync | ✅ | "sync to Lark", "push E-XXX to Lark" |
 
 ---
 
@@ -78,7 +85,7 @@ docs/
 - YAML frontmatter with `name` and `description` fields required
 - `description` must start with a trigger phrase pattern (what the user says to activate it)
 - Supporting reference files go in `skills/{name}/references/` — only create them if content exceeds ~100 lines
-- Skills are numbered by process order (0 → 4), not by importance
+- Skills are numbered by process order (0 → 5), not by importance
 - Never duplicate content between skills — cross-reference instead
 
 ---
@@ -90,9 +97,10 @@ docs/
 | Design Doc | Lark Wiki | Team (manual) |
 | project_context.md | Repo (`docs/`) | skill-0 |
 | Spec Funcional | Lark Wiki | skill-1 |
-| epic.md | Repo (`docs/epics/`) | skill-2 |
-| Story `.md` files | Repo (`docs/epics/E-XXX/stories/`) | skill-3 |
-| Lark Base records | Lark Base | skill-4 |
+| TDD (.docx/.md) | Repo (`docs/`) or download | skill-2 |
+| epic.md | Repo (`docs/epics/`) | skill-3 |
+| Story `.md` files | Repo (`docs/epics/E-XXX/stories/`) | skill-4 |
+| Lark Base records | Lark Base | skill-5 |
 
 ---
 
