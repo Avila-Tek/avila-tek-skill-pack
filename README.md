@@ -81,6 +81,9 @@ All planning artifacts that live in the repo follow this layout:
 
 ```
 docs/
+├── inputs/                     ← Source documents (Design Docs, Intake Briefs) — see below
+│   ├── design_doc.pdf          ← Download from Lark Wiki and place here
+│   └── intake_brief.docx       ← Or any other input document
 ├── project_context.md          ← Master context (single source of truth)
 ├── epics/
 │   ├── E-000_tech_platform/
@@ -158,6 +161,34 @@ Supports upsert — existing records are updated, new records are created. Requi
 
 ---
 
+## Placing Input Documents
+
+Before running any skill, download the source documents from Lark Wiki and place them in `docs/inputs/` inside your project repository.
+
+```
+your-project/
+└── docs/
+    └── inputs/
+        ├── design_doc.pdf        ← Design Doc exported from Lark Wiki
+        └── intake_brief.docx     ← Or an Intake Brief, if that's your starting point
+```
+
+**How to do it:**
+
+1. Open the Design Doc in Lark Wiki
+2. Export it as PDF or DOCX (top-right menu → Export)
+3. Create the folder `docs/inputs/` in your project repo if it doesn't exist
+4. Move the downloaded file into `docs/inputs/`
+5. Commit the file (optional but recommended so the whole team has the source)
+
+When you run a skill, point it to the file:
+
+> "Generate the project context from `docs/inputs/design_doc.pdf`"
+
+Skills also accept files dragged into the Claude Code chat window — but placing them in `docs/inputs/` keeps a persistent record and lets the whole team run skills without re-uploading.
+
+---
+
 ## Step-by-Step Workflow
 
 ### 1. Write the Design Doc (manual)
@@ -168,9 +199,9 @@ No skill yet — this step is manual.
 
 ### 2. Generate the Project Context
 
-Open Claude Code in the project repository and run:
+Place the Design Doc in `docs/inputs/` (see [Placing Input Documents](#placing-input-documents)), then open Claude Code in the project repository and run:
 
-> "Generate the project context from this design doc"
+> "Generate the project context from `docs/inputs/design_doc.pdf`"
 
 The skill will ask clarifying questions, then write `docs/project_context.md`. This document is referenced by all downstream artifacts — keep it updated as the project evolves.
 
@@ -178,7 +209,7 @@ The skill will ask clarifying questions, then write `docs/project_context.md`. T
 
 For each epic you are about to plan:
 
-> "Generate a functional spec for the [epic name] epic from this design doc"
+> "Generate a functional spec for the [epic name] epic from `docs/inputs/design_doc.pdf`"
 
 The skill produces a structured Spec Funcional and saves it as a DOCX. Upload it to Lark Wiki under the project's Design Docs space. This is optional but strongly recommended — it surfaces ambiguities before stories are written.
 
