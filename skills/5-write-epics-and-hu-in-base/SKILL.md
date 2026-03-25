@@ -97,11 +97,11 @@ Read every `.md` file inside `stories/` for each epic. Extract fields from markd
 |----------------------------------------------|------------------------|----------------------------------------------------------------------------------------------------|
 | Filename `E-XXX_S-YYY_slug.md`              | `id`                   | Extract `E-\d{3}_S-\d{3}` regex from the filename                                                 |
 | `# Story E-XXX_S-YYY — Name`               | `name`                 | Text after ` — ` to end of line                                                                    |
-| `## 0) Snapshot` → `**Parent Epic:**`        | `epic`                 | Extract `E-\d{3}` from the Parent Epic value                                                      |
-| `## 0) Snapshot` → `**Status:**`             | `status`               | Value after `**Status:**`                                                                          |
-| `## 1) User story`                           | `description`          | Full paragraph content of the section                                                              |
-| `## 3) Acceptance criteria`                  | `acceptanceCriteria`   | Full numbered/bulleted list content                                                                |
-| `## 10) Open questions`                      | `questions`            | Full content of the section. If the section doesn't exist or is empty, use `""`                    |
+| Snapshot table row `**Epic**`               | `epic`                 | Extract `E-\d{3}` from the Epic row value                                                         |
+| Snapshot table row `**Status**`             | `status`               | Value in the Status row                                                                            |
+| `## 1) User story` or `## User story`        | `description`          | Full paragraph content of the section                                                              |
+| `## Acceptance criteria` (any number prefix) | `acceptanceCriteria`   | Full list content — match by section name, ignore leading `## N)` number                          |
+| `## Open questions` (any number prefix)      | `questions`            | Full content. Match by name, ignore leading number. If section absent or empty, use `""`          |
 
 **Variable fields:** Stories may also contain `priority`, `readiness`, `tShirtSize`, or
 `dependencies`. Apply the same logic as epics:

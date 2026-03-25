@@ -68,12 +68,14 @@ docs/
 
 ## Skills
 
+> **Note:** "TDD" in this project means **Technical Design Document**, not Test-Driven Development.
+
 | # | Skill | Status | Trigger |
 |---|---|---|---|
 | 0 | project-context-generator | ✅ | "generate project context", "create master context" |
 | 1 | functional-spec-generator | ✅ | "generate functional spec", "spec funcional" |
-| 2 | technical-design-document | 🚧 | "generate a technical design", "write a design doc", "create a TDD" |
-| 3 | epic-generator | 🚧 | "generate epic for E-XXX" |
+| 2 | technical-design-document | ✅ | "generate a technical design", "write a design doc", "create a TDD" |
+| 3 | epic-generator | ✅ | "generate epics", "genera las épicas", "break this spec into epics" |
 | 4 | story-generator | ✅ | "generate stories for E-XXX" |
 | 5 | lark-backlog-sync | ✅ | "sync to Lark", "push E-XXX to Lark" |
 

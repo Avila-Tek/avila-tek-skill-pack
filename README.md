@@ -14,6 +14,8 @@ Planning knowledge lives in people's heads, scattered docs, and lost Slack threa
 
 ## The Planning Process
 
+> **Note:** "TDD" in this project means **Technical Design Document** — not Test-Driven Development.
+
 The process has two parallel tracks that converge at the epic level:
 
 ```
@@ -32,19 +34,19 @@ The process has two parallel tracks that converge at the epic level:
           │  project_context │   │  Lives in:         │
           │  .md             │   │  Lark Wiki         │
           └──────────────────┘   └────────┬───────────┘
-                                          │
-                                 ┌────────▼───────────┐
-                                 │      Epic          │
-                                 │  skill-2 🚧        │
-                                 │  Lives in: repo    │
-                                 │  docs/epics/       │
-                                 │  E-XXX_name/       │
-                                 │  epic.md           │
-                                 └────────┬───────────┘
+                                          │         │
+                                 ┌────────▼───────┐ │ ┌──────────────────────┐
+                                 │      Epic      │ └─► TDD (optional)       │
+                                 │  skill-3 🚧    │   │  skill-2 🚧           │
+                                 │  Lives in: repo│ ◄─┤  Enriches epics with  │
+                                 │  docs/epics/   │   │  technical details    │
+                                 │  E-XXX_name/   │   │  if available         │
+                                 │  epic.md       │   └──────────────────────┘
+                                 └────────┬───────┘
                                           │
                                  ┌────────▼───────────┐
                                  │     Stories (HUs)  │
-                                 │  skill-3 ✅        │
+                                 │  skill-4 ✅        │
                                  │  Lives in: repo    │
                                  │  docs/epics/       │
                                  │  E-XXX_name/       │
@@ -53,7 +55,7 @@ The process has two parallel tracks that converge at the epic level:
                                           │
                                  ┌────────▼───────────┐
                                  │   Lark Base Sync   │
-                                 │  skill-4 ✅        │
+                                 │  skill-5 ✅        │
                                  │  Pushes epics +    │
                                  │  stories to the    │
                                  │  project Base      │
@@ -69,9 +71,10 @@ The process has two parallel tracks that converge at the epic level:
 | Design Doc | PM / Tech Lead — manually | — | Lark Wiki |
 | Project Context | AI-assisted | skill-0 | `docs/project_context.md` (repo) |
 | Spec Funcional | AI-assisted | skill-1 | Lark Wiki |
-| Epic (`epic.md`) | AI-assisted | skill-2 | `docs/epics/E-XXX_name/epic.md` (repo) |
-| Stories | AI-assisted | skill-3 | `docs/epics/E-XXX_name/stories/` (repo) |
-| Lark Base records | Automated | skill-4 | Lark Base |
+| TDD (Technical Design Document) | AI-assisted | skill-2 | `docs/` (repo) or download (.docx/.md) |
+| Epic (`epic.md`) | AI-assisted | skill-3 ✅ | `docs/epics/E-XXX_name/epic.md` (repo) |
+| Stories | AI-assisted | skill-4 | `docs/epics/E-XXX_name/stories/` (repo) |
+| Lark Base records | Automated | skill-5 | Lark Base |
 
 ---
 
@@ -136,27 +139,38 @@ The Spec Funcional is the bridge between the Design Doc and the engineering back
 - **Where it lives:** Lark Wiki (under Design Docs)
 - **Trigger phrases:** "generate the spec for this epic", "create a functional spec", "spec funcional"
 
-### skill-2 — Epic Generator 🚧
+### skill-2 — Technical Design Document (TDD) ✅
 
-Generates `epic.md` from a Spec Funcional or Design Doc for a specific epic.
+Generates a comprehensive **Technical Design Document** from a brief requirement description or uploaded file.
 
-The epic file is the engineering entry point. It contains the objective, scope, acceptance criteria, open questions, and all metadata needed for development to begin.
+The TDD is the technical blueprint for a feature or product. It documents the problem, solution architecture, specific flows (E-XXX), component diagram, data model, API design, security considerations, and all Mermaid diagrams — giving engineers everything they need to understand, review, and implement the solution. Once complete, the TDD feeds directly into the epic generator (skill-3).
 
-- **Input:** Spec Funcional (recommended) or Design Doc section
+- **Input:** Requirement description (text), or uploaded file (PDF/DOCX/MD)
+- **Output:** `tdd_<feature_name>.docx` (default) or `.md`
+- **Sections:** Problem, Scope, Business Rules, Specific Flows (E-XXX), Component Architecture, Data Model, API Design, Security, Integrations
+- **Trigger phrases:** "generate a technical design", "write a design doc", "create a TDD", "genera el diseño técnico"
+
+### skill-3 — Epic Generator ✅
+
+Generates individual Epic documents from a Spec Funcional (primary). TDD enriches epics with technical details if available.
+
+- **Input:** Spec Funcional (required) + TDD (optional, enriches technical detail)
 - **Output:** `docs/epics/E-XXX_slug/epic.md`
-- **Status:** Under construction
+- **Trigger phrases:** "generate epics", "genera las épicas", "break this spec into epics"
 
-### skill-3 — Story Generator ✅
+### skill-4 — Story Generator ✅
 
-Generates all user stories (HUs) for an epic from its `epic.md`.
+Generates all user stories (HUs) for an epic from its `epic.md`. Before generating, the skill resolves open questions with the operator — the final document contains no ambiguities.
 
-Each story follows a consistent structure with user story statement, acceptance criteria, dependencies, t-shirt size, readiness, and open questions. Stories are written to be independently implementable by a developer.
+Each story has two blocks:
+- **Block A** — user story, acceptance criteria, and effort ranking (Must / Important / Optional / Nice to have). Sufficient for estimation.
+- **Block B** — technical scope, business rules, data model, telemetry, and testing notes. Omitted if not applicable.
 
 - **Input:** `epic.md`
 - **Output:** `docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug.md` (one file per story)
 - **Trigger phrases:** "generate stories for E-XXX", "write the stories for this epic"
 
-### skill-4 — Lark Base Sync ✅
+### skill-5 — Lark Base Sync ✅
 
 Reads epic and story `.md` files from the repo, translates content to Spanish, and pushes them to the Lark Base via the Avila Tools API.
 
@@ -220,19 +234,27 @@ For each epic you are about to plan:
 
 The skill produces a structured Spec Funcional and saves it as a DOCX. Upload it to Lark Wiki under the project's Design Docs space. This is optional but strongly recommended — it surfaces ambiguities before stories are written.
 
-### 4. Generate the Epic
+### 4. Generate the Technical Design Document (TDD) (optional)
 
-> "Generate the epic for [Epic Name] from the spec"
+> "Generate a technical design from `docs/inputs/design_doc.pdf`"
 
-The skill creates `docs/epics/E-XXX_slug/epic.md` with the full epic structure.
+Applies to projects with high technical complexity. Can be skipped if the Spec Funcional provides enough detail for the team to proceed.
 
-### 5. Generate Stories
+The skill asks a few clarifying questions, then produces a TDD with the full solution architecture: specific flows (E-XXX), component diagram, data model, API endpoints, security considerations, and Mermaid diagrams. Output is a `.docx` by default.
+
+### 5. Generate the Epics
+
+> "Generate epics from the Spec Funcional"
+
+The skill reads the Spec Funcional, lists the epics it found (E-001, E-002, ...), and asks which ones to generate. Each epic becomes a `docs/epics/E-XXX_slug/epic.md`. If the TDD is available, the skill uses it automatically to enrich the epics with technical details.
+
+### 6. Generate Stories
 
 > "Generate stories for E-XXX from the epic"
 
-The skill reads the `epic.md` and creates one `.md` file per story under `docs/epics/E-XXX_slug/stories/`.
+The skill reads the `epic.md`, resolves any ambiguities with the operator before generating, then creates one `.md` file per story under `docs/epics/E-XXX_slug/stories/`. Block A (user story + AC + effort ranking) is sufficient for estimation — developers can read Block B for technical detail when implementing.
 
-### 6. Sync to Lark Base
+### 8. Sync to Lark Base
 
 Once epics and stories are committed to the repo:
 
