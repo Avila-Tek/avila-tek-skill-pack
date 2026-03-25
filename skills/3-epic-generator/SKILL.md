@@ -1,55 +1,40 @@
 ---
 name: epic-doc-generator
 description: >
-  Generates individual Epic documents from a Technical Design Document (TDD). Each epic gets its
-  own structured document with objective, scope, workflow, KPIs, user stories, acceptance criteria,
-  and technical notes. Use this skill whenever the user wants to generate epics from a TDD, break
-  down a design doc into epics, create epic documents, "genera las épicas", "crea los documentos
-  de épica", "break this TDD into epics", "generate epic docs from the design", or asks to produce
-  backlog-ready epic files. Also trigger when the user has just finished a TDD (via the
-  technical-design-doc skill) and wants to continue into epic generation. Supports both uploaded
-  TDD files (PDF, DOCX, MD) and chaining from a TDD generated in the same session. Outputs .md
-  by default, .docx on request. If someone mentions "epic document", "epic breakdown", or
-  "épica" in the context of a design doc, use this skill.
+  Generates individual Epic documents from a Spec Funcional (primary) and optionally a Technical
+  Design Document (TDD). Each epic gets its own structured document with objective, scope,
+  workflow, KPIs, user stories, acceptance criteria, and technical notes. Use this skill whenever
+  the user wants to generate epics, break down a feature into epics, create epic documents,
+  "genera las épicas", "crea los documentos de épica", "break this spec into epics",
+  "generate epic docs from the design", or asks to produce backlog-ready epic files. Also trigger
+  when the user has just finished a Spec Funcional or TDD and wants to continue into epic
+  generation. Supports uploaded files (PDF, DOCX, MD) and chaining from the same session.
+  Outputs .md by default, .docx on request. TDD is optional — if not available, epics are
+  generated from the Spec Funcional alone.
 ---
 
 # Epic Document Generator
 
-Generates individual **Epic documents** from a Technical Design Document (TDD). Each epic
-identified in the TDD's section 5.3 (Specific Flows / Epics) becomes a standalone document
-that an engineering team can use for sprint planning, backlog management, and implementation.
+Generates individual **Epic documents** from a **Spec Funcional** (primary source) and an
+optional **Technical Design Document (TDD)**. Each epic identified in the Spec Funcional's
+section 5 "Definición de Flujos" becomes a standalone document that an engineering team can
+use for sprint planning, backlog management, and implementation.
 
 **Audience**: Engineering teams, product managers, tech leads, scrum masters.
 **Output format**: `.md` by default; `.docx` if the user requests it.
-**Language**: Match the language of the input TDD. If Spanish, write in Spanish. If English,
-write in English.
+**Language**: Match the language of the input documents. If Spanish, write in Spanish. If
+English, write in English.
+
+> **Note:** "TDD" in this project means **Technical Design Document**, not Test-Driven
+> Development. The TDD is always optional — epics can be generated from the Spec Funcional alone.
 
 ---
 
-## Step 1 — Obtain the TDD Content
+## Step 1 — Obtain Input Documents
 
-The TDD can arrive in two ways. Determine which applies:
+### A) Spec Funcional (required — primary source)
 
-### A) Chained from the same session
-
-If a TDD was just generated (via the `technical-design-doc` skill or manually) in this
-conversation, the content is already available. Look for the TDD output file:
-
-```bash
-# Check if a TDD was already generated in this session
-ls /mnt/user-data/outputs/tdd_*
-```
-
-If found, read it:
-```bash
-cat /mnt/user-data/outputs/tdd_*.md
-# or for docx:
-pandoc /mnt/user-data/outputs/tdd_*.docx -t markdown
-```
-
-### B) Uploaded file
-
-Read the uploaded TDD file using the appropriate method:
+Look for an uploaded or linked Spec Funcional. It can arrive as:
 
 **PDF:**
 ```python
@@ -69,40 +54,66 @@ pandoc /mnt/user-data/uploads/<file>.docx -t markdown
 cat /mnt/user-data/uploads/<file>
 ```
 
-### C) No TDD available
+If the Spec Funcional was generated in this session (via the `functional-spec-generator` skill),
+use the content already available in the conversation — don't re-read.
 
-If no TDD is found and the user hasn't uploaded one, explain that this skill needs a TDD as
-input and offer two paths:
-1. "Upload a Technical Design Document and I'll generate the epics from it."
-2. "Describe your feature and I can generate the TDD first, then break it into epics."
+### B) TDD (optional — technical complement)
+
+If the user also provides a TDD, read it using the same methods above. The TDD enriches the
+epics with technical details (architecture, data model, APIs, security) but is not required.
+
+If the user has not provided a TDD, note that it is not available and proceed without it.
+
+### C) No Spec Funcional available
+
+If no Spec Funcional is found, explain that this skill needs one as primary input and offer:
+1. "Upload a Spec Funcional and I'll generate the epics from it."
+2. "Describe your feature and I can generate the Spec Funcional first, then break it into epics."
+
+If only a TDD is available (no Spec Funcional), use the TDD's section 5.3 as the fallback
+source for epic extraction and proceed.
 
 ---
 
-## Step 2 — Extract Epics from the TDD
+## Step 2 — Extract Epics from the Spec Funcional
 
-Parse the TDD and extract the following for each epic found in section 5.3:
+### Primary extraction — Spec Funcional section 5 "Definición de Flujos"
+
+Parse section 5 of the Spec Funcional and extract the following for each flow/epic:
 
 For each epic (E-001, E-002, ...):
-- **Epic ID**: the `E-XXX` identifier
+- **Epic ID**: assign sequentially (E-001, E-002, ...) based on flow order in section 5, or use
+  existing E-XXX identifiers if already present
 - **Title**: the flow/epic name
-- **Flow Objective**: from the TDD
+- **Flow Objective**: the purpose of this flow described in the Spec Funcional
 - **User Type**: who interacts with this flow
-- **Participating Systems**: services, databases, external APIs involved
-- **Business Rules**: the BR-XX rules that apply (from TDD section 5.1)
 - **Flow Description**: the step-by-step process
-- **Diagrams**: any Mermaid diagrams associated with this flow
+- **Business Rules**: any BR-XX rules mentioned in the flow or in the Spec Funcional's rules section
 
-Also extract global context that applies to all epics:
-- **Problem statement** (TDD section 1)
-- **Glossary** (TDD section 2, if present)
-- **Global scope** (TDD section 3)
-- **Component architecture** (TDD section 5.4)
-- **Data model** (TDD section 5.5, if present)
-- **API design** (TDD section 5.6, if present)
-- **Security considerations** (TDD section 5.8, if present)
+Also extract global context from the Spec Funcional:
+- **Problem statement / background**
+- **Glossary** (if present)
+- **Global scope and constraints**
 
-If the TDD doesn't use E-XXX identifiers, assign them sequentially based on the order of
-flows in section 5.3 (first flow → E-001, second → E-002, etc.).
+### Fallback — TDD section 5.3 (only if Spec Funcional not available)
+
+If no Spec Funcional is available, extract epics from the TDD's section 5.3 "Specific Flows /
+Epics" using the same structure above.
+
+### TDD enrichment (if TDD is available)
+
+If a TDD was provided, enrich each epic with technical context from the TDD:
+- **Component architecture** (TDD section 5.4) — which services and components are involved
+- **Data model impact** (TDD section 5.5) — tables, entities, or fields affected
+- **API design** (TDD section 5.6) — relevant endpoints for this epic
+- **Security considerations** (TDD section 5.8) — auth, validation, and security constraints
+
+Add this technical enrichment to each epic's "Technical Notes" section (section 6 of the
+epic template). If the TDD is not available, derive technical notes from the Spec Funcional
+alone or mark them as `[TO BE DEFINED]`.
+
+If the TDD doesn't use E-XXX identifiers, assign them sequentially based on flow order
+(first flow → E-001, second → E-002, etc.).
 
 ---
 

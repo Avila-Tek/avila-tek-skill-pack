@@ -16,6 +16,7 @@ description: >
 Generates a complete **Spec Funcional** document from a written design document (PDF, DOCX, or MD).
 Audience: mixed stakeholders (developers, QA, product managers).
 Output format: flexible — infer from user context (default: `.docx`; also supports `.md`).
+Output language: **always Spanish**, regardless of the input document language.
 
 ---
 
@@ -54,7 +55,7 @@ Always read the full document before generating anything.
 
 ## Step 2 — Identify the Target Epic
 
-The design doc may describe multiple épicas. If the user named a specific one, extract only that epic's content. If no epic was specified and there are multiple, ask the user which one to spec.
+The design doc may describe multiple epics. If the user named a specific one, extract only that epic's content. If no epic was specified and there are multiple, ask the user which one to spec.
 
 ---
 
@@ -64,10 +65,10 @@ Before writing, identify from the design doc:
 - The epic name and goal (in 2–4 bullet points, not a paragraph)
 - Actors: users, internal systems, third-party services
 - Flows described (explicit or implicit) — each becomes a named flow in section 4
-- Business/functional rules
+- Business and functional rules
 - Integrations and their data contracts
 - States of key objects (lifecycle)
-- Cases borde (edge cases) named and grouped
+- Edge cases — named and grouped
 - Data fields and validations per flow
 - Any genuinely open questions (only include if actually unresolved in the doc)
 
@@ -75,9 +76,9 @@ Before writing, identify from the design doc:
 
 ## Step 4 — Generate the Spec
 
-Populate ALL 10 sections using the canonical template below. The structure is **mandatory and fixed** — never add, remove, or rename sections. Write in the **same language as the design doc**.
+Populate ALL 10 sections using the canonical template below. The structure is **mandatory and fixed** — never add, remove, or rename sections. Write the output **always in Spanish**.
 
-### 🚫 No-invention rule (mandatory, no exceptions)
+### No-invention rule (mandatory, no exceptions)
 
 **Every piece of content in the spec must come directly and explicitly from the design doc. Never invent, infer, assume, or extrapolate anything not written in the doc.**
 
@@ -88,18 +89,20 @@ Populate ALL 10 sections using the canonical template below. The structure is **
 - When information for a field is missing: use `[PENDIENTE: descripción de qué falta]`. This is the only acceptable way to handle gaps.
 - When in doubt about whether something is in the doc: do not include it — use `[PENDIENTE]`.
 
-### ⚠️ Formatting rules (mandatory)
+### Formatting rules (mandatory)
 
-- Every bullet in sections 1, 2, 3, 6, 7, 8, 9, 10 uses **bold_prefix + texto** format: the field label is bold, followed by the content. Example: `• Objetivo de la épica: [contenido]` where "Objetivo de la épica:" is bold.
+- Every bullet in sections 1, 2, 3, 6, 7, 8, 9, 10 uses **bold_prefix + text** format: the field label is bold, followed by the content. Example: `• Objetivo de la épica: [contenido]` where "Objetivo de la épica:" is bold.
 - Section 5 flows follow the exact sub-structure: Entrada, Proceso del Sistema, Bloqueos Funcionales, Integración, Resultado final — then Detalles with: Reglas funcionales, Casos bordes, Datos y validaciones del flujo, Estados funcionales.
 - Keep language functional. Avoid unnecessary technical implementation details unless they are explicit functional requirements in the design doc.
 - If information for a field is missing: use `[PENDIENTE: descripción de qué falta]` — never skip or leave blank.
 
 ---
 
-## Canonical Spec Template (10 secciones — OBLIGATORIAS)
+## Canonical Spec Template (10 sections — MANDATORY)
 
-### Encabezado
+The template below defines the exact output structure. All section names and field labels are in Spanish and must be reproduced exactly as written here.
+
+### Header
 
 ```
 Spec Funcional: [Nombre de la Épica]
@@ -133,7 +136,7 @@ Spec Funcional: [Nombre de la Épica]
 
 ### 4. Reglas de negocio aplicables a la épica
 
-Reglas globales que rigen toda la funcionalidad, independientemente del flujo.
+Global rules that govern the entire functionality, regardless of the specific flow.
 
 - [Regla 1]
 - [Regla 2]
@@ -143,7 +146,7 @@ Reglas globales que rigen toda la funcionalidad, independientemente del flujo.
 
 ### 5. Definición de Flujos (Step-by-Step)
 
-Repetir para N flujos.
+Repeat for each flow (N flows total).
 
 **Flujo [A]: [Nombre del Flujo]**
 - **Entrada:** [Punto de inicio y acción que dispara el flujo].
@@ -162,7 +165,7 @@ Repetir para N flujos.
 
 ### 6. Integraciones externas
 
-Repetir para N integraciones.
+Repeat for each integration (N integrations total).
 
 **[Nombre del Servicio/API]**
 - **Se usa para:** [En qué flujos interviene y con qué propósito].
@@ -197,7 +200,7 @@ Repetir para N integraciones.
 
 - **[Duda 1]:** [Temas técnicos o de negocio pendientes de definición].
 - **[Duda 2]:** [Limitaciones de terceros por confirmar].
-- Si no hay preguntas abiertas genuinas: escribir un único bullet `N/A`.
+- If there are no genuine open questions: write a single bullet `N/A`.
 
 ---
 
@@ -236,7 +239,7 @@ Output to `/mnt/user-data/outputs/spec_funcional_<epic_name>.md`
 - [ ] Every bullet uses bold_prefix + text format
 - [ ] Section 5 flows each have: Entrada, Proceso del Sistema, Bloqueos Funcionales, Integración, Resultado final + Detalles (Reglas funcionales, Casos bordes, Datos y validaciones, Estados funcionales)
 - [ ] Missing info uses `[PENDIENTE: ...]` — never skipped
-- [ ] Language matches the input document
+- [ ] Output is written in Spanish regardless of the input language
 
 ---
 
@@ -246,6 +249,6 @@ Template source: `/mnt/skills/functional-spec-generator/references/template.md`
 For DOCX creation: `/mnt/skills/public/docx/SKILL.md`
 For reading input files: `/mnt/skills/public/file-reading/SKILL.md`
 
-## ⚠️ Final reminder before generating
+## Final reminder before generating
 
 Before writing a single word of content: ask yourself for each field — **"Is this explicitly in the design doc?"** If the answer is not a clear yes, write `[PENDIENTE]` instead.
