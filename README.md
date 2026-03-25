@@ -37,7 +37,7 @@ The process has two parallel tracks that converge at the epic level:
                                           │         │
                                  ┌────────▼───────┐ │ ┌──────────────────────┐
                                  │      Epic      │ └─► TDD (optional)       │
-                                 │  skill-3 🚧    │   │  skill-2 🚧           │
+                                 │  skill-3 ✅    │   │  skill-2 ✅           │
                                  │  Lives in: repo│ ◄─┤  Enriches epics with  │
                                  │  docs/epics/   │   │  technical details    │
                                  │  E-XXX_name/   │   │  if available         │
@@ -71,8 +71,8 @@ The process has two parallel tracks that converge at the epic level:
 | Design Doc | PM / Tech Lead — manually | — | Lark Wiki |
 | Project Context | AI-assisted | skill-0 | `docs/project_context.md` (repo) |
 | Spec Funcional | AI-assisted | skill-1 | Lark Wiki |
-| TDD (Technical Design Document) | AI-assisted | skill-2 | `docs/` (repo) or download (.docx/.md) |
-| Epic (`epic.md`) | AI-assisted | skill-3 ✅ | `docs/epics/E-XXX_name/epic.md` (repo) |
+| TDD (Technical Design Document) | AI-assisted | skill-2 | `docs/epics/E-XXX_name/tdd_*.docx` (repo) or download |
+| Epic (`epic.md`) | AI-assisted | skill-3 | `docs/epics/E-XXX_name/epic.md` (repo) |
 | Stories | AI-assisted | skill-4 | `docs/epics/E-XXX_name/stories/` (repo) |
 | Lark Base records | Automated | skill-5 | Lark Base |
 
@@ -91,6 +91,7 @@ docs/
 ├── epics/
 │   ├── E-000_tech_platform/
 │   │   ├── epic.md
+│   │   ├── tdd_tech_platform.docx  ← TDD (skill-2, optional — same level as epic.md)
 │   │   └── stories/
 │   │       ├── E-000_S-001_monorepo_bootstrap.md
 │   │       └── E-000_S-002_app_scaffolding.md
@@ -254,7 +255,7 @@ The skill reads the Spec Funcional, lists the epics it found (E-001, E-002, ...)
 
 The skill reads the `epic.md`, resolves any ambiguities with the operator before generating, then creates one `.md` file per story under `docs/epics/E-XXX_slug/stories/`. Block A (user story + AC + effort ranking) is sufficient for estimation — developers can read Block B for technical detail when implementing.
 
-### 8. Sync to Lark Base
+### 7. Sync to Lark Base
 
 Once epics and stories are committed to the repo:
 
@@ -306,11 +307,17 @@ your-project/
         │   ├── SKILL.md
         │   └── references/
         │       └── template.md
-        ├── 2-epic-generator/
+        ├── 2-technical-design-document/
+        │   ├── SKILL.md
+        │   └── references/
+        │       └── template.md
+        ├── 3-epic-generator/
+        │   ├── SKILL.md
+        │   └── references/
+        │       └── template.md
+        ├── 4-story-generator/
         │   └── SKILL.md
-        ├── 3-story-generator/
-        │   └── SKILL.md
-        └── 4-write-epics-and-hu-in-base/
+        └── 5-write-epics-and-hu-in-base/
             └── SKILL.md
 ```
 
