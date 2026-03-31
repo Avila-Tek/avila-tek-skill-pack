@@ -34,24 +34,24 @@ The process has two parallel tracks that converge at the epic level:
           └──────────┬──────────┘
                      │
           ┌──────────▼──────────┐
-          │   Domain Model      │
-          │   (iterative)       │
-          │   skill-1 ✅        │
-          │   docs/             │
-          │   domain_model.md   │
-          └──────────┬──────────┘
-                     │
-          ┌──────────▼──────────┐
-          │   Spec Funcional    │
-          │   (per epic,        │
-          │    recommended)     │
-          │   skill-2 ✅        │
-          │   Lives in:         │
-          │   Lark Wiki         │
-          └──────────┬──────────┘
-                     │         │
-            ┌────────▼───────┐ │ ┌──────────────────────┐
-            │      Epic      │ └─► TDD (optional)       │
+          │   Domain Model      │◄─────────────────────────────┐
+          │   (living doc)      │                              │
+          │   skill-1 ✅        │  Can be created here or      │
+          │   docs/             │  updated at any downstream   │
+          │   domain_model.md   │  stage when new entities     │
+          └──────────┬──────────┘  or rules surface.           │
+                     │                                         │
+          ┌──────────▼──────────┐                             │
+          │   Spec Funcional    │── new entities found ───────►│
+          │   (per epic,        │                             │
+          │    recommended)     │                             │
+          │   skill-2 ✅        │                             │
+          │   Lives in:         │                             │
+          │   Lark Wiki         │                             │
+          └──────────┬──────────┘                             │
+                     │         │                              │
+            ┌────────▼───────┐ │ ┌──────────────────────┐   │
+            │      Epic      │ └─► TDD (optional)       │───┘
             │  skill-4 ✅    │   │  skill-3 ✅           │
             │  Lives in: repo│ ◄─┤  Enriches epics with  │
             │  docs/epics/   │   │  technical details    │
@@ -149,11 +149,12 @@ This is the **canonical shared context** for the entire project — the single d
 
 Generates or iterates `docs/domain_model.md` — the project-level document that captures domain entities, invariants, state lifecycles, domain events, workflows, and the DB schema (DBML).
 
-The Domain Model is a prerequisite for epics and TDDs. It gives AI assistants and engineers a shared vocabulary and data model to reason from. Created once, updated as the domain evolves.
+The Domain Model is a **living document**, not a one-time step. The recommended time to create it is right after the project context — before specs, TDDs, and epics — so downstream artifacts share a consistent vocabulary and data model. However, it can also be generated later (or skipped initially) if the domain is not yet well understood. Run it again whenever specs, TDDs, or epic writing surfaces new entities, invariants, or rules.
 
 - **Input:** `docs/project_context.md` (Domain Glossary + Business Rules) + interactive Q&A
 - **Output:** `docs/domain_model.md`
-- **Cadence:** Created after project context, updated whenever entities or rules change
+- **When to create:** Ideally after project context, before epics and TDDs — but can be done at any stage
+- **When to update:** After writing a spec, TDD, or epic that reveals new domain facts
 - **Trigger phrases:** "generate the domain model", "domain model", "modelo de dominio", "update the domain model"
 
 ### skill-2 — Functional Spec Generator ✅
@@ -261,7 +262,9 @@ The skill will ask clarifying questions, then write `docs/project_context.md`. T
 
 The skill reads `docs/project_context.md` as the vocabulary base and asks one question at a time to explore entities, relationships, invariants, state lifecycles, domain events, and workflows. It never invents facts — gaps are recorded as open questions.
 
-When enough context is gathered, confirm and the skill writes `docs/domain_model.md`. Update it whenever the domain evolves. This document is consumed by the TDD and story generator for data model and business rule accuracy.
+When enough context is gathered, confirm and the skill writes `docs/domain_model.md`.
+
+**This step is flexible.** The recommended time to run it is here — before specs and epics — so the whole team shares a consistent vocabulary from the start. But it can also be skipped initially if the domain is unclear and run later once you have more context. It can be run again at any point: after a spec reveals a new entity, after a TDD introduces a new table, or after epic writing surfaces a new invariant. Each run appends to the change log without rewriting history.
 
 ### 4. Generate Spec Funcionales (per epic)
 

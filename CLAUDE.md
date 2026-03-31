@@ -49,7 +49,7 @@ docs/
 ├── epics/
 │   ├── E-000_slug/
 │   │   ├── epic.md
-│   │   ├── tdd.md                         ← Technical Design Document de la épica
+│   │   ├── tdd.md                         ← Technical Design Document for the epic
 │   │   └── stories/
 │   │       ├── E-000_S-001_slug.md
 │   │       └── E-000_S-002_slug.md
@@ -79,7 +79,7 @@ docs/
 | # | Skill | Status | Trigger |
 |---|---|---|---|
 | 0 | project-context-generator | ✅ | "generate project context", "create master context" |
-| 1 | domain-model-generator | ✅ | "domain model", "generate domain model", "modelo de dominio" |
+| 1 | domain-model-generator | ✅ | "domain model", "generate domain model", "modelo de dominio" — run early or re-run after any spec/TDD/epic |
 | 2 | functional-spec-generator | ✅ | "generate functional spec", "spec funcional" |
 | 3 | technical-design-document | ✅ | "generate a technical design", "write a design doc", "create a TDD" |
 | 4 | epic-generator | ✅ | "generate epics", "genera las épicas", "break this spec into epics" |
