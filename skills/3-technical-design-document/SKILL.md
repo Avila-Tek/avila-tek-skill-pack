@@ -38,7 +38,7 @@ Both paths require a Spec Funcional.
 ## Step 1 — Read Context (mandatory, in order)
 
 1. `docs/project_context.md`
-2. Domain document (`docs/domain.md` or `docs/domain_model.md`) — **required if it exists**
+2. `docs/domain_model.md` — **required if it exists**. Use entity definitions, invariants, state lifecycles, and DBML schema from this document to inform the data model and technical rules sections.
 3. Spec Funcional — **required**. If missing, stop and ask the user to provide one before continuing.
 4. Existing epic files from `docs/epics/` — only if "TDD after epics" path.
 
@@ -116,7 +116,7 @@ Before delivering, verify:
 - [ ] No functional flow descriptions in section 4.3 (Epics)
 - [ ] Glossary is a list (`- **Term**: Definition`), not a table
 - [ ] Component diagram (4.4) is ASCII
-- [ ] Data model section references `docs/domain.md` for entity definitions
+- [ ] Data model section references `docs/domain_model.md` for entity definitions, invariants, and DBML schema
 - [ ] Missing information uses `[TO BE DEFINED]` — never invented
 - [ ] Document is ≤ 500 lines
 - [ ] Language is English

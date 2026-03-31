@@ -23,43 +23,58 @@ The process has two parallel tracks that converge at the epic level:
 │                        INPUT                                    │
 │              Design Doc (written manually by team)              │
 │                    Lives in: Lark Wiki                          │
-└────────────────────┬───────────────────┬────────────────────────┘
-                     │                   │
-          ┌──────────▼──────┐   ┌────────▼───────────┐
-          │  Project Context │   │  Spec Funcional    │
-          │   (iterative)    │   │  (per epic,        │
-          │  skill-0 ✅      │   │   optional but     │
-          │  Lives in: repo  │   │   recommended)     │
-          │  docs/           │   │  skill-1 ✅        │
-          │  project_context │   │  Lives in:         │
-          │  .md             │   │  Lark Wiki         │
-          └──────────────────┘   └────────┬───────────┘
-                                          │         │
-                                 ┌────────▼───────┐ │ ┌──────────────────────┐
-                                 │      Epic      │ └─► TDD (optional)       │
-                                 │  skill-3 ✅    │   │  skill-2 ✅           │
-                                 │  Lives in: repo│ ◄─┤  Enriches epics with  │
-                                 │  docs/epics/   │   │  technical details    │
-                                 │  E-XXX_name/   │   │  if available         │
-                                 │  epic.md       │   └──────────────────────┘
-                                 └────────┬───────┘
-                                          │
-                                 ┌────────▼───────────┐
-                                 │     Stories (HUs)  │
-                                 │  skill-4 ✅        │
-                                 │  Lives in: repo    │
-                                 │  docs/epics/       │
-                                 │  E-XXX_name/       │
-                                 │  stories/          │
-                                 └────────┬───────────┘
-                                          │
-                                 ┌────────▼───────────┐
-                                 │   Lark Base Sync   │
-                                 │  skill-5 ✅        │
-                                 │  Pushes epics +    │
-                                 │  stories to the    │
-                                 │  project Base      │
-                                 └────────────────────┘
+└────────────────────┬────────────────────────────────────────────┘
+                     │
+          ┌──────────▼──────────┐
+          │   Project Context   │
+          │    (iterative)      │
+          │   skill-0 ✅        │
+          │   docs/             │
+          │   project_context.md│
+          └──────────┬──────────┘
+                     │
+          ┌──────────▼──────────┐
+          │   Domain Model      │
+          │   (iterative)       │
+          │   skill-1 ✅        │
+          │   docs/             │
+          │   domain_model.md   │
+          └──────────┬──────────┘
+                     │
+          ┌──────────▼──────────┐
+          │   Spec Funcional    │
+          │   (per epic,        │
+          │    recommended)     │
+          │   skill-2 ✅        │
+          │   Lives in:         │
+          │   Lark Wiki         │
+          └──────────┬──────────┘
+                     │         │
+            ┌────────▼───────┐ │ ┌──────────────────────┐
+            │      Epic      │ └─► TDD (optional)       │
+            │  skill-4 ✅    │   │  skill-3 ✅           │
+            │  Lives in: repo│ ◄─┤  Enriches epics with  │
+            │  docs/epics/   │   │  technical details    │
+            │  E-XXX_name/   │   │  if available         │
+            │  epic.md       │   └──────────────────────┘
+            └────────┬───────┘
+                     │
+            ┌────────▼───────────┐
+            │     Stories (HUs)  │
+            │  skill-5 ✅        │
+            │  Lives in: repo    │
+            │  docs/epics/       │
+            │  E-XXX_name/       │
+            │  stories/          │
+            └────────┬───────────┘
+                     │
+            ┌────────▼───────────┐
+            │   Lark Base Sync   │
+            │  skill-6 ✅        │
+            │  Pushes epics +    │
+            │  stories to the    │
+            │  project Base      │
+            └────────────────────┘
 ```
 
 ---
@@ -70,11 +85,12 @@ The process has two parallel tracks that converge at the epic level:
 |---|---|---|---|
 | Design Doc | PM / Tech Lead — manually | — | Lark Wiki |
 | Project Context | AI-assisted | skill-0 | `docs/project_context.md` (repo) |
-| Spec Funcional | AI-assisted | skill-1 | Lark Wiki |
-| TDD (Technical Design Document) | AI-assisted | skill-2 | `docs/epics/E-XXX_name/tdd_*.docx` (repo) or download |
-| Epic (`epic.md`) | AI-assisted | skill-3 | `docs/epics/E-XXX_name/epic.md` (repo) |
-| Stories | AI-assisted | skill-4 | `docs/epics/E-XXX_name/stories/` (repo) |
-| Lark Base records | Automated | skill-5 | Lark Base |
+| Domain Model | AI-assisted | skill-1 | `docs/domain_model.md` (repo) |
+| Spec Funcional | AI-assisted | skill-2 | Lark Wiki |
+| TDD (Technical Design Document) | AI-assisted | skill-3 | `docs/epics/E-XXX_name/tdd.md` (repo) |
+| Epic (`epic.md`) | AI-assisted | skill-4 | `docs/epics/E-XXX_name/epic.md` (repo) |
+| Stories | AI-assisted | skill-5 | `docs/epics/E-XXX_name/stories/` (repo) |
+| Lark Base records | Automated | skill-6 | Lark Base |
 
 ---
 
@@ -88,6 +104,7 @@ docs/
 │   ├── design_doc.pdf          ← Download from Lark Wiki and place here
 │   └── intake_brief.docx       ← Or any other input document
 ├── project_context.md          ← Master context (single source of truth)
+├── domain_model.md             ← Domain entities, invariants, events, DBML schema
 ├── epics/
 │   ├── E-000_tech_platform/
 │   │   ├── epic.md
@@ -128,7 +145,18 @@ This is the **canonical shared context** for the entire project — the single d
 - **Cadence:** Created once, updated iteratively as the project evolves
 - **Trigger phrases:** "generate project context", "update the project context", "create master context"
 
-### skill-1 — Functional Spec Generator ✅
+### skill-1 — Domain Model Generator ✅
+
+Generates or iterates `docs/domain_model.md` — the project-level document that captures domain entities, invariants, state lifecycles, domain events, workflows, and the DB schema (DBML).
+
+The Domain Model is a prerequisite for epics and TDDs. It gives AI assistants and engineers a shared vocabulary and data model to reason from. Created once, updated as the domain evolves.
+
+- **Input:** `docs/project_context.md` (Domain Glossary + Business Rules) + interactive Q&A
+- **Output:** `docs/domain_model.md`
+- **Cadence:** Created after project context, updated whenever entities or rules change
+- **Trigger phrases:** "generate the domain model", "domain model", "modelo de dominio", "update the domain model"
+
+### skill-2 — Functional Spec Generator ✅
 
 Generates a complete Spec Funcional from a Design Doc for a specific epic.
 
@@ -140,18 +168,18 @@ The Spec Funcional is the bridge between the Design Doc and the engineering back
 - **Where it lives:** Lark Wiki (under Design Docs)
 - **Trigger phrases:** "generate the spec for this epic", "create a functional spec", "spec funcional"
 
-### skill-2 — Technical Design Document (TDD) ✅
+### skill-3 — Technical Design Document (TDD) ✅
 
-Generates a comprehensive **Technical Design Document** from a brief requirement description or uploaded file.
+Generates a comprehensive **Technical Design Document** from a Spec Funcional and the Domain Model.
 
-The TDD is the technical blueprint for a feature or product. It documents the problem, solution architecture, specific flows (E-XXX), component diagram, data model, API design, security considerations, and all Mermaid diagrams — giving engineers everything they need to understand, review, and implement the solution. Once complete, the TDD feeds directly into the epic generator (skill-3).
+The TDD is the technical blueprint for an epic. It documents the problem, solution architecture, component diagram, data model (anchored to `domain_model.md`), API design, security considerations, and ASCII diagrams — giving engineers everything they need to understand, review, and implement the solution.
 
-- **Input:** Requirement description (text), or uploaded file (PDF/DOCX/MD)
-- **Output:** `tdd_<feature_name>.docx` (default) or `.md`
-- **Sections:** Problem, Scope, Business Rules, Specific Flows (E-XXX), Component Architecture, Data Model, API Design, Security, Integrations
+- **Input:** Spec Funcional (required) + `docs/domain_model.md` (required if exists) + `docs/project_context.md`
+- **Output:** `docs/epics/E-XXX_name/tdd.md`
+- **Sections:** Problem, Business Rules, Flows, Component Architecture, Data Model, API Design, Security, Integrations
 - **Trigger phrases:** "generate a technical design", "write a design doc", "create a TDD", "genera el diseño técnico"
 
-### skill-3 — Epic Generator ✅
+### skill-4 — Epic Generator ✅
 
 Generates individual Epic documents from a Spec Funcional (primary). TDD enriches epics with technical details if available.
 
@@ -159,7 +187,7 @@ Generates individual Epic documents from a Spec Funcional (primary). TDD enriche
 - **Output:** `docs/epics/E-XXX_slug/epic.md`
 - **Trigger phrases:** "generate epics", "genera las épicas", "break this spec into epics"
 
-### skill-4 — Story Generator ✅
+### skill-5 — Story Generator ✅
 
 Generates all user stories (HUs) for an epic from its `epic.md`. Before generating, the skill resolves open questions with the operator — the final document contains no ambiguities.
 
@@ -171,7 +199,7 @@ Each story has two blocks:
 - **Output:** `docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug.md` (one file per story)
 - **Trigger phrases:** "generate stories for E-XXX", "write the stories for this epic"
 
-### skill-5 — Lark Base Sync ✅
+### skill-6 — Lark Base Sync ✅
 
 Reads epic and story `.md` files from the repo, translates content to Spanish, and pushes them to the Lark Base via the Avila Tools API.
 
@@ -227,7 +255,15 @@ Place the Design Doc in `docs/inputs/` (see [Placing Input Documents](#placing-i
 
 The skill will ask clarifying questions, then write `docs/project_context.md`. This document is referenced by all downstream artifacts — keep it updated as the project evolves.
 
-### 3. Generate Spec Funcionales (per epic)
+### 3. Generate the Domain Model
+
+> "Generate the domain model"
+
+The skill reads `docs/project_context.md` as the vocabulary base and asks one question at a time to explore entities, relationships, invariants, state lifecycles, domain events, and workflows. It never invents facts — gaps are recorded as open questions.
+
+When enough context is gathered, confirm and the skill writes `docs/domain_model.md`. Update it whenever the domain evolves. This document is consumed by the TDD and story generator for data model and business rule accuracy.
+
+### 4. Generate Spec Funcionales (per epic)
 
 For each epic you are about to plan:
 
@@ -235,27 +271,27 @@ For each epic you are about to plan:
 
 The skill produces a structured Spec Funcional and saves it as a DOCX. Upload it to Lark Wiki under the project's Design Docs space. This is optional but strongly recommended — it surfaces ambiguities before stories are written.
 
-### 4. Generate the Technical Design Document (TDD) (optional)
+### 5. Generate the Technical Design Document (TDD) (optional)
 
 > "Generate a technical design from `docs/inputs/design_doc.pdf`"
 
 Applies to projects with high technical complexity. Can be skipped if the Spec Funcional provides enough detail for the team to proceed.
 
-The skill asks a few clarifying questions, then produces a TDD with the full solution architecture: specific flows (E-XXX), component diagram, data model, API endpoints, security considerations, and Mermaid diagrams. Output is a `.docx` by default.
+The skill reads `docs/project_context.md`, `docs/domain_model.md`, and the Spec Funcional, then produces a TDD with the full solution architecture: specific flows (E-XXX), component diagram, data model (anchored to the domain model), API endpoints, and security considerations. All diagrams are ASCII. Output is `.md` by default.
 
-### 5. Generate the Epics
+### 6. Generate the Epics
 
 > "Generate epics from the Spec Funcional"
 
 The skill reads the Spec Funcional, lists the epics it found (E-001, E-002, ...), and asks which ones to generate. Each epic becomes a `docs/epics/E-XXX_slug/epic.md`. If the TDD is available, the skill uses it automatically to enrich the epics with technical details.
 
-### 6. Generate Stories
+### 7. Generate Stories
 
 > "Generate stories for E-XXX from the epic"
 
 The skill reads the `epic.md`, resolves any ambiguities with the operator before generating, then creates one `.md` file per story under `docs/epics/E-XXX_slug/stories/`. Block A (user story + AC + effort ranking) is sufficient for estimation — developers can read Block B for technical detail when implementing.
 
-### 7. Sync to Lark Base
+### 8. Sync to Lark Base
 
 Once epics and stories are committed to the repo:
 
@@ -303,21 +339,23 @@ your-project/
     └── skills/
         ├── 0-project-context-generator/
         │   └── SKILL.md
-        ├── 1-functional-spec-generator/
-        │   ├── SKILL.md
-        │   └── references/
-        │       └── template.md
-        ├── 2-technical-design-document/
-        │   ├── SKILL.md
-        │   └── references/
-        │       └── template.md
-        ├── 3-epic-generator/
-        │   ├── SKILL.md
-        │   └── references/
-        │       └── template.md
-        ├── 4-story-generator/
+        ├── 1-domain-model-generator/
         │   └── SKILL.md
-        └── 5-write-epics-and-hu-in-base/
+        ├── 2-functional-spec-generator/
+        │   ├── SKILL.md
+        │   └── references/
+        │       └── template.md
+        ├── 3-technical-design-document/
+        │   ├── SKILL.md
+        │   └── references/
+        │       └── template.md
+        ├── 4-epic-generator/
+        │   ├── SKILL.md
+        │   └── references/
+        │       └── template.md
+        ├── 5-story-generator/
+        │   └── SKILL.md
+        └── 6-write-epics-and-hu-in-base/
             └── SKILL.md
 ```
 
