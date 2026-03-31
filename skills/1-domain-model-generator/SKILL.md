@@ -12,7 +12,14 @@ description: >
 
 ## Purpose
 
-Generate or iterate `docs/domain_model.md` — a project-level living document that captures domain entities, invariants, domain events, workflows, and the DB schema (DBML). This artifact lives at the same level as `project_context.md` and is a prerequisite before generating epics.
+Generate or iterate `docs/domain_model.md` — a project-level living document that captures domain entities, invariants, domain events, workflows, and the DB schema (DBML). This artifact lives at the same level as `project_context.md`.
+
+**When to run:**
+- **Recommended:** right after generating the project context, before specs, TDDs, and epics — so all downstream artifacts share a consistent vocabulary and data model from the start.
+- **Also valid:** later in the process, or on a second pass, if the domain was not well understood at the start.
+- **Re-run anytime:** after a Spec Funcional, TDD, or epic generation reveals new entities, invariants, or business rules that are not yet captured.
+
+Each run is additive — new content is appended to the change log and schema evolution log; history is never rewritten.
 
 **This skill does NOT generate application code.** It produces a structured document for humans and AI assistants to reason about the domain.
 
