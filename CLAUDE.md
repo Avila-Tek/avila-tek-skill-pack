@@ -13,21 +13,23 @@ avila-tek-skill-pack/
 └── skills/
     ├── 0-project-context-generator/
     │   └── SKILL.md                       ← Generates docs/project_context.md
-    ├── 1-functional-spec-generator/
+    ├── 1-domain-model-generator/
+    │   └── SKILL.md                       ← Generates docs/domain_model.md
+    ├── 2-functional-spec-generator/
     │   ├── SKILL.md                       ← Generates Spec Funcional (Lark Wiki)
     │   └── references/
     │       └── template.md                ← Spec Funcional canonical template
-    ├── 2-technical-design-document/
+    ├── 3-technical-design-document/
     │   ├── SKILL.md                       ← Generates TDD (.docx/.md)
     │   └── references/
     │       └── template.md                ← TDD canonical template
-    ├── 3-epic-generator/
+    ├── 4-epic-generator/
     │   ├── SKILL.md                       ← Generates docs/epics/E-XXX_slug/epic.md
     │   └── references/
     │       └── template.md                ← Epic document canonical template
-    ├── 4-story-generator/
+    ├── 5-story-generator/
     │   └── SKILL.md                       ← Generates docs/epics/E-XXX_slug/stories/
-    └── 5-write-epics-and-hu-in-base/
+    └── 6-write-epics-and-hu-in-base/
         └── SKILL.md                       ← Syncs epics + stories to Lark Base
 ```
 
@@ -43,17 +45,21 @@ docs/
 │   ├── design_doc.pdf                     ← Design Doc exported from Lark Wiki
 │   └── intake_brief.docx                  ← Intake Brief (alternative starting point)
 ├── project_context.md                     ← Master context (WHY/WHAT/constraints/glossary)
+├── domain_model.md                        ← Domain entities, invariants, events, DBML schema
 ├── epics/
 │   ├── E-000_slug/
 │   │   ├── epic.md
+│   │   ├── tdd.md                         ← Technical Design Document de la épica
 │   │   └── stories/
 │   │       ├── E-000_S-001_slug.md
 │   │       └── E-000_S-002_slug.md
 │   ├── E-001_slug/
 │   │   ├── epic.md
+│   │   ├── tdd.md
 │   │   └── stories/
 │   └── E-XXX_slug/
 │       ├── epic.md
+│       ├── tdd.md
 │       └── stories/
 ├── plans/                                 ← Implementation plans — written by devs per story (after spec)
 ├── specs/                                 ← Technical specs — written by devs per story (before plan)
@@ -73,11 +79,12 @@ docs/
 | # | Skill | Status | Trigger |
 |---|---|---|---|
 | 0 | project-context-generator | ✅ | "generate project context", "create master context" |
-| 1 | functional-spec-generator | ✅ | "generate functional spec", "spec funcional" |
-| 2 | technical-design-document | ✅ | "generate a technical design", "write a design doc", "create a TDD" |
-| 3 | epic-generator | ✅ | "generate epics", "genera las épicas", "break this spec into epics" |
-| 4 | story-generator | ✅ | "generate stories for E-XXX" |
-| 5 | lark-backlog-sync | ✅ | "sync to Lark", "push E-XXX to Lark" |
+| 1 | domain-model-generator | ✅ | "domain model", "generate domain model", "modelo de dominio" |
+| 2 | functional-spec-generator | ✅ | "generate functional spec", "spec funcional" |
+| 3 | technical-design-document | ✅ | "generate a technical design", "write a design doc", "create a TDD" |
+| 4 | epic-generator | ✅ | "generate epics", "genera las épicas", "break this spec into epics" |
+| 5 | story-generator | ✅ | "generate stories for E-XXX" |
+| 6 | lark-backlog-sync | ✅ | "sync to Lark", "push E-XXX to Lark" |
 
 ---
 
@@ -87,7 +94,7 @@ docs/
 - YAML frontmatter with `name` and `description` fields required
 - `description` must start with a trigger phrase pattern (what the user says to activate it)
 - Supporting reference files go in `skills/{name}/references/` — only create them if content exceeds ~100 lines
-- Skills are numbered by process order (0 → 5), not by importance
+- Skills are numbered by process order (0 → 6), not by importance
 - Never duplicate content between skills — cross-reference instead
 
 ---
@@ -98,11 +105,12 @@ docs/
 |---|---|---|
 | Design Doc | Lark Wiki | Team (manual) |
 | project_context.md | Repo (`docs/`) | skill-0 |
-| Spec Funcional | Lark Wiki | skill-1 |
-| TDD (.docx/.md) | Repo (`docs/`) or download | skill-2 |
-| epic.md | Repo (`docs/epics/`) | skill-3 |
-| Story `.md` files | Repo (`docs/epics/E-XXX/stories/`) | skill-4 |
-| Lark Base records | Lark Base | skill-5 |
+| domain_model.md | Repo (`docs/`) | skill-1 |
+| Spec Funcional | Lark Wiki | skill-2 |
+| TDD (.docx/.md) | Repo (`docs/epics/E-XXX/tdd.md`) | skill-3 |
+| epic.md | Repo (`docs/epics/`) | skill-4 |
+| Story `.md` files | Repo (`docs/epics/E-XXX/stories/`) | skill-5 |
+| Lark Base records | Lark Base | skill-6 |
 
 ---
 
