@@ -53,6 +53,12 @@ Always read the full document before generating anything.
 
 ---
 
+## Step 1.5 — Check for Figma Input (optional)
+
+If the tool `mcp__plugin_figma_figma__get_design_context` is available in this session, ask the user: "¿Tienes un link de Figma del diseño? Si lo tienes, puedo leerlo y usarlo como input adicional." If the user provides a Figma URL, read the design using that tool and incorporate it as supplementary input alongside the design doc. If not available or the user declines, skip this step.
+
+---
+
 ## Step 2 — Identify the Target Epic
 
 The design doc may describe multiple epics. If the user named a specific one, extract only that epic's content. If no epic was specified and there are multiple, ask the user which one to spec.
@@ -95,6 +101,8 @@ Populate ALL 10 sections using the canonical template below. The structure is **
 - Section 5 flows follow the exact sub-structure: Entrada, Proceso del Sistema, Bloqueos Funcionales, Integración, Resultado final — then Detalles with: Reglas funcionales, Casos bordes, Datos y validaciones del flujo, Estados funcionales.
 - Keep language functional. Avoid unnecessary technical implementation details unless they are explicit functional requirements in the design doc.
 - If information for a field is missing: use `[PENDIENTE: descripción de qué falta]` — never skip or leave blank.
+- **Anti-repetición:** Nunca repetir información entre secciones. Si un dato ya aparece en flujos (sección 5), no repetirlo en reglas de negocio (sección 4) ni en criterios de aceptación (sección 9). Cada dato vive en una sola sección.
+- **Compacidad:** Preferir bullets concisos sobre párrafos. Si un punto puede decirse en una línea, no usar dos.
 
 ---
 
@@ -113,6 +121,8 @@ Spec Funcional: [Nombre de la Épica]
 
 ### 1. Resumen ejecutivo y objetivo
 
+Máximo 3 bullets cortos. Sin párrafo introductorio. Cada bullet máximo 1 línea.
+
 - **Objetivo de la épica:** [Propósito principal y qué problema resuelve para el usuario].
 - **Dependencias críticas:** [Sistemas, APIs o módulos previos necesarios para este desarrollo].
 - **Métricas de éxito (KPIs):** [Indicadores cuantificables de negocio o producto impactados].
@@ -128,15 +138,14 @@ Spec Funcional: [Nombre de la Épica]
 
 ### 3. Matriz de actores y roles
 
-- **Usuario final:** [Quién usa la funcionalidad, ej: Cliente, Admin, Soporte].
-- **Sistemas internos:** [Módulos propios que intervienen, ej: Base de datos, Core de pagos].
-- **Servicios de terceros:** [APIs o proveedores externos, ej: Google Auth, Stripe, Maps].
+- **Usuarios finales:** [Quién usa la funcionalidad, ej: Cliente, Admin, Soporte].
+- **Servicios de terceros / integraciones:** [APIs o proveedores externos que intervienen — solo si aplican al proyecto, ej: Google Auth, Stripe, Maps]. Si no aplica: omitir este bullet.
 
 ---
 
 ### 4. Reglas de negocio aplicables a la épica
 
-Global rules that govern the entire functionality, regardless of the specific flow.
+Reglas globales que rigen toda la funcionalidad, independientemente del flujo específico. **Solo incluir reglas que impactan directamente la programación o la definición de épicas/HUs.** Excluir cualquier regla que ya esté cubierta en criterios de aceptación (sección 9). Si una regla describe un comportamiento verificable en QA, pertenece a la sección 9, no aquí.
 
 - [Regla 1]
 - [Regla 2]
@@ -165,11 +174,11 @@ Repeat for each flow (N flows total).
 
 ### 6. Integraciones externas
 
-Repeat for each integration (N integrations total).
+Solo listar integraciones explícitamente mencionadas en el design doc. No inventar endpoints, parámetros ni comportamientos no descritos. Repeat for each integration (N integrations total).
 
 **[Nombre del Servicio/API]**
-- **Se usa para:** [En qué flujos interviene y con qué propósito].
-- **Datos esperados:** [Parámetros de entrada y salida necesarios].
+- **Para qué se usa:** [En qué flujos interviene y con qué propósito].
+- **Documentación:** [URL o referencia provista en el design doc. Si no fue provista: "buscar documentación oficial del proveedor antes del desarrollo"].
 
 ---
 
@@ -204,7 +213,20 @@ Repeat for each integration (N integrations total).
 
 ---
 
-## Step 5 — Produce the Output File
+## Step 5 — Resolve Open Questions Interactively
+
+Before producing any output file, review the draft internally and identify all genuinely open questions (section 10 of the draft). If there are any:
+
+1. List them to the user in the conversation — numbered, concise.
+2. Wait for the user's responses.
+3. Incorporate the answers into the draft before writing the file.
+4. If there are no open questions, proceed directly to Step 6.
+
+Never generate the output file while open questions remain unresolved.
+
+---
+
+## Step 6 — Produce the Output File
 
 ### Default: DOCX output
 Read `/mnt/skills/public/docx/SKILL.md` before generating.
@@ -225,7 +247,7 @@ Output to `/mnt/user-data/outputs/spec_funcional_<epic_name>.md`
 
 ---
 
-## Step 6 — Present and Offer Follow-up
+## Step 7 — Present and Offer Follow-up
 
 1. Call `present_files` with the output path.
 2. One sentence: epic name + number of flows documented.
@@ -237,7 +259,12 @@ Output to `/mnt/user-data/outputs/spec_funcional_<epic_name>.md`
 
 - [ ] All 10 sections present with exact names from the template
 - [ ] Every bullet uses bold_prefix + text format
+- [ ] Section 1 has exactly 3 bullets — no intro paragraph
+- [ ] Section 3 has no "Sistemas internos" bullet
 - [ ] Section 5 flows each have: Entrada, Proceso del Sistema, Bloqueos Funcionales, Integración, Resultado final + Detalles (Reglas funcionales, Casos bordes, Datos y validaciones, Estados funcionales)
+- [ ] Section 6 integrations only list what's explicitly in the design doc — no invented API details
+- [ ] No information repeated across sections 4, 5, and 9
+- [ ] Open questions were presented interactively before generating the file
 - [ ] Missing info uses `[PENDIENTE: ...]` — never skipped
 - [ ] Output is written in Spanish regardless of the input language
 
