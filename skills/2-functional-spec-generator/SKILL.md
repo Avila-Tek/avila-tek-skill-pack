@@ -15,7 +15,7 @@ description: >
 
 Generates a complete **Spec Funcional** document from a written design document (PDF, DOCX, or MD).
 Audience: mixed stakeholders (developers, QA, product managers).
-Output format: flexible — infer from user context (default: `.docx`; also supports `.md`).
+Output format: **Markdown** (`.md`) — default for Lark Wiki compatibility.
 Output language: **always Spanish**, regardless of the input document language.
 
 ---
@@ -70,51 +70,79 @@ The design doc may describe multiple epics. If the user named a specific one, ex
 Before writing, identify from the design doc:
 - The epic name and goal (in 2–4 bullet points, not a paragraph)
 - Actors: users, internal systems, third-party services
-- Flows described (explicit or implicit) — each becomes a named flow in section 4
+- Flows described (explicit or implicit) — each becomes a named flow in section 5
 - Business and functional rules
 - Integrations and their data contracts
 - States of key objects (lifecycle)
 - Edge cases — named and grouped
 - Data fields and validations per flow
-- Any genuinely open questions (only include if actually unresolved in the doc)
+
+While analyzing, **collect every gap** — any field required by the template that the doc does not explicitly answer. Do not assume, infer, or invent. Record each gap as a question tied to its section.
 
 ---
 
-## Step 4 — Generate the Spec
+## Step 4 — Ask Clarifying Questions Before Generating
 
-Populate ALL 10 sections using the canonical template below. The structure is **mandatory and fixed** — never add, remove, or rename sections. Write the output **always in Spanish**.
+Before writing a single line of the spec, present all collected gaps to the user as questions, grouped by section. Format:
+
+```
+Antes de generar el spec, tengo algunas preguntas sobre información que no encontré en el documento. Puedes responderlas o escribir "omitir" para dejarlo pendiente de definición.
+
+**Sección 1 — Resumen ejecutivo y objetivo**
+1. ¿Cuáles son las métricas de éxito (KPIs) para esta épica?
+
+**Sección 3 — Actores y roles**
+2. ¿Hay servicios de terceros o integraciones externas involucradas?
+
+**Sección 5 — Flujos**
+3. En el Flujo A, ¿qué ocurre cuando el usuario X hace Y?
+...
+```
+
+Rules for this step:
+- Only ask about genuinely missing information — never ask about things already in the doc.
+- Group questions by section.
+- Wait for the user's full response before proceeding.
+- For any question the user skips or answers with "omitir": mark it as `[PENDIENTE: debe definirse — <pregunta original>]` in the corresponding section of the generated document.
+- If there are no gaps, skip this step entirely and proceed to Step 5.
+
+---
+
+## Step 5 — Generate the Spec
+
+Populate ALL 9 sections using the canonical template below. The structure is **mandatory and fixed** — never add, remove, or rename sections. Write the output **always in Spanish**.
 
 ### No-invention rule (mandatory, no exceptions)
 
-**Every piece of content in the spec must come directly and explicitly from the design doc. Never invent, infer, assume, or extrapolate anything not written in the doc.**
+**Every piece of content in the spec must come directly and explicitly from the design doc or the user's answers in Step 4. Never invent, infer, assume, or extrapolate.**
 
-- Never add actors, rules, flows, integrations, errors, KPIs, or criteria that are not explicitly described in the design doc.
-- Never complete or elaborate a concept beyond what the doc states.
+- Never add actors, rules, flows, integrations, errors, KPIs, or criteria that are not explicitly described in the design doc or confirmed by the user.
+- Never complete or elaborate a concept beyond what the doc or user states.
 - Never use general knowledge or best practices to fill gaps.
-- Never add examples that are not in the doc.
-- When information for a field is missing: use `[PENDIENTE: descripción de qué falta]`. This is the only acceptable way to handle gaps.
-- When in doubt about whether something is in the doc: do not include it — use `[PENDIENTE]`.
+- When information is missing and the user skipped the question: use `[PENDIENTE: debe definirse — <pregunta]`. This is the only acceptable way to handle gaps.
 
 ### Formatting rules (mandatory)
 
-- Every bullet in sections 1, 2, 3, 6, 7, 8, 9, 10 uses **bold_prefix + text** format: the field label is bold, followed by the content. Example: `• Objetivo de la épica: [contenido]` where "Objetivo de la épica:" is bold.
+- Every bullet in sections 1, 2, 3, 6, 7, 8, 9 uses **bold_prefix + text** format: the field label is bold, followed by the content. Example: `- **Objetivo de la épica:** [contenido]`.
 - Section 5 flows follow the exact sub-structure: Entrada, Proceso del Sistema, Bloqueos Funcionales, Integración, Resultado final — then Detalles with: Reglas funcionales, Casos bordes, Datos y validaciones del flujo, Estados funcionales.
 - Keep language functional. Avoid unnecessary technical implementation details unless they are explicit functional requirements in the design doc.
-- If information for a field is missing: use `[PENDIENTE: descripción de qué falta]` — never skip or leave blank.
 - **Anti-repetición:** Nunca repetir información entre secciones. Si un dato ya aparece en flujos (sección 5), no repetirlo en reglas de negocio (sección 4) ni en criterios de aceptación (sección 9). Cada dato vive en una sola sección.
 - **Compacidad:** Preferir bullets concisos sobre párrafos. Si un punto puede decirse en una línea, no usar dos.
 
 ---
 
-## Canonical Spec Template (10 sections — MANDATORY)
+## Canonical Spec Template (9 sections — MANDATORY)
 
 The template below defines the exact output structure. All section names and field labels are in Spanish and must be reproduced exactly as written here.
 
 ### Header
 
 ```
-Spec Funcional: [Nombre de la Épica]
+# Spec Funcional: [Nombre de la Épica]
+
 | Proyecto | Responsable | Editores | Estado |
+|----------|-------------|----------|--------|
+| [valor]  | [valor]     | [valor]  | [valor]|
 ```
 
 ---
@@ -205,45 +233,14 @@ Solo listar integraciones explícitamente mencionadas en el design doc. No inven
 
 ---
 
-### 10. Preguntas abiertas
-
-- **[Duda 1]:** [Temas técnicos o de negocio pendientes de definición].
-- **[Duda 2]:** [Limitaciones de terceros por confirmar].
-- If there are no genuine open questions: write a single bullet `N/A`.
-
----
-
-## Step 5 — Resolve Open Questions Interactively
-
-Before producing any output file, review the draft internally and identify all genuinely open questions (section 10 of the draft). If there are any:
-
-1. List them to the user in the conversation — numbered, concise.
-2. Wait for the user's responses.
-3. Incorporate the answers into the draft before writing the file.
-4. If there are no open questions, proceed directly to Step 6.
-
-Never generate the output file while open questions remain unresolved.
-
----
-
 ## Step 6 — Produce the Output File
 
-### Default: DOCX output
-Read `/mnt/skills/public/docx/SKILL.md` before generating.
-Install if needed: `npm install -g docx`
+Write the spec as a Markdown file. Output path: `docs/epics/E-XXX_<epic_slug>/spec_funcional.md` (in the target repo), or `/mnt/user-data/outputs/spec_funcional_<epic_name>.md` for Claude Desktop.
 
-Key formatting rules:
-- **Title** (large, bold): `Spec Funcional: [Epic Name]`
-- **Header table**: Proyecto, Responsable, Editores, Estado
-- **Section headers** (H1): numbered exactly as the template, e.g. `1. Resumen ejecutivo y objetivo`
-- **Sub-headers** (H2): flow names (e.g. `Flujo A: Registro manual`), integration names
-- **Bullets**: always `bold_prefix + text` — use `bBold(label, text)` pattern. Always use `LevelFormat.BULLET`, never unicode bullets.
-- **Page size**: A4
-- Validate: `python scripts/office/validate.py`
-- Output: `/mnt/user-data/outputs/spec_funcional_<epic_name>.docx`
-
-### Markdown output (when user requests .md)
-Output to `/mnt/user-data/outputs/spec_funcional_<epic_name>.md`
+Formatting:
+- Use `#` for the document title, `##` for section headers, `###` for flow and integration sub-headers.
+- All bullets use `- **Label:** value` format.
+- Include the header table using Markdown table syntax.
 
 ---
 
@@ -257,25 +254,25 @@ Output to `/mnt/user-data/outputs/spec_funcional_<epic_name>.md`
 
 ## Quality Checklist
 
-- [ ] All 10 sections present with exact names from the template
+- [ ] All 9 sections present with exact names from the template
 - [ ] Every bullet uses bold_prefix + text format
 - [ ] Section 1 has exactly 3 bullets — no intro paragraph
 - [ ] Section 3 has no "Sistemas internos" bullet
 - [ ] Section 5 flows each have: Entrada, Proceso del Sistema, Bloqueos Funcionales, Integración, Resultado final + Detalles (Reglas funcionales, Casos bordes, Datos y validaciones, Estados funcionales)
 - [ ] Section 6 integrations only list what's explicitly in the design doc — no invented API details
 - [ ] No information repeated across sections 4, 5, and 9
-- [ ] Open questions were presented interactively before generating the file
-- [ ] Missing info uses `[PENDIENTE: ...]` — never skipped
+- [ ] All gaps were surfaced as questions to the user before generating (Step 4)
+- [ ] Skipped questions appear as `[PENDIENTE: debe definirse — <pregunta>]` in the relevant section
 - [ ] Output is written in Spanish regardless of the input language
+- [ ] Output file is Markdown
 
 ---
 
 ## Reference
 
 Template source: `/mnt/skills/functional-spec-generator/references/template.md`
-For DOCX creation: `/mnt/skills/public/docx/SKILL.md`
 For reading input files: `/mnt/skills/public/file-reading/SKILL.md`
 
 ## Final reminder before generating
 
-Before writing a single word of content: ask yourself for each field — **"Is this explicitly in the design doc?"** If the answer is not a clear yes, write `[PENDIENTE]` instead.
+Before writing a single word of content: ask yourself for each field — **"Is this explicitly in the design doc or confirmed by the user?"** If no → it becomes a question in Step 4. If the user skipped it → `[PENDIENTE: debe definirse — <pregunta>]`.
