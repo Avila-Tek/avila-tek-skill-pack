@@ -124,6 +124,8 @@ In Explore Mode:
 - Skip questions if the answer is already clearly in the document
 - Adapt question language to match the user
 
+**Stop condition:** Ask a maximum of 5 clarifying questions before drafting. Stop earlier if the user says "draft it", "genera", "continúa", or equivalent. Mark unresolved gaps as [PENDIENTE].
+
 ### Step 5 — Draft confirmation
 
 When you have enough clarity, ask:
@@ -332,10 +334,11 @@ You MUST follow this structure EXACTLY. Every section is mandatory. If informati
 
 ## 12) Derived docs map
 
-- Domain model: `/docs/01_domain_model.md`
-- Epics: `/docs/epics/`
-- Functional specs: `/docs/specs/`
-- Plans: `/docs/plans/`
+- Domain model: `docs/domain_model.md`
+- Epics: `docs/epics/`
+- Stories: `docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug/`
+- Spec Funcional: Lark Wiki (per epic)
+- ADRs: `docs/adrs/`
 
 ---
 

@@ -1,0 +1,132 @@
+{
+  "skill_name": "stack-standards-compliance",
+  "description": "Verifies that Claude applies the correct stack standards (NestJS/Next.js) when generating code. Each eval presents a coding task and checks that the output respects the active STACK.md rules.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Necesito crear un endpoint POST /api/invoices que reciba { clientId, amount, dueDate } y guarde la factura en la base de datos. El proyecto usa NestJS + Drizzle.",
+      "expected_output": "El código debe: (1) usar un repository para las queries de Drizzle, NO llamar Drizzle directamente desde el service, (2) usar createZodDto para el DTO del request, (3) tener @UseGuards(JwtAuthGuard) o @Public(), (4) usar el DomainExceptionFilter en lugar de throw new HttpException, (5) tener @ApiOperation y @ApiResponse en el controller.",
+      "assertions": [
+        {
+          "name": "usa_repository_layer",
+          "description": "El service no importa ni llama Drizzle directamente — delega al repository",
+          "check": "output does NOT contain direct drizzle/db calls inside a .service.ts file",
+          "pass_when": "Output contains a .repository.ts file or references an injected repository. No `db.` or `drizzle(` calls appear inside *.service.ts code blocks.",
+          "fail_when": "Output contains `db.select(`, `db.insert(`, `drizzle(` or similar inside a *.service.ts file without a repository intermediary."
+        },
+        {
+          "name": "usa_zod_dto",
+          "description": "El DTO usa createZodDto o z.infer, no una interface manual",
+          "check": "output contains createZodDto or z.infer for the request body type",
+          "pass_when": "Output contains `createZodDto(` or `z.infer<` applied to the request DTO class or type.",
+          "fail_when": "Output defines the request body as a plain TypeScript interface or class with manually typed properties, without using createZodDto or z.infer."
+        },
+        {
+          "name": "tiene_auth_guard",
+          "description": "El endpoint tiene @UseGuards o @Public decorators explícitos",
+          "check": "output contains @UseGuards or @Public()",
+          "pass_when": "Output contains `@UseGuards(` or `@Public()` applied to the controller class or the specific endpoint method.",
+          "fail_when": "Output defines the endpoint method without any @UseGuards or @Public decorator — auth is unspecified."
+        },
+        {
+          "name": "no_http_exception_directo",
+          "description": "No usa new HttpException — usa DomainError o el exception filter",
+          "check": "output does NOT contain 'new HttpException'",
+          "pass_when": "Output uses a DomainError subclass (e.g. `throw new InvoiceNotFoundError(...)`) or no explicit throw at all (relying on the DomainExceptionFilter).",
+          "fail_when": "Output contains `throw new HttpException(` anywhere in the service or controller."
+        },
+        {
+          "name": "tiene_swagger",
+          "description": "El controller tiene @ApiOperation y al menos un @ApiResponse",
+          "check": "output contains @ApiOperation and @ApiResponse",
+          "pass_when": "Output contains both `@ApiOperation({` and at least one `@ApiResponse({` on the endpoint method.",
+          "fail_when": "Output defines the controller method without @ApiOperation or without any @ApiResponse decorator."
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Tengo que construir una lista de facturas en Next.js. Viene de la API GET /api/invoices. Muéstrame cómo hacer el query hook y el widget que lo usa.",
+      "expected_output": "Debe usar React Query (useQuery / queryOptions), NO useEffect + fetch. El widget debe estar en features/invoices/ui/widgets/, separado del query hook en features/invoices/application/queries/. No debe haber lógica de negocio en el componente.",
+      "assertions": [
+        {
+          "name": "usa_react_query",
+          "description": "Usa React Query (useQuery, queryOptions), no useEffect + fetch",
+          "check": "output contains useQuery or queryOptions and does NOT contain 'useEffect' with fetch",
+          "pass_when": "Output imports and uses `useQuery` or `queryOptions` from '@tanstack/react-query'. No `useEffect` paired with `fetch` or `axios` appears in the component.",
+          "fail_when": "Output contains a `useEffect(() => { fetch('/api/invoices')` pattern or any manual fetch-in-effect pattern inside the component."
+        },
+        {
+          "name": "estructura_de_capas",
+          "description": "El hook está en application/queries/, el componente en ui/widgets/",
+          "check": "output references application/queries/ for the hook and ui/widgets/ for the component",
+          "pass_when": "Output places the query hook file path inside `features/*/application/queries/` and the widget component inside `features/*/ui/widgets/`.",
+          "fail_when": "Output co-locates the query hook inside the component file, or places either file outside the expected layer directories."
+        },
+        {
+          "name": "sin_logica_en_componente",
+          "description": "El componente solo renderiza, no contiene lógica de transformación de datos",
+          "check": "the UI component does not contain business logic — it consumes the query hook and renders",
+          "pass_when": "The widget component only calls the query hook and maps results to JSX. No data transformation, filtering, sorting, or business calculations appear in the component body.",
+          "fail_when": "The widget component contains array methods like `.filter()`, `.reduce()`, `.map()` with business logic, or inline data transformation before rendering."
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Haz un code review de este NestJS service:\n```typescript\n@Injectable()\nexport class InvoiceService {\n  constructor(private readonly db: DrizzleService) {}\n\n  async create(dto: CreateInvoiceDto) {\n    const result = await this.db.insert(invoices).values(dto).returning();\n    if (!result[0]) throw new HttpException('Failed', 500);\n    return result[0];\n  }\n}\n```",
+      "expected_output": "El review debe identificar como Critical o Required: (1) Drizzle llamado directamente en el service (debe ir en un repository), (2) uso de HttpException directo (debe ser DomainError), (3) falta de logging, (4) retorno del objeto DB sin mapear a un response DTO.",
+      "assertions": [
+        {
+          "name": "detecta_drizzle_en_service",
+          "description": "El review identifica que Drizzle no debe llamarse directamente en el service",
+          "check": "review flags direct DB/Drizzle call in service as a required change",
+          "pass_when": "Review explicitly flags `this.db.insert(` or the direct DrizzleService injection as a violation. Mentions that DB access must go through a repository layer.",
+          "fail_when": "Review does not mention the direct Drizzle call in the service, or mentions it only as a suggestion/nit without flagging it as a required change."
+        },
+        {
+          "name": "detecta_http_exception",
+          "description": "El review flags HttpException como red flag del stack",
+          "check": "review mentions HttpException as a stack violation or red flag",
+          "pass_when": "Review explicitly calls out `throw new HttpException(` as a stack violation and recommends using a DomainError subclass instead.",
+          "fail_when": "Review does not mention HttpException, or mentions it as a minor style concern rather than a stack red flag."
+        },
+        {
+          "name": "usa_etiquetas_de_severidad",
+          "description": "El review usa las etiquetas de severidad (Critical, Important, Nit, etc.)",
+          "check": "review contains severity labels like Critical:, Important:, or Nit:",
+          "pass_when": "Review output contains at least one severity label (`Critical:`, `Important:`, `Nit:`, `Optional:`, or `FYI`) applied to one or more findings.",
+          "fail_when": "Review lists findings as plain bullets or numbered items without any severity label prefix."
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Estoy trabajando en un proyecto Go (tiene go.mod). Quiero una función que lea configuración de un archivo YAML.",
+      "expected_output": "Claude debe reconocer que el stack es Go y aplicar patrones Go idiomáticos. Debe mencionar que los estándares específicos de Go están en stacks/go/STACK.md como [PENDIENTE] y proceder con convenciones generales de Go (error handling explícito, no panic en producción, etc.).",
+      "assertions": [
+        {
+          "name": "reconoce_stack_go",
+          "description": "Claude identifica el stack como Go y lo menciona explícitamente",
+          "check": "response identifies or mentions Go stack",
+          "pass_when": "Response contains a statement like 'Active stack: Go' or explicitly identifies the project as a Go project at the start of the response.",
+          "fail_when": "Response generates Go code without first identifying or mentioning the active stack."
+        },
+        {
+          "name": "manejo_de_errores_go",
+          "description": "El código usa error handling explícito de Go (if err != nil), no panic",
+          "check": "output uses 'if err != nil' pattern and does NOT use panic() for error handling",
+          "pass_when": "Output contains `if err != nil` for all fallible operations and does not contain `panic(` for error paths.",
+          "fail_when": "Output uses `panic(err)` or `log.Fatal(err)` as the primary error handling strategy, or omits error checks entirely."
+        },
+        {
+          "name": "menciona_pendiente",
+          "description": "Si aplica, menciona que los estándares específicos de Go están pendientes",
+          "check": "response acknowledges Go standards are [PENDIENTE] OR proceeds with general Go best practices",
+          "pass_when": "Response either states that Go-specific standards are [PENDIENTE] in stacks/go/STACK.md and proceeds with general Go conventions, OR applies idiomatic Go patterns without requiring the note if standards are already defined.",
+          "fail_when": "Response proceeds without any acknowledgment of the stack standards status and without applying any Go-idiomatic patterns."
+        }
+      ]
+    }
+  ]
+}

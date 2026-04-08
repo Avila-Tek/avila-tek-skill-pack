@@ -35,27 +35,41 @@ Detect questions that would block a complete, accurate story:
 - Open questions in the epic relevant to this story
 - Ambiguities in the scope or flow of this specific story
 
-Ask the operator one at a time. Record answers. Only proceed to Step 4 when all are resolved.
+Ask the operator one at a time. Record answers. If the user cannot answer a question, mark it as [PENDIENTE] and proceed. Never generate a story with more than 2 [PENDIENTE] items in Block A. Only proceed to Step 4 when all resolvable questions are addressed.
 
 ### Step 4 — Generate
 
 Follow the template below. Rules:
-- Never leave a section empty — omit the whole section instead of writing N/A
+- Block A sections (User Story, Acceptance Criteria, Ranked Tasks) must always be complete. A story with incomplete Block A is not ready to generate.
+- Block B sections (Technical Scope, Business Rules, Data Model, etc.): omit any section that has no real content for this specific story. Do not add placeholder text.
 - Never invent features, endpoints, or behaviors outside the epic scope
-- Block B sections with no real content for this story are omitted entirely
 - Section 9 (open questions) records only answers — no unresolved questions
 
 ### Step 5 — Write file
 
-**Name:** `E-{epic}_S-{story}_{slug}.md` (slug = 3–5 snake_case words from title)
-**Write to:** `/mnt/user-data/outputs/`
-**Repo path:** `docs/epics/E-XXX_.../stories/E-XXX_S-XXX_slug.md`
+Each story lives in its **own folder** inside `stories/`. The folder name and the file name are identical — only the file has the `.md` extension.
+
+```
+docs/epics/E-XXX_slug/
+└── stories/
+    └── E-XXX_S-YYY_slug/           ← create this folder
+        └── E-XXX_S-YYY_slug.md     ← write the story here
+```
+
+**slug** = 3–5 snake_case words from the story title (e.g. `sign_up_with_email`)
+
+**Claude Code:** write directly to `docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug/E-XXX_S-YYY_slug.md` in the project repo.
+
+**Claude Desktop:** write to `/mnt/user-data/outputs/E-XXX_S-YYY_slug.md` and tell the user: *"Place this file inside `docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug/` — create the folder first."*
+
+The story folder is the developer's workspace. The dev will add `spec.md`, `plan.md`, and `todo.md` to it during implementation. Do not create those files here.
 
 Return ONLY the story document. No preamble.
 
 ### Step 6 — Quality check
 
 - [ ] Correct story (S-XXX), not a neighbor
+- [ ] File is named `E-XXX_S-YYY_slug.md` and lives inside a folder with the same name (no `.md`)
 - [ ] Block A alone is sufficient to estimate — no need to read Block B
 - [ ] Acceptance criteria are testable (clear pass/fail, no vague language)
 - [ ] Must tasks = required by an AC or hard business rule
@@ -164,6 +178,28 @@ Only include lines that have real content for this story. Omit empty categories.
 - **OQ-01:** {question} → **Resolution:** {answer confirmed by operator}
 
 If none: "No open questions. All decisions resolved from epic and context."
+```
+
+---
+
+## Dev Handoff
+
+Once a story is committed, the developer's workflow starts from the story file:
+
+```
+/spec  →  reads story file (Story-Driven Mode)  →  writes spec.md
+/plan  →  reads spec.md                          →  writes plan.md + todo.md
+/build →  reads spec.md + plan.md               →  implements tasks
+```
+
+All artifacts land in the same story folder:
+
+```
+docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug/
+├── E-XXX_S-YYY_slug.md   ← this file (planning output)
+├── spec.md               ← written by /spec
+├── plan.md               ← written by /plan
+└── todo.md               ← task checklist from /plan
 ```
 
 ---

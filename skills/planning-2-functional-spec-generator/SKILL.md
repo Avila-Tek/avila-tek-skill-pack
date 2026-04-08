@@ -235,7 +235,11 @@ Solo listar integraciones explícitamente mencionadas en el design doc. No inven
 
 ## Step 6 — Produce the Output File
 
-Write the spec as a Markdown file. Output path: `docs/epics/E-XXX_<epic_slug>/spec_funcional.md` (in the target repo), or `/mnt/user-data/outputs/spec_funcional_<epic_name>.md` for Claude Desktop.
+Write the spec as a Markdown file. The Spec Funcional lives in **Lark Wiki** — it does NOT go in the repo.
+
+**Claude Desktop:** write to `/mnt/user-data/outputs/spec_funcional_<epic_name>.md`, then tell the user to upload it to Lark Wiki under the project's Design Docs space.
+
+**Claude Code:** present the document in the conversation for the user to copy into Lark Wiki. Optionally write a local copy to `docs/inputs/spec_funcional_<epic_name>.md` only if the user explicitly requests a local reference copy.
 
 Formatting:
 - Use `#` for the document title, `##` for section headers, `###` for flow and integration sub-headers.
