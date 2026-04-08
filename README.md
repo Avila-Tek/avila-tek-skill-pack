@@ -79,7 +79,7 @@ Seven sequential skills that move a Design Doc through context, domain model, sp
 | `/story-generator` | `E-XXX_S-YYY_slug.md` | `docs/epics/E-XXX/stories/E-XXX_S-YYY/` |
 | `/write-epics-and-hu-in-base` | Epics + stories synced | Lark Base |
 
-Full reference: [PLANNING.md](PLANNING.md)
+> **To use the Planning Track effectively, read [PLANNING.md](PLANNING.md) first.** It covers every skill in detail: what each one asks before generating, what each artifact contains, the rules that govern the process, and how the skills connect. The table above is a summary — the full picture is in that document.
 
 ---
 
@@ -163,7 +163,7 @@ These skills activate without a slash command — just describe what you need:
 | "set up CI", "configure the pipeline", "automate the build" | `dev-ci-cd-and-automation` |
 | "deprecate this", "migrate from X to Y", "sunset this feature" | `dev-deprecation-and-migration` |
 
-Full reference: [DEV.md](DEV.md)
+> **To use the Dev Track effectively, read [DEV.md](DEV.md) first.** It covers every skill in detail: how Story-Driven Mode works, how auto-chaining activates secondary skills, what each command does step by step, and all 20 dev skills with their activation patterns and rules. The tables above are a summary — the full picture is in that document.
 
 ---
 
@@ -250,20 +250,34 @@ docs/
 
 ## Quick Start
 
-Copy the skill pack into your project's `.claude/` directory:
+Copy the **entire skill pack folder** into your project's `.claude/` directory. You need all of it — skills, commands, agents, references, stacks, and hooks work together as a system.
 
 ```bash
 cd your-project
 
-cp -r /path/to/avila-tek-skill-pack/skills/     .claude/skills/
-cp -r /path/to/avila-tek-skill-pack/commands/   .claude/commands/
-cp -r /path/to/avila-tek-skill-pack/agents/     .claude/agents/
-cp -r /path/to/avila-tek-skill-pack/references/ .claude/references/
-cp -r /path/to/avila-tek-skill-pack/stacks/     .claude/stacks/
-cp -r /path/to/avila-tek-skill-pack/hooks/      .claude/hooks/
+cp -r /path/to/avila-tek-skill-pack/. .claude/
 ```
 
-Commit `.claude/` to the repo so the entire team gets the skills when they clone:
+That's one command. It copies everything:
+
+| Folder | What it contains | Why you need it |
+|--------|-----------------|-----------------|
+| `skills/` | 27 skill definitions | The core behavior of every command and natural language trigger |
+| `commands/` | 14 slash commands | The `/spec`, `/plan`, `/build`, `/review`, `/ship` entry points |
+| `agents/` | 3 specialized agents | Code reviewer, security auditor, test engineer |
+| `stacks/` | 7 stack profiles + docs | Language-specific standards auto-loaded by the hook |
+| `hooks/` | Session start hook | Auto-detects the tech stack and loads the right standards |
+| `references/` | 4 shared checklists | Security, performance, accessibility, testing gates |
+
+**Without `hooks/`**, the stack system doesn't activate — Claude won't know you're in a NestJS or Next.js project and won't enforce the right standards.
+
+**Without `stacks/`**, the hook has nothing to load.
+
+**Without `commands/`**, slash commands like `/spec` and `/build` won't exist.
+
+All six folders are required.
+
+Commit `.claude/` to the repo so the entire team gets everything when they clone:
 
 ```bash
 git add .claude/
@@ -276,7 +290,7 @@ Then open Claude Code from inside the project:
 claude
 ```
 
-Stack standards load automatically on session start.
+Stack standards load automatically on session start. No additional setup needed.
 
 ---
 

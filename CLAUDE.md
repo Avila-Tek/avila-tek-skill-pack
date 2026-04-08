@@ -6,12 +6,28 @@ This repo contains Claude Code skills, commands, agents, and references for the 
 
 ---
 
+## Key Documents
+
+| Document | Purpose |
+|---|---|
+| [README.md](README.md) | Overview of the full system — start here |
+| [PLANNING-WORKFLOW.md](PLANNING-WORKFLOW.md) | Step-by-step planning workflow with gates — Tech Lead reference |
+| [DEV-WORKFLOW.md](DEV-WORKFLOW.md) | Step-by-step dev workflow with gates — Developer reference |
+| [PLANNING.md](PLANNING.md) | Complete planning skill reference (every skill detailed) |
+| [DEV.md](DEV.md) | Complete dev skill reference (every skill detailed) |
+
+---
+
 ## Project Structure
 
 ```
 avila-tek-skill-pack/
 ├── CLAUDE.md                              ← This file (instructions for Claude)
-├── README.md                              ← Human-readable guide
+├── README.md                              ← Human-readable overview
+├── PLANNING-WORKFLOW.md                   ← Planning workflow with gates
+├── DEV-WORKFLOW.md                        ← Dev workflow with gates
+├── PLANNING.md                            ← Full planning skill reference
+├── DEV.md                                 ← Full dev skill reference
 ├── agents/                                ← Specialized sub-agents
 │   ├── code-reviewer.md
 │   ├── security-auditor.md
@@ -40,11 +56,19 @@ avila-tek-skill-pack/
 │   ├── nextjs/
 │   │   ├── STACK.md                       ← Next.js profile
 │   │   └── agent_docs/                    ← Full Next.js standards (layers, data-fetching…)
-│   ├── spring-boot/STACK.md               ← [PENDIENTE]
-│   ├── go/STACK.md                        ← [PENDIENTE]
-│   ├── angular/STACK.md                   ← [PENDIENTE]
-│   ├── flutter/STACK.md                   ← [PENDIENTE]
-│   └── react-native/STACK.md              ← [PENDIENTE]
+│   ├── spring-boot/
+│   │   ├── STACK.md
+│   │   └── agent_docs/                    ← Full Spring Boot standards (15 files)
+│   ├── go/
+│   │   ├── STACK.md
+│   │   └── agent_docs/                    ← Full Go standards (13 files)
+│   ├── flutter/
+│   │   ├── STACK.md
+│   │   └── agent_docs/                    ← Full Flutter standards (16 files)
+│   ├── react-native/
+│   │   ├── STACK.md
+│   │   └── agent_docs/                    ← Full React Native standards (11 files)
+│   └── angular/STACK.md                   ← In progress
 └── skills/
     ├── planning-0-project-context-generator/
     ├── planning-1-domain-model-generator/
@@ -304,7 +328,9 @@ The session-start hook loads the active STACK.md(s) at the start of every sessio
 
 ### Escalation Rule
 
-If the active stack is `[PENDIENTE]` (spring-boot, go, angular, flutter, react-native) and no agent_docs exist: proceed with general best practices and state explicitly "stack standards for {name} are not yet defined — applying general conventions."
+If the active stack is Angular (in progress, no agent_docs yet): proceed with general best practices and state explicitly "stack standards for Angular are not yet fully defined — applying general conventions."
+
+For all other stacks (NestJS, Next.js, Go, Spring Boot, Flutter, React Native): full agent_docs exist — load them.
 
 ---
 
@@ -322,6 +348,8 @@ Each eval defines a prompt + expected assertions. Run manually by giving Claude 
 
 ## Boundaries
 
+- **Always:** Follow [DEV-WORKFLOW.md](DEV-WORKFLOW.md) gates when executing dev commands — do not advance a phase with a failing gate
+- **Always:** Follow [PLANNING-WORKFLOW.md](PLANNING-WORKFLOW.md) gates when executing planning skills — do not advance a phase before it is confirmed
 - **Always:** Keep skill numbering aligned with process order (planning track)
 - **Always:** Write output paths explicitly in every SKILL.md
 - **Always:** Use Story-Driven Mode in `/spec` when a story file exists in the target repo
@@ -329,6 +357,6 @@ Each eval defines a prompt + expected assertions. Run manually by giving Claude 
 - **Always:** Run the active STACK.md Verification Checklist before completing any code task
 - **Never:** Add vague advice — every skill must have concrete steps and a clear output artifact
 - **Never:** Duplicate business logic between skills — reference the primary one
-- **Never:** Invent field values or business rules — use `[PENDIENTE]` for gaps in planning artifacts
+- **Never:** Invent field values or business rules — use `[PENDING]` for gaps in planning artifacts
 - **Never:** Ask the user about Story-Driven Mode — detect the story file and activate it silently
 - **Never:** Skip the Stack Conventions axis in code review, even for small changes
