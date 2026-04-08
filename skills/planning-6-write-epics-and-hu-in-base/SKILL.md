@@ -78,13 +78,18 @@ Read `epic.md` inside each located folder. Extract fields from markdown sections
 | `## 11) Epic-level acceptance criteria`      | `acceptanceCriteria`   | Full content of the section (bullet list)                                                          |
 | `## 9) Open Questions`                       | `questions`            | Full content of the section. If the section doesn't exist or is empty, use `""`                    |
 
+**`status` is optional.** Valid values for epic status:
+`Backlog` | `Backlog Priority` | `Documentando` | `Diagramando` | `Backlog Design` |
+`Designing` | `Estimando` | `Backlog Dev` | `In Development` | `Testing` |
+`Por Desplegar` | `Released`
+
 **Variable fields:** Epics may also contain `priority`, `readiness`, or `tShirtSize`. Look for
 them in `## 0) Snapshot` as bold-label fields (e.g., `**Priority:**`, `**Readiness:**`,
 `**T-Shirt Size:**`). If found, include them in the JSON with these exact field names:
 
-- `**Priority:**` → `priority` (integer)
-- `**Readiness:**` → `readiness` (string, e.g., "KK", "KU")
-- `**T-Shirt Size:**` → `tShirtSize` (string, e.g., "Large", "Extra Large")
+- `**Priority:**` → `priority` (integer) — epic only
+- `**Readiness:**` → `readiness` (string) — valid values: `KK`, `KU`, `UU`
+- `**T-Shirt Size:**` → `tShirtSize` (string, e.g., "Large", "Extra Large") — epic only
 
 If a variable field is not found in the `.md`, omit it entirely from the JSON — do NOT invent
 default values.
@@ -103,12 +108,14 @@ Read every `.md` file inside `stories/` for each epic. Extract fields from markd
 | `## Acceptance criteria` (any number prefix) | `acceptanceCriteria`   | Full list content — match by section name, ignore leading `## N)` number                          |
 | `## Open questions` (any number prefix)      | `questions`            | Full content. Match by name, ignore leading number. If section absent or empty, use `""`          |
 
-**Variable fields:** Stories may also contain `priority`, `readiness`, `tShirtSize`, or
-`dependencies`. Apply the same logic as epics:
+**`status` is optional.** Valid values for story status:
+`Backlog` | `Backlog Priority` | `In Development` | `In PR` | `Merged DEV` |
+`Merged STG` | `Testing` | `Released`
 
-- `**Priority:**` → `priority` (integer)
-- `**Readiness:**` → `readiness` (string)
-- `**T-Shirt Size:**` → `tShirtSize` (string)
+**Variable fields:** Stories may also contain `readiness` or `dependencies`. Apply the same
+logic as epics:
+
+- `**Readiness:**` → `readiness` (string) — valid values: `KK`, `KU`, `UU`
 - `**Dependencies:**` or a `## Dependencies` section → `dependencies` (array of story ID strings, e.g., `["E-002_S-003"]`)
 
 If a variable field is not found, omit it from the JSON.
@@ -154,7 +161,7 @@ files. Here is an example with all possible fields present:
       "description": "Establecer la base segura de identidad y acceso...",
       "acceptanceCriteria": "- El usuario puede registrarse con email/contraseña.\n- ...",
       "questions": "OQ1: ¿Qué clave de coincidencia usa Canguro Azul...?\n- Responsable: ...",
-      "status": "Draft",
+      "status": "Backlog",
       "priority": 1,
       "readiness": "KK",
       "tShirtSize": "Large"
@@ -168,8 +175,7 @@ files. Here is an example with all possible fields present:
       "acceptanceCriteria": "1. La plataforma permite a un nuevo usuario...\n2. ...",
       "questions": "OQ-01: Si un email de verificación falla...\n- Estado: Resuelto\n\nOQ-02: ...",
       "epic": "E-002",
-      "status": "Draft",
-      "priority": 1,
+      "status": "Backlog",
       "readiness": "KK",
       "dependencies": ["E-002_S-003"]
     }
@@ -189,7 +195,7 @@ And here is an example where variable fields are absent (because they weren't in
       "description": "Establecer la base segura de identidad y acceso...",
       "acceptanceCriteria": "- El usuario puede registrarse con email/contraseña.\n- ...",
       "questions": "OQ1: ¿Qué clave de coincidencia usa Canguro Azul...?\n- Responsable: ...",
-      "status": "Draft"
+      "status": "Backlog"
     }
   ],
   "stories": [
@@ -200,7 +206,7 @@ And here is an example where variable fields are absent (because they weren't in
       "acceptanceCriteria": "1. La plataforma permite a un nuevo usuario...\n2. ...",
       "questions": "OQ-01: Si un email de verificación falla...\n- Estado: Resuelto",
       "epic": "E-002",
-      "status": "Draft"
+      "status": "Backlog"
     }
   ]
 }
@@ -285,3 +291,4 @@ Not found in repo: E-007
 - All content fields (name, description, acceptanceCriteria, questions) are translated to Spanish.
 - Structural/ID fields (id, epic, status, priority, readiness, tShirtSize, dependencies) are never translated.
 - Always confirm with the user before executing the POST.
+- `priority` and `tShirtSize` are epic-only fields — never include them in story objects.
