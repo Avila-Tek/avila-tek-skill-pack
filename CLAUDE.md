@@ -11,25 +11,25 @@ avila-tek-skill-pack/
 ├── CLAUDE.md                              ← This file
 ├── README.md                              ← Process overview and skill reference
 └── skills/
-    ├── 0-project-context-generator/
+    ├── planning-0-project-context-generator/
     │   └── SKILL.md                       ← Generates docs/project_context.md
-    ├── 1-domain-model-generator/
+    ├── planning-1-domain-model-generator/
     │   └── SKILL.md                       ← Generates docs/domain_model.md
-    ├── 2-functional-spec-generator/
+    ├── planning-2-functional-spec-generator/
     │   ├── SKILL.md                       ← Generates Spec Funcional (Lark Wiki)
     │   └── references/
     │       └── template.md                ← Spec Funcional canonical template
-    ├── 3-technical-design-document/
+    ├── planning-3-technical-design-document/
     │   ├── SKILL.md                       ← Generates TDD (.docx/.md)
     │   └── references/
     │       └── template.md                ← TDD canonical template
-    ├── 4-epic-generator/
+    ├── planning-4-epic-generator/
     │   ├── SKILL.md                       ← Generates docs/epics/E-XXX_slug/epic.md
     │   └── references/
     │       └── template.md                ← Epic document canonical template
-    ├── 5-story-generator/
+    ├── planning-5-story-generator/
     │   └── SKILL.md                       ← Generates docs/epics/E-XXX_slug/stories/
-    └── 6-write-epics-and-hu-in-base/
+    └── planning-6-write-epics-and-hu-in-base/
         └── SKILL.md                       ← Syncs epics + stories to Lark Base
 ```
 
@@ -90,7 +90,7 @@ docs/
 
 ## Conventions
 
-- Every skill lives in `skills/{number}-{name}/SKILL.md`
+- Every skill lives in `skills/{category}-{number}-{name}/SKILL.md` (e.g. `planning-0-project-context-generator`)
 - YAML frontmatter with `name` and `description` fields required
 - `description` must start with a trigger phrase pattern (what the user says to activate it)
 - Supporting reference files go in `skills/{name}/references/` — only create them if content exceeds ~100 lines

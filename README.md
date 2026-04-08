@@ -340,25 +340,25 @@ Inside your project repository, create the folder `.claude/skills/` if it does n
 your-project/
 └── .claude/
     └── skills/
-        ├── 0-project-context-generator/
+        ├── planning-0-project-context-generator/
         │   └── SKILL.md
-        ├── 1-domain-model-generator/
+        ├── planning-1-domain-model-generator/
         │   └── SKILL.md
-        ├── 2-functional-spec-generator/
+        ├── planning-2-functional-spec-generator/
         │   ├── SKILL.md
         │   └── references/
         │       └── template.md
-        ├── 3-technical-design-document/
+        ├── planning-3-technical-design-document/
         │   ├── SKILL.md
         │   └── references/
         │       └── template.md
-        ├── 4-epic-generator/
+        ├── planning-4-epic-generator/
         │   ├── SKILL.md
         │   └── references/
         │       └── template.md
-        ├── 5-story-generator/
+        ├── planning-5-story-generator/
         │   └── SKILL.md
-        └── 6-write-epics-and-hu-in-base/
+        └── planning-6-write-epics-and-hu-in-base/
             └── SKILL.md
 ```
 

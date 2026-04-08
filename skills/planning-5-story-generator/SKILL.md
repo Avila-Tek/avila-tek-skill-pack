@@ -74,7 +74,7 @@ Return ONLY the story document. No preamble.
 | | |
 |---|---|
 | **Epic** | E-{epic} — {Epic Name} |
-| **Status** | Draft |
+| **Status** | Backlog |
 | **Owner** | TBD |
 | **Refs** | `docs/epics/{epic_folder}/epic.md` |
 
