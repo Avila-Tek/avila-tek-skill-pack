@@ -35,22 +35,25 @@ If any of these are missing, ask the user before proceeding.
 The repo follows this folder convention:
 
 ```
-epics/
+docs/epics/
 ├── E-000_tech_platform/
 │   ├── epic.md
 │   └── stories/
-│       ├── E-000_S-001_some_story.md
-│       └── ...
+│       ├── E-000_S-001_some_story/               ← story folder
+│       │   └── E-000_S-001_some_story.md         ← story file (same name as folder)
+│       └── E-000_S-002_another_story/
+│           └── E-000_S-002_another_story.md
 ├── E-002_authentication-and-registration-foundation/
 │   ├── epic.md
 │   └── stories/
-│       ├── E-002_S-001_sign_up_with_email_password.md
-│       ├── E-002_S-002_social_sign_up.md
-│       └── ...
+│       ├── E-002_S-001_sign_up_with_email_password/
+│       │   └── E-002_S-001_sign_up_with_email_password.md
+│       └── E-002_S-002_social_sign_up/
+│           └── E-002_S-002_social_sign_up.md
 └── ...
 ```
 
-Each epic folder contains an `epic.md` and a `stories/` subfolder with one `.md` per user story.
+Each story lives in its **own subfolder** inside `stories/`. The folder name and the `.md` file name are identical. Other files in the folder (`spec.md`, `plan.md`, `todo.md`) are dev artifacts — ignore them when parsing.
 
 ## Execution steps
 
@@ -59,7 +62,7 @@ Each epic folder contains an `epic.md` and a `stories/` subfolder with one `.md`
 For each Epic ID the user provided, find the matching folder:
 
 ```bash
-ls -d epics/E-002_*/ epics/E-003_*/  # one glob per ID
+ls -d docs/epics/E-002_*/ docs/epics/E-003_*/  # one glob per ID
 ```
 
 If a folder is not found for a given ID, warn the user but continue with the ones that exist.
@@ -96,7 +99,17 @@ default values.
 
 ### Step 3 — Parse story .md files
 
-Read every `.md` file inside `stories/` for each epic. Extract fields from markdown sections:
+Stories are stored in subfolders: `stories/E-XXX_S-YYY_slug/E-XXX_S-YYY_slug.md`. For each epic, find all story folders and read the `.md` file that matches the folder name. Ignore any other files in the folder (`spec.md`, `plan.md`, `todo.md` are dev artifacts).
+
+```bash
+# List story folders for an epic
+ls -d docs/epics/E-002_*/stories/*/
+
+# For each folder, the story file is: {folder}/{basename}.md
+# e.g. stories/E-002_S-001_sign_up/ → stories/E-002_S-001_sign_up/E-002_S-001_sign_up.md
+```
+
+Extract fields from markdown sections of each story file:
 
 | Source section in story .md                  | JSON field             | Extraction rule                                                                                    |
 |----------------------------------------------|------------------------|----------------------------------------------------------------------------------------------------|
