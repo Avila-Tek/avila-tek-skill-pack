@@ -208,7 +208,12 @@ Activate these skills when the user's message matches the trigger. No command ne
 
 When `/spec` is invoked and a story file exists at `docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug/E-XXX_S-YYY_slug.md`:
 
-1. Read the story file completely (Block A + Block B)
+1. **Load all planning context** (in this order):
+   - Story file (Block A + Block B)
+   - Parent epic: `docs/epics/E-XXX_slug/epic.md`
+   - TDD: `docs/epics/E-XXX_slug/tdd.md` (skip if absent)
+   - Domain model: `docs/domain_model.md` (skip if absent)
+   - Project context: `docs/project_context.md` (only if story touches cross-cutting concerns, stack is not explicit, or epic references project-level constraints)
 2. Map story sections to spec sections:
    - Section 1 (User Story) → Objective
    - Section 2 (Acceptance Criteria) → Success Criteria
@@ -216,8 +221,8 @@ When `/spec` is invoked and a story file exists at `docs/epics/E-XXX_slug/storie
    - Section 4 (Technical Scope: API, DB, auth, config) → Tech Stack + Boundaries
    - Section 5 (Business Rules) → Boundaries constraints
    - Section 6 (Data Model) → Project Structure (if schema changes)
-3. Ask only about gaps the story does not cover (e.g. build commands, test framework, code style)
-4. Do NOT ask about scope, ACs, or technical boundaries already in the story
+3. Ask only about gaps not covered by any loaded document (e.g. build commands, test framework, code style)
+4. Do NOT ask about anything already answered in the story, epic, TDD, domain model, or project context
 5. Write `spec.md` to `docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug/spec.md`
 
 The spec becomes the source of truth for `/plan` and `/build`.

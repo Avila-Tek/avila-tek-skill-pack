@@ -253,10 +253,15 @@ The story is your **source of truth**. Do not ask clarifying questions that the 
 
 ### Story-Driven Workflow
 
-1. Read the story file completely (Block A + Block B)
-2. Identify gaps the story does not cover (e.g. build commands, code style, test framework)
-3. Ask the developer only about those gaps — not about scope, ACs, or technical boundaries already in the story
-4. Generate a complete `spec.md` using the standard spec template, with the story as source of truth
+1. **Load all planning context** (in this order):
+   - Read the story file completely (Block A + Block B): `docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug/E-XXX_S-YYY_slug.md`
+   - Read the parent epic file: `docs/epics/E-XXX_slug/epic.md` — extract scope, background, constraints, and non-goals
+   - Read the TDD if present: `docs/epics/E-XXX_slug/tdd.md` — extract architecture decisions, tech stack, and integration constraints. If absent, skip silently.
+   - Read the domain model: `docs/domain_model.md` — use it to resolve entity names, relationships, and data boundaries. If absent, skip silently.
+   - Read `docs/project_context.md` if any of the following are true: the story touches cross-cutting concerns, the tech stack is not explicit in the story, or the epic scope references project-level constraints. If absent or not needed, skip silently.
+2. Identify gaps not covered by any of the loaded documents (e.g. build commands, code style, test framework)
+3. Ask the developer only about those gaps — do not ask about anything already answered in the story, epic, TDD, domain model, or project context
+4. Generate a complete `spec.md` using the standard spec template, with the loaded documents as source of truth
 5. **Write to:** `docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug/spec.md`
 
-The resulting `spec.md` is the source of truth for the development session. Subsequent `/plan` and `/build` commands use the spec, not the story directly.
+The resulting `spec.md` is the source of truth for the development session. Subsequent `/plan` and `/build` commands use the spec, not the planning documents directly.
