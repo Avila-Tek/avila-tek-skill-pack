@@ -5,6 +5,12 @@ description: Optimizes application performance. Use when performance requirement
 
 # Performance Optimization
 
+## Stack Activation Gate
+
+Identify the active stack from the session-start hook output. State it explicitly: "Active stack: {name}".
+If not injected, use the detection signals in CLAUDE.md → Stack System.
+Apply stack-specific performance patterns: for NestJS check for N+1 queries and missing DB indexes; for Next.js check bundle size, image optimization, and Core Web Vitals. Run the active STACK.md Verification Checklist before completing output.
+
 ## Overview
 
 Measure before optimizing. Performance work without measurement is guessing — and guessing leads to premature optimization that adds complexity without improving what matters. Profile first, identify the actual bottleneck, fix it, measure again. Optimize only what measurements prove matters.

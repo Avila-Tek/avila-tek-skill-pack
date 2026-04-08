@@ -1,4 +1,5 @@
 ---
+name: technical-design-document
 description: Generate a Technical Design Document (TDD) from a Spec Funcional and domain model
 ---
 

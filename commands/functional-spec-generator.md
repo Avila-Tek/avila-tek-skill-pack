@@ -1,4 +1,5 @@
 ---
+name: functional-spec-generator
 description: Generate a Functional Spec (Spec Funcional) in Spanish from a Design Doc — one per epic
 ---
 

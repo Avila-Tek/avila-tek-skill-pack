@@ -5,6 +5,12 @@ description: Guides systematic root-cause debugging. Use when tests fail, builds
 
 # Debugging and Error Recovery
 
+## Stack Activation Gate
+
+Identify the active stack from the session-start hook output. State it explicitly: "Active stack: {name}".
+If not injected, use the detection signals in CLAUDE.md → Stack System.
+Apply the stack's Red Flags list as part of root-cause analysis — a Red Flag hit may be the bug's source.
+
 ## Overview
 
 Systematic debugging with structured triage. When something breaks, stop adding features, preserve evidence, and follow a structured process to find and fix the root cause. Guessing wastes time. The triage checklist works for test failures, build errors, runtime bugs, and production incidents.

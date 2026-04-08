@@ -1,4 +1,5 @@
 ---
+name: story-generator
 description: Generate Story files for an epic — one folder per story under docs/epics/E-XXX/stories/
 ---
 

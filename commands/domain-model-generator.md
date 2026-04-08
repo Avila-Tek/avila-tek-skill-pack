@@ -1,4 +1,5 @@
 ---
+name: domain-model-generator
 description: Generate or update the Domain Model (docs/domain_model.md) from project context and interactive Q&A
 ---
 

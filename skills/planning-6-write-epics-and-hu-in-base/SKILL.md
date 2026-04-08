@@ -27,8 +27,11 @@ clone anything. The user must provide three inputs before execution can begin:
 | Epic IDs    | One or more epic IDs separated by spaces | `E-002` or `E-002 E-003`  |
 | API Key     | Bearer token for the Avila Tools API     | `sk-xxxx...`               |
 | Base ID     | Target Lark Base identifier              | `base_abc123`              |
+| Endpoint    | API URL (optional — defaults to QA env) | `https://your-api.example.com/your/full/path` |
 
-If any of these are missing, ask the user before proceeding.
+If any of the first three are missing, ask the user before proceeding.
+
+> **Default endpoint is the QA environment.** Before sending, confirm with the user: "Sending to QA endpoint. Is this correct, or should I use a different URL?" If the user provides a different URL, use that instead.
 
 ## Repository structure
 
