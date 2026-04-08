@@ -308,6 +308,18 @@ If the active stack is `[PENDIENTE]` (spring-boot, go, angular, flutter, react-n
 
 ---
 
+## Evals
+
+The `evals/` directory contains JSON eval definitions for verifying that Claude applies stack standards correctly.
+
+| File | Purpose |
+|------|---------|
+| `evals/stack-compliance.json` | Verifies NestJS/Next.js stack standard enforcement — repository layer, Zod DTOs, auth guards, error handling |
+
+Each eval defines a prompt + expected assertions. Run manually by giving Claude the eval file and asking it to grade its own output against the assertions. No automated runner is configured yet — evals serve as a reference for what "correct stack compliance" looks like.
+
+---
+
 ## Boundaries
 
 - **Always:** Keep skill numbering aligned with process order (planning track)

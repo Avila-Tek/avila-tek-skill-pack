@@ -1,4 +1,5 @@
 ---
+name: build
 description: Implement the next task incrementally — build, test, verify, commit
 ---
 

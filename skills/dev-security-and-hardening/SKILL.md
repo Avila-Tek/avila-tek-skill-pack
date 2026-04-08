@@ -5,6 +5,12 @@ description: Hardens code against vulnerabilities. Use when handling user input,
 
 # Security and Hardening
 
+## Stack Activation Gate
+
+Identify the active stack from the session-start hook output. State it explicitly: "Active stack: {name}".
+If not injected, use the detection signals in CLAUDE.md → Stack System.
+Apply the stack's Verification Checklist before delivering any security-hardened output. For NestJS: confirm guards, pipes, and auth decorators. For Next.js: confirm server-only data handling and no client-side secret exposure.
+
 ## Overview
 
 Security-first development practices for web applications. Treat every external input as hostile, every secret as sacred, and every authorization check as mandatory. Security isn't a phase — it's a constraint on every line of code that touches user data, authentication, or external systems.

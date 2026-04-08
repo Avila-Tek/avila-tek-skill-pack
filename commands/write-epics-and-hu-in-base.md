@@ -1,4 +1,5 @@
 ---
+name: write-epics-and-hu-in-base
 description: Sync epics and stories from the repo to Lark Base via the Avila Tools API
 ---
 

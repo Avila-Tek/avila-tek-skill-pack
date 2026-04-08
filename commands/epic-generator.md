@@ -1,4 +1,5 @@
 ---
+name: epic-generator
 description: Generate Epic documents (epic.md) from a Spec Funcional — one folder per epic
 ---
 

@@ -1,4 +1,5 @@
 ---
+name: ship
 description: Run the pre-launch checklist and prepare for production deployment
 ---
 

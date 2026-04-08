@@ -65,6 +65,8 @@ fi
 meta_content=""
 if [ -f "$META_SKILL" ]; then
   meta_content="$(cat "$META_SKILL")"
+else
+  meta_content="⚠️  dev-using-agent-skills/SKILL.md not found at $META_SKILL. Skill discovery is unavailable."
 fi
 
 stack_section=""
@@ -79,10 +81,20 @@ Apply the matching standards throughout this session. Where multiple stacks are 
   for stack in "${detected_stacks[@]}"; do
     stack_file="$STACKS_DIR/$stack/STACK.md"
     if [ -f "$stack_file" ]; then
-      stack_section="${stack_section}
+      # Check if the stack is incomplete (Summary section still [PENDIENTE])
+      if grep -A1 "^## Summary" "$stack_file" 2>/dev/null | grep -q "\[PENDIENTE\]"; then
+        stack_section="${stack_section}
+---
+⚠️  Stack detected: $stack — standards are INCOMPLETE (all sections [PENDIENTE]).
+Apply general best practices for this stack. Do NOT claim to follow Avila Tek $stack conventions.
+To activate real standards: populate stacks/$stack/STACK.md and stacks/$stack/agent_docs/.
+"
+      else
+        stack_section="${stack_section}
 ---
 $(cat "$stack_file")
 "
+      fi
     fi
   done
 else
@@ -101,6 +113,12 @@ ${meta_content}
 ${stack_section}"
 
 # ── Output JSON via python3 (guarantees correct escaping) ─────────────────────
+
+if ! command -v python3 &>/dev/null; then
+  # Fallback: emit minimal JSON without python3
+  printf '{"priority":"IMPORTANT","message":"avila-tek-skill-pack session-start: python3 not found — skipping hook output. Install python3 to enable stack injection."}\n'
+  exit 0
+fi
 
 python3 -c "
 import json, sys
