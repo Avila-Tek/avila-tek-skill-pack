@@ -114,19 +114,33 @@ ls -d docs/epics/E-002_*/stories/*/
 
 Extract fields from markdown sections of each story file:
 
-| Source section in story .md                  | JSON field             | Extraction rule                                                                                    |
-|----------------------------------------------|------------------------|----------------------------------------------------------------------------------------------------|
-| Filename `E-XXX_S-YYY_slug.md`              | `id`                   | Extract `E-\d{3}_S-\d{3}` regex from the filename                                                 |
-| `# Story E-XXX_S-YYY — Name`               | `name`                 | Text after ` — ` to end of line                                                                    |
-| Snapshot table row `**Epic**`               | `epic`                 | Extract `E-\d{3}` from the Epic row value                                                         |
-| Snapshot table row `**Status**`             | `status`               | Value in the Status row                                                                            |
-| `## 1) User story` or `## User story`        | `description`          | Full paragraph content of the section                                                              |
-| `## Acceptance criteria` (any number prefix) | `acceptanceCriteria`   | Full list content — match by section name, ignore leading `## N)` number                          |
-| `## Open questions` (any number prefix)      | `questions`            | Full content. Match by name, ignore leading number. If section absent or empty, use `""`          |
+| Source section in story .md                  | JSON field             | Type       | Extraction rule                                                                                    |
+|----------------------------------------------|------------------------|------------|----------------------------------------------------------------------------------------------------|
+| Filename `E-XXX_S-YYY_slug.md`              | `id`                   | `string`   | Extract `E-\d{3}_S-\d{3}` regex from the filename                                                 |
+| `# Story E-XXX_S-YYY — Name`               | `name`                 | `string`   | Text after ` — ` to end of line                                                                    |
+| Snapshot table row `**Epic**`               | `epic`                 | `string`   | Extract `E-\d{3}` from the Epic row value                                                         |
+| Snapshot table row `**Status**`             | `status`               | `string`   | Value in the Status row                                                                            |
+| Snapshot table row `**Figma**`              | `figma`                | `string`   | URL value from the Figma row. If absent, omit from JSON.                                          |
+| `## 1) User story` or `## User story`        | `description`          | `string`   | Full paragraph content of the section                                                              |
+| `## Acceptance criteria` (any number prefix) | `acceptanceCriteria`   | `string`   | Full list content — match by section name, ignore leading `## N)` number                          |
+| `## Open questions` (any number prefix)      | `questions`            | `string`   | Full content. Match by name, ignore leading number. If section absent or empty, use `""`          |
+| `### Services & components` (inside `## 3)`) | `services`             | `string[]` | Each bullet line → one array element (strip leading `- `). Omit if absent/empty.                 |
+| `### Views / screens` (inside `## 3)`)       | `views`                | `string[]` | Each bullet line → one array element (strip leading `- `). Omit if absent/empty.                 |
+| `### Ranked tasks` (inside `## 3)`)          | `tasks`                | `string[]` | Each table data row → `"{Priority}: {Task text}"` as one array element. Skip header and separator rows. Omit if absent/empty. |
 
 **`status` is optional.** Valid values for story status:
 `Backlog` | `Backlog Priority` | `In Development` | `In PR` | `Merged DEV` |
 `Merged STG` | `Testing` | `Released`
+
+**Tasks table → array conversion example:**
+```
+| Must | Implement POST /auth/register endpoint |
+| Important | Add duplicate email validation |
+```
+becomes:
+```json
+["Must: Implement POST /auth/register endpoint", "Important: Add duplicate email validation"]
+```
 
 **Variable fields:** Stories may also contain `readiness` or `dependencies`. Apply the same
 logic as epics:
@@ -145,9 +159,12 @@ bullet points, line breaks, code references, proper nouns, technical terms):
 - `description`
 - `acceptanceCriteria`
 - `questions`
+- `services` — translate each array element individually
+- `views` — translate each array element individually
+- `tasks` — translate each array element individually (preserve the `"{Priority}:"` prefix and technical terms)
 
 **Fields that must NOT be translated:** `id`, `epic`, `status`, `priority`, `readiness`,
-`tShirtSize`, `dependencies`.
+`tShirtSize`, `dependencies`, `figma`.
 
 Translation guidelines:
 - Use Latin American Spanish conventions.
@@ -193,7 +210,11 @@ files. Here is an example with all possible fields present:
       "epic": "E-002",
       "status": "Backlog",
       "readiness": "KK",
-      "dependencies": ["E-002_S-003"]
+      "dependencies": ["E-002_S-003"],
+      "services": ["AuthService — valida el token JWT", "UserService — crea el registro"],
+      "views": ["/register — formulario de registro con validación"],
+      "tasks": ["Must: Implementar endpoint POST /auth/register", "Important: Añadir validación de email duplicado", "Optional: Animación de éxito post-registro"],
+      "figma": "https://www.figma.com/file/..."
     }
   ]
 }
@@ -242,7 +263,49 @@ Total stories: 15
 Confirm send to Lark Base?
 ```
 
-Wait for user confirmation before proceeding to the POST.
+Wait for user confirmation before proceeding to Step 5b.
+
+### Step 5b — Pre-send validation
+
+Run these checks **before** showing the confirmation preview. If any check fails, stop the sync and show the error to the user.
+
+#### Check 1 — Figma URL validation
+
+##### Check 1a — Verify the figma field is not a placeholder
+
+For each story with a `figma` field in the JSON, verify the value is not empty or a pending placeholder:
+
+- If the value is empty, `TBD`, or contains `[PENDIENTE`, show:
+
+  ```
+  ⚠️  Figma URL missing or pending in E-XXX_S-YYY:
+    The figma field is empty or contains a placeholder. Add the real URL before syncing.
+  ```
+
+  Stop the sync until the user corrects the URL in the `.md`.
+
+##### Check 1b — Validate Figma URL format
+
+For each story with a `figma` field, verify the URL meets all of the following:
+
+- Starts with `https://`
+- Domain is `www.figma.com` or `figma.com`
+- Path contains `/design/` or `/file/`
+- Does not contain `%3A` or any other URL-encoded characters — always use the decoded version (`:` instead of `%3A`)
+
+If any URL fails, show:
+
+```
+⚠️  Invalid Figma URL in E-XXX_S-YYY:
+  URL found: https://...
+  Problem: contains encoded characters (%3A). Use the decoded URL.
+```
+
+Stop the sync until the user corrects the URL in the `.md`.
+
+---
+
+Once all checks pass, show the confirmation preview to the user and wait for approval before proceeding to the POST.
 
 ### Step 6 — POST to the endpoint
 
@@ -304,7 +367,9 @@ Not found in repo: E-007
 - If the API returns an error, show the full response body to help the user debug.
 - The endpoint URL is: `https://your-api.example.com/your/full/path`
 - Auth is via `Authorization: Bearer <API_KEY>` header.
-- All content fields (name, description, acceptanceCriteria, questions) are translated to Spanish.
-- Structural/ID fields (id, epic, status, priority, readiness, tShirtSize, dependencies) are never translated.
+- All content fields (name, description, acceptanceCriteria, questions, services, views, tasks) are translated to Spanish.
+- Structural/ID fields (id, epic, status, priority, readiness, tShirtSize, dependencies, figma) are never translated.
 - Always confirm with the user before executing the POST.
 - `priority` and `tShirtSize` are epic-only fields — never include them in story objects.
+- `services`, `views`, and `tasks` are story-only fields — never include them in epic objects.
+- `figma` is a story-only field — never include it in epic objects.

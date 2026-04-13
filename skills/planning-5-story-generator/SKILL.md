@@ -34,6 +34,7 @@ Scan the epic for S-XXX references. Show the list with one-line descriptions. Sk
 Detect questions that would block a complete, accurate story:
 - Open questions in the epic relevant to this story
 - Ambiguities in the scope or flow of this specific story
+- **Figma URL** — always ask for the Figma URL if not provided by the user. This field is required for Lark sync. If the user does not have it yet, use the placeholder `[PENDIENTE — agregar URL de Figma antes de sincronizar con Lark]` and count it as a [PENDIENTE]. If the user provides a URL, validate the format before accepting it: must start with `https://`, domain must be `figma.com` or `www.figma.com`, path must contain `/design/` or `/file/`, and must not contain URL-encoded characters (`%3A`). If invalid, show the specific problem and ask the user to provide the correct URL.
 
 Ask the operator one at a time. Record answers. If the user cannot answer a question, mark it as [PENDIENTE] and proceed. Never generate a story with more than 2 [PENDIENTE] items in Block A. Only proceed to Step 4 when all resolvable questions are addressed.
 
@@ -75,6 +76,8 @@ Return ONLY the story document. No preamble.
 - [ ] Must tasks = required by an AC or hard business rule
 - [ ] Block B sections with no content are omitted
 - [ ] Section 9 has only resolved answers, or states no questions arose
+- [ ] **Figma URL is present** in `## 0) Snapshot` — not empty, not `TBD`, not a `[PENDIENTE` placeholder. If missing, warn the user: *"Esta HU no tiene Figma URL. El sync a Lark quedará bloqueado hasta que la agregues."*
+- [ ] **Figma URL format is valid** — starts with `https://`, domain is `figma.com` or `www.figma.com`, path contains `/design/` or `/file/`, no URL-encoded characters (`%3A`). If invalid, warn the user with the specific problem before writing the file.
 
 ---
 
@@ -90,6 +93,7 @@ Return ONLY the story document. No preamble.
 | **Epic** | E-{epic} — {Epic Name} |
 | **Status** | Backlog |
 | **Owner** | TBD |
+| **Figma** | {figma_url} <!-- REQUIRED: provide the Figma URL before syncing to Lark --> |
 | **Refs** | `docs/epics/{epic_folder}/epic.md` |
 
 ---
