@@ -421,7 +421,7 @@ Reads epic and story `.md` files from the repo, translates content fields to Spa
 2. Translates content fields to Spanish
 3. Builds the payload and shows a preview
 4. Waits for confirmation before sending
-5. POSTs to `https://your-api.example.com/your/full/path`
+5. POSTs to the full endpoint URL provided by the user
 6. Reports success/failure per record
 
 #### Rules

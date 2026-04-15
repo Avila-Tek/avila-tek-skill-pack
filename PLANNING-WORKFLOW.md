@@ -298,7 +298,7 @@ This is a **living document** — each run is additive. Never rewrites. Appends 
 2. Translates content fields to Spanish
 3. Builds the payload and shows a **preview**
 4. Waits for explicit confirmation before sending
-5. POSTs to `https://your-api.example.com/your/full/path`
+5. POSTs to the full endpoint URL provided by the user
 6. Reports success/failure per record
 
 **Rules:**

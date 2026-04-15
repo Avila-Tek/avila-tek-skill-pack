@@ -22,14 +22,25 @@ into a Lark Base.
 This skill runs inside the repository using Claude Code. You are already in the repo — never
 clone anything. The user must provide three inputs before execution can begin:
 
-| Input       | Description                              | Example                    |
-|-------------|------------------------------------------|----------------------------|
-| Epic IDs    | One or more epic IDs separated by spaces | `E-002` or `E-002 E-003`  |
-| API Key     | Bearer token for the Avila Tools API     | `sk-xxxx...`               |
-| Base ID     | Target Lark Base identifier              | `base_abc123`              |
-| Endpoint    | Full API URL to POST to                  | `https://your-api.example.com/your/full/path` |
+| Input       | Description                                                    | Example                          |
+|-------------|----------------------------------------------------------------|----------------------------------|
+| Epic IDs    | One or more epic IDs separated by spaces                       | `E-002` or `E-002 E-003`        |
+| API Key     | Bearer token for the Avila Tools API                           | `sk-xxxx...`                    |
+| Base ID     | Target Lark Base identifier                                    | `base_abc123`                   |
+| Endpoint    | **Full URL** including the complete path — not just the domain | `https://your-api.example.com/your/full/path` |
 
 If any of these four are missing, ask the user before proceeding.
+
+**Endpoint validation (run before proceeding):**
+- The endpoint must start with `https://`
+- The endpoint must include a path after the domain (not just `https://domain.com` or `https://domain.com/`)
+- If the user provides only a base URL without a path, stop and ask:
+  ```
+  ⚠️  El endpoint debe ser la URL completa incluyendo el path.
+  Por ejemplo: https://your-api.example.com/your/full/path
+  Por favor proporciona la URL completa.
+  ```
+- Never construct or guess the path — the user must provide it explicitly.
 
 ## Repository structure
 
