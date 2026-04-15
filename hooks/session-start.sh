@@ -106,7 +106,15 @@ Open Claude Code from inside a project directory to load stack conventions autom
 "
 fi
 
-combined="agent-skills loaded. Use the skill discovery flowchart to find the right skill for your task.
+# Build header with stack confirmation
+if [ ${#detected_stacks[@]} -gt 0 ]; then
+  stacks_label="${detected_stacks[*]}"
+  header="✅ avila-tek-skill-pack hook ejecutado. Stack detectado: ${stacks_label}"
+else
+  header="✅ avila-tek-skill-pack hook ejecutado. No stack detectado."
+fi
+
+combined="${header}
 
 ${meta_content}
 
