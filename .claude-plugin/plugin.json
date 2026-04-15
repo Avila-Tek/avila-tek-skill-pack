@@ -12,10 +12,5 @@
   "keywords": ["planning", "development", "workflow", "nestjs", "nextjs", "lark"],
   "skills": "./skills",
   "commands": "./commands",
-  "agents": [
-    "./agents/code-reviewer.md",
-    "./agents/security-auditor.md",
-    "./agents/test-engineer.md"
-  ],
   "hooks": "./hooks/hooks.json"
 }
