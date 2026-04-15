@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -lc 'for root in \"${CLAUDE_PLUGIN_ROOT:-}\" \"$HOME/.claude/plugins/avila-tek-skill-pack\" \"$HOME/.claude/plugins/avila-tek-skill-pack@avila-tek\" \"$HOME/.claude/plugins/marketplace/avila-tek-skill-pack\"; do if [ -n \"$root\" ] && [ -f \"$root/hooks/session-start.sh\" ]; then bash \"$root/hooks/session-start.sh\"; exit $?; fi; done; candidate=$(find \"$HOME/.claude/plugins\" -maxdepth 4 -type f -name \"session-start.sh\" -path \"*/avila-tek*\" 2>/dev/null | head -n 1); if [ -n \"$candidate\" ]; then bash \"$candidate\"; exit $?; fi; echo \"{\\\"priority\\\":\\\"IMPORTANT\\\",\\\"message\\\":\\\"\\u26a0\\ufe0f avila-tek-skill-pack: session-start.sh not found. CLAUDE_PLUGIN_ROOT=[${CLAUDE_PLUGIN_ROOT:-NOT SET}]\\\"}\"'"
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\""
           }
         ],
         "description": "Load stack standards and agent-skills meta-skill for the current project"
