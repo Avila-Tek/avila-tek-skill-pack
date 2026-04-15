@@ -316,11 +316,13 @@ cat > /tmp/lark-payload.json << 'PAYLOAD'
 <THE_JSON_BODY>
 PAYLOAD
 
+read -rs AVILA_API_KEY_INPUT
 curl -s -w "\n%{http_code}" -X POST \
   https://your-api.example.com/your/full/path \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <API_KEY>" \
+  -H "Authorization: Bearer $AVILA_API_KEY_INPUT" \
   -d @/tmp/lark-payload.json
+unset AVILA_API_KEY_INPUT
 ```
 
 The endpoint performs native upsert: it creates records that don't exist and overwrites records
