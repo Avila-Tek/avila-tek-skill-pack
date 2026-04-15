@@ -60,6 +60,11 @@ if find "$PWD" -maxdepth 3 -name "pubspec.yaml" 2>/dev/null | \
   detected_stacks+=("flutter")
 fi
 
+# ── Write plugin root path for skills to resolve agent_docs ───────────────────
+
+mkdir -p "$PWD/.claude"
+echo "$PACK_ROOT" > "$PWD/.claude/.avila-tek-root"
+
 # ── Build message content ──────────────────────────────────────────────────────
 
 meta_content=""

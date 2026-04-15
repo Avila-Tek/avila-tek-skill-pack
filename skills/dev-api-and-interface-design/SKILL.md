@@ -11,9 +11,9 @@ Identify the active stack from the session-start hook output. State it explicitl
 If not injected, use the detection signals in CLAUDE.md → Stack System.
 
 **Required before any output — do not skip:**
-1. Read `stacks/{detected-stack}/STACK.md`.
-2. In the STACK.md, find "Required Reading by Task Type" → row: **API / new endpoints**.
-3. Read every file listed in that row. Do not proceed until those Reads are complete.
+1. Read `.claude/.avila-tek-root` → this file contains `{PACK_ROOT}`, the absolute path to the plugin.
+2. The active STACK.md is already in your context (injected by the session hook). Find it and locate the "Required Reading by Task Type" section → row: **API / new endpoints**.
+3. For each file listed in that row, Read `{PACK_ROOT}/stacks/{active-stack}/agent_docs/{file}`. Do not proceed until those Reads are complete.
 
 Apply those patterns and run the Verification Checklist before completing any output.
 

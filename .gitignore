@@ -8,3 +8,4 @@
 *.p12
 *.pfx
 input/
+.avila-tek-root

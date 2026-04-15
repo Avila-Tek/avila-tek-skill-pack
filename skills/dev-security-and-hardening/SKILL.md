@@ -11,15 +11,9 @@ Identify the active stack from the session-start hook output. State it explicitl
 If not injected, use the detection signals in CLAUDE.md → Stack System.
 
 **Required before any output — do not skip:**
-1. Read the active stack's STACK.md:
-   - NestJS → Read `stacks/nestjs/STACK.md`
-   - Next.js → Read `stacks/nextjs/STACK.md`
-   - Go → Read `stacks/go/STACK.md`
-   - Spring Boot → Read `stacks/spring-boot/STACK.md`
-   - Flutter → Read `stacks/flutter/STACK.md`
-   - React Native → Read `stacks/react-native/STACK.md`
-2. In the STACK.md, find "Required Reading by Task Type" → rows: **Any implementation** + **Auth / permissions**.
-3. Read every file listed in those rows. Do not proceed until those Reads are complete.
+1. Read `.claude/.avila-tek-root` → this file contains `{PACK_ROOT}`, the absolute path to the plugin.
+2. The active STACK.md is already in your context (injected by the session hook). Find it and locate the "Required Reading by Task Type" section → rows: **Any implementation** + **Auth / permissions**.
+3. For each file listed in those rows, Read `{PACK_ROOT}/stacks/{active-stack}/agent_docs/{file}`. Do not proceed until those Reads are complete.
 
 Run the Verification Checklist before delivering any output. For NestJS: confirm guards, pipes, and auth decorators. For Next.js: confirm server-only data handling and no client-side secret exposure.
 
