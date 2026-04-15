@@ -27,6 +27,10 @@ detection:
 
 Standards live in `stacks/angular/agent_docs/`. Currently empty — add files as the team defines conventions.
 
+## Required Reading by Task Type
+
+[PENDIENTE] — Add this section when `agent_docs/` is populated with stack standards.
+
 ## Testing Conventions
 
 [PENDIENTE]

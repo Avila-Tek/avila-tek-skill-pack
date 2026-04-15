@@ -72,6 +72,23 @@ Full standards live in `stacks/nextjs/agent_docs/`:
 | `authentication.md` | Auth flow, protected routes, session management |
 | `layers/` | Deep-dives per layer: application, domain, infrastructure, server, ui |
 
+## Required Reading by Task Type
+
+After reading this file, Read the `agent_docs` files listed for your task type. Do not proceed until those Reads are complete.
+
+| Task type | Read these files |
+|-----------|-----------------|
+| Any implementation | `agent_docs/architecture.md`, `agent_docs/code-standard.md`, `agent_docs/import-boundaries.md` |
+| UI / components | Any implementation + `agent_docs/component-structure.md`, `agent_docs/styling.md`, `agent_docs/good-practices.md` |
+| Data fetching | Any implementation + `agent_docs/data-fetching.md` |
+| Forms | Any implementation + `agent_docs/forms.md` |
+| Routing / pages | Any implementation + `agent_docs/routing.md` |
+| Auth | Any implementation + `agent_docs/authentication.md` |
+| Performance | Any implementation + `agent_docs/performance.md` |
+| Testing | `agent_docs/testing.md` |
+| Code review | `agent_docs/architecture.md`, `agent_docs/code-standard.md`, `agent_docs/import-boundaries.md` |
+| Observability | Any implementation + `agent_docs/observability.md` |
+
 ## Specialized Skills
 
 When working in a Next.js project, use these skills for stack-specific tasks:

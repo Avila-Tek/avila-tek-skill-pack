@@ -9,7 +9,19 @@ description: Hardens code against vulnerabilities. Use when handling user input,
 
 Identify the active stack from the session-start hook output. State it explicitly: "Active stack: {name}".
 If not injected, use the detection signals in CLAUDE.md → Stack System.
-Apply the stack's Verification Checklist before delivering any security-hardened output. For NestJS: confirm guards, pipes, and auth decorators. For Next.js: confirm server-only data handling and no client-side secret exposure.
+
+**Required before any output — do not skip:**
+1. Read the active stack's STACK.md:
+   - NestJS → Read `stacks/nestjs/STACK.md`
+   - Next.js → Read `stacks/nextjs/STACK.md`
+   - Go → Read `stacks/go/STACK.md`
+   - Spring Boot → Read `stacks/spring-boot/STACK.md`
+   - Flutter → Read `stacks/flutter/STACK.md`
+   - React Native → Read `stacks/react-native/STACK.md`
+2. In the STACK.md, find "Required Reading by Task Type" → rows: **Any implementation** + **Auth / permissions**.
+3. Read every file listed in those rows. Do not proceed until those Reads are complete.
+
+Run the Verification Checklist before delivering any output. For NestJS: confirm guards, pipes, and auth decorators. For Next.js: confirm server-only data handling and no client-side secret exposure.
 
 ## Overview
 

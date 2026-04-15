@@ -79,6 +79,24 @@ Standards live in `stacks/flutter/agent_docs/`:
 | `presentation/blocs/states.md` | State definitions |
 | `presentation/blocs/events.md` | Event definitions |
 
+## Required Reading by Task Type
+
+After reading this file, Read the `agent_docs` files listed for your task type. Do not proceed until those Reads are complete.
+
+| Task type | Read these files |
+|-----------|-----------------|
+| Any implementation | `agent_docs/01-architecture.md`, `agent_docs/02-folder-structure.md`, `agent_docs/03-naming-conventions.md` |
+| Presentation / UI | Any implementation + `agent_docs/presentation/presentation.md`, `agent_docs/presentation/features/features.md` |
+| BLoC / State | Any implementation + `agent_docs/05-state-management.md`, `agent_docs/presentation/blocs/blocs.md`, `agent_docs/presentation/blocs/states.md`, `agent_docs/presentation/blocs/events.md` |
+| Application / Use Cases | Any implementation + `agent_docs/application/application.md`, `agent_docs/application/use-cases.md` |
+| Domain model | Any implementation + `agent_docs/domain/domain.md`, `agent_docs/domain/entities.md` |
+| Infrastructure | Any implementation + `agent_docs/infrastructure/infrastructure.md`, `agent_docs/infrastructure/data-sources.md`, `agent_docs/infrastructure/repositories.md` |
+| Error handling | Any implementation + `agent_docs/04-error-handling.md` |
+| Testing | `agent_docs/06-testing.md` |
+| Code review | `agent_docs/01-architecture.md`, `agent_docs/02-folder-structure.md`, `agent_docs/03-naming-conventions.md` |
+| Firebase | Any implementation + `agent_docs/09-firebase.md` |
+| Routing / deep links | Any implementation + `agent_docs/10-deep-links.md` |
+
 ## Testing Conventions
 
 - Domain tests: pure Dart, zero mocks — test entities and validators directly

@@ -10,7 +10,12 @@ description: Guides stable API and interface design. Use when designing APIs, mo
 Identify the active stack from the session-start hook output. State it explicitly: "Active stack: {name}".
 If not injected, use the detection signals in CLAUDE.md → Stack System.
 
-Once identified, read `stacks/{detected-stack}/agent_docs/api-design.md` for stack-specific patterns (DTOs, error handling, response mappers, auth, conventions). Apply those patterns and run the stack's Verification Checklist before completing any output.
+**Required before any output — do not skip:**
+1. Read `stacks/{detected-stack}/STACK.md`.
+2. In the STACK.md, find "Required Reading by Task Type" → row: **API / new endpoints**.
+3. Read every file listed in that row. Do not proceed until those Reads are complete.
+
+Apply those patterns and run the Verification Checklist before completing any output.
 
 ## Output Artifact
 

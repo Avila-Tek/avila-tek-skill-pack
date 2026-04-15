@@ -9,7 +9,19 @@ description: Delivers changes incrementally. Use when implementing any feature o
 
 Identify the active stack from the session-start hook output. State it explicitly: "Active stack: {name}".
 If not injected, use the detection signals in CLAUDE.md → Stack System.
-Apply this stack's STACK.md Key Patterns and Verification Checklist before completing any output.
+
+**Required before any code output — do not skip:**
+1. Read the active stack's STACK.md:
+   - NestJS → Read `stacks/nestjs/STACK.md`
+   - Next.js → Read `stacks/nextjs/STACK.md`
+   - Go → Read `stacks/go/STACK.md`
+   - Spring Boot → Read `stacks/spring-boot/STACK.md`
+   - Flutter → Read `stacks/flutter/STACK.md`
+   - React Native → Read `stacks/react-native/STACK.md`
+2. In the STACK.md, find "Required Reading by Task Type" → row: **Any implementation**.
+3. Read every file listed in that row. Do not proceed until those Reads are complete.
+
+Apply the Key Patterns and run the Verification Checklist before completing any output.
 
 > Before each slice: check the active STACK.md Red Flags. If any hit, fix before proceeding. Run the full Verification Checklist when the last slice is complete.
 

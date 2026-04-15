@@ -68,6 +68,24 @@ Standards live in `stacks/react-native/agent_docs/`:
 | `presentation/features/components.md` | Reusable UI components |
 | `presentation/hooks/hooks.md` | Custom hooks patterns |
 
+## Required Reading by Task Type
+
+After reading this file, Read the `agent_docs` files listed for your task type. Do not proceed until those Reads are complete.
+
+| Task type | Read these files |
+|-----------|-----------------|
+| Any implementation | `agent_docs/01-architecture.md`, `agent_docs/02-folder-structure.md`, `agent_docs/03-naming-conventions.md` |
+| Presentation / UI | Any implementation + `agent_docs/presentation/presentation.md`, `agent_docs/presentation/features/features.md`, `agent_docs/presentation/features/components.md` |
+| Screens | Any implementation + `agent_docs/presentation/features/screens.md` |
+| Custom hooks | Any implementation + `agent_docs/presentation/hooks/hooks.md` |
+| State management | Any implementation + `agent_docs/05-state-management.md` |
+| Application / Use Cases | Any implementation + `agent_docs/application/application.md`, `agent_docs/application/use-cases.md` |
+| Domain model | Any implementation + `agent_docs/domain/domain.md`, `agent_docs/domain/entities.md` |
+| Infrastructure | Any implementation + `agent_docs/infrastructure/infrastructure.md`, `agent_docs/infrastructure/data-sources.md` |
+| Error handling | Any implementation + `agent_docs/04-error-handling.md` |
+| Auth | Any implementation + `agent_docs/06-authentication.md` |
+| Code review | `agent_docs/01-architecture.md`, `agent_docs/02-folder-structure.md`, `agent_docs/03-naming-conventions.md` |
+
 ## Testing Conventions
 
 - Domain tests: pure TypeScript logic, no mocks

@@ -9,9 +9,21 @@ description: Drives development with tests. Use when implementing any logic, fix
 
 Identify the active stack from the session-start hook output. State it explicitly: "Active stack: {name}".
 If not injected, use the detection signals in CLAUDE.md → Stack System.
-Apply this stack's STACK.md Key Patterns and Verification Checklist before completing any output.
 
-> Follow the Testing Conventions from the active `stacks/{detected-stack}/STACK.md` (test location, mock strategy, coverage gate, test framework).
+**Required before any code output — do not skip:**
+1. Read the active stack's STACK.md:
+   - NestJS → Read `stacks/nestjs/STACK.md`
+   - Next.js → Read `stacks/nextjs/STACK.md`
+   - Go → Read `stacks/go/STACK.md`
+   - Spring Boot → Read `stacks/spring-boot/STACK.md`
+   - Flutter → Read `stacks/flutter/STACK.md`
+   - React Native → Read `stacks/react-native/STACK.md`
+2. In the STACK.md, find "Required Reading by Task Type" → row: **Testing**.
+3. Read every file listed in that row. Do not proceed until those Reads are complete.
+
+Apply the Key Patterns and run the Verification Checklist before completing any output.
+
+> Follow the Testing Conventions from the active STACK.md (test location, mock strategy, coverage gate, test framework).
 
 ## Overview
 

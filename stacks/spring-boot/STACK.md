@@ -64,6 +64,22 @@ Standards live in `stacks/spring-boot/agent_docs/`:
 | `13-tooling.md` | Gradle DSL, Checkstyle, Spotless, GitHub Actions, Docker Compose |
 | `14-authentication.md` | Spring Security 6, JWT filter, RBAC, method security |
 
+## Required Reading by Task Type
+
+After reading this file, Read the `agent_docs` files listed for your task type. Do not proceed until those Reads are complete.
+
+| Task type | Read these files |
+|-----------|-----------------|
+| Any implementation | `agent_docs/01-project-layout.md`, `agent_docs/03-architecture.md`, `agent_docs/06-dependency-injection.md` |
+| API / new endpoints | Any implementation + `agent_docs/12-http-layer.md`, `agent_docs/05-error-handling.md`, `agent_docs/07-validation.md` |
+| Domain model | Any implementation + `agent_docs/04-domain-model.md` |
+| Data access / persistence | Any implementation + `agent_docs/09-data-access.md` |
+| Auth | Any implementation + `agent_docs/14-authentication.md` |
+| Testing | `agent_docs/08-testing.md` |
+| Code review | `agent_docs/03-architecture.md`, `agent_docs/01-project-layout.md`, `agent_docs/06-dependency-injection.md` |
+| Observability / logging | Any implementation + `agent_docs/11-observability.md` |
+| Configuration | Any implementation + `agent_docs/10-configuration.md` |
+
 ## Testing Conventions
 
 - Unit tests: JUnit 5 + Mockito — instantiate classes directly (no Spring context), fast

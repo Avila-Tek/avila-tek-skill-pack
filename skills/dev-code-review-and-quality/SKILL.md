@@ -9,7 +9,19 @@ description: Conducts multi-axis code review. Use before merging any change. Use
 
 Identify the active stack from the session-start hook output. State it explicitly: "Active stack: {name}".
 If not injected, use the detection signals in CLAUDE.md → Stack System.
-Apply this stack's STACK.md Key Patterns and Verification Checklist before completing any output.
+
+**Required before beginning review — do not skip:**
+1. Read the active stack's STACK.md:
+   - NestJS → Read `stacks/nestjs/STACK.md`
+   - Next.js → Read `stacks/nextjs/STACK.md`
+   - Go → Read `stacks/go/STACK.md`
+   - Spring Boot → Read `stacks/spring-boot/STACK.md`
+   - Flutter → Read `stacks/flutter/STACK.md`
+   - React Native → Read `stacks/react-native/STACK.md`
+2. In the STACK.md, find "Required Reading by Task Type" → row: **Code review**.
+3. Read every file listed in that row. Do not proceed until those Reads are complete.
+
+Apply the Key Patterns and run the Verification Checklist before completing any output.
 
 > The active STACK.md defines additional Red Flags and a Verification Checklist specific to this project. Run through both as part of Step 3 and the final checklist.
 

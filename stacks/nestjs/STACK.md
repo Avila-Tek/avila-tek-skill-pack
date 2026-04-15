@@ -55,6 +55,19 @@ Full standards live in `stacks/nestjs/agent_docs/`:
 | `testing.md` | Unit test patterns, mock strategies, coverage gates |
 | `test.md` | Quick cheat sheet — test commands, watch/coverage/E2E scripts |
 
+## Required Reading by Task Type
+
+After reading this file, Read the `agent_docs` files listed for your task type. Do not proceed until those Reads are complete.
+
+| Task type | Read these files |
+|-----------|-----------------|
+| Any implementation | `agent_docs/architecture.md`, `agent_docs/code-standard.md`, `agent_docs/conventions.md` |
+| API / new endpoints | Any implementation + `agent_docs/module-patterns.md`, `agent_docs/error-handling.md` |
+| Auth / permissions | Any implementation + `agent_docs/auth-permissions.md` |
+| Testing | `agent_docs/testing.md`, `agent_docs/test.md` |
+| Code review | `agent_docs/architecture.md`, `agent_docs/code-standard.md`, `agent_docs/conventions.md` |
+| Logging / observability | Any implementation + `agent_docs/log-standardization.md` |
+
 ## Specialized Skills
 
 When working in a NestJS project, use these skills for stack-specific tasks:

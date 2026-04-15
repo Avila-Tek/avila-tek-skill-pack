@@ -10,7 +10,12 @@ description: Builds production-quality UIs. Use when building or modifying user-
 Identify the active stack from the session-start hook output. State it explicitly: "Active stack: {name}".
 If not injected, use the detection signals in CLAUDE.md → Stack System.
 
-Once identified, read `stacks/{detected-stack}/agent_docs/` for stack-specific UI patterns (component architecture, layer boundaries, design system tokens, state management, data fetching conventions). Apply those patterns and run the stack's Verification Checklist before completing any output.
+**Required before any output — do not skip:**
+1. Read `stacks/{detected-stack}/STACK.md`.
+2. In the STACK.md, find "Required Reading by Task Type" → identify the rows matching your task (UI / components, Data fetching, Forms, Routing, Auth — pick all that apply).
+3. Read every file listed in those rows. Do not proceed until those Reads are complete.
+
+Apply those patterns and run the Verification Checklist before completing any output.
 
 ## Output Artifact
 
