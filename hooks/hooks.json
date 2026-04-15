@@ -2,10 +2,11 @@
   "hooks": {
     "SessionStart": [
       {
+        "matcher": "",
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh"
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.sh\" 2>/dev/null || echo '{\"priority\":\"IMPORTANT\",\"message\":\"⚠️ avila-tek hook: CLAUDE_PLUGIN_ROOT not set or script not found. ROOT=[${CLAUDE_PLUGIN_ROOT}]\"}'"
           }
         ]
       }
