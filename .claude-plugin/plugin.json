@@ -1,7 +1,7 @@
 {
   "name": "avila-tek-skill-pack",
   "description": "Complete Avila Tek software delivery lifecycle — from Design Doc to production code",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "author": {
     "name": "Avila Tek",
     "email": "dev@avilatek.com"
@@ -11,6 +11,5 @@
   "license": "MIT",
   "keywords": ["planning", "development", "workflow", "nestjs", "nextjs", "lark"],
   "skills": "./skills",
-  "commands": "./commands",
-  "hooks": "./hooks/hooks.json"
+  "commands": "./commands"
 }
