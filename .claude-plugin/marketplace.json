@@ -1,0 +1,20 @@
+{
+  "name": "avila-tek",
+  "owner": {
+    "name": "Avila Tek",
+    "email": "dev@avilatek.com"
+  },
+  "metadata": {
+    "description": "Avila Tek software delivery skills, agents, and workflows"
+  },
+  "plugins": [
+    {
+      "name": "avila-tek-skill-pack",
+      "source": "./",
+      "description": "Full planning + dev lifecycle skills",
+      "version": "2.1.0",
+      "category": "development-workflows",
+      "tags": ["planning", "epics", "stories", "lark", "nestjs", "nextjs"]
+    }
+  ]
+}
