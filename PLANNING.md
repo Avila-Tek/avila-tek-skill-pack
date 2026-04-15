@@ -492,6 +492,11 @@ docs/
 
 ## Installation
 
-Copy the entire skill pack into `.claude/` in your project — see [README.md](README.md) for the one-command install. All six folders are required; do not copy only the planning skills in isolation.
+See [README.md](README.md) for the full install steps. In short:
+
+```bash
+claude plugin marketplace add avila-tek github:avila-tek/avila-tek-skill-pack
+claude plugin install avila-tek-skill-pack@avila-tek --scope project
+```
 
 When the planning track is done and story files are committed, hand off to the developer. See [DEV.md](DEV.md).

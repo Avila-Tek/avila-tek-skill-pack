@@ -250,47 +250,27 @@ docs/
 
 ## Quick Start
 
-Copy the **entire skill pack folder** into your project's `.claude/` directory. You need all of it — skills, commands, agents, references, stacks, and hooks work together as a system.
+**Step 1 — Add the Avila Tek marketplace** (only once per machine):
 
 ```bash
-cd your-project
-
-cp -r /path/to/avila-tek-skill-pack/. .claude/
+claude plugin marketplace add avila-tek github:avila-tek/avila-tek-skill-pack
 ```
 
-That's one command. It copies everything:
-
-| Folder | What it contains | Why you need it |
-|--------|-----------------|-----------------|
-| `skills/` | 27 skill definitions | The core behavior of every command and natural language trigger |
-| `commands/` | 14 slash commands | The `/spec`, `/plan`, `/build`, `/review`, `/ship` entry points |
-| `agents/` | 3 specialized agents | Code reviewer, security auditor, test engineer |
-| `stacks/` | 7 stack profiles + docs | Language-specific standards auto-loaded by the hook |
-| `hooks/` | Session start hook | Auto-detects the tech stack and loads the right standards |
-| `references/` | 4 shared checklists | Security, performance, accessibility, testing gates |
-
-**Without `hooks/`**, the stack system doesn't activate — Claude won't know you're in a NestJS or Next.js project and won't enforce the right standards.
-
-**Without `stacks/`**, the hook has nothing to load.
-
-**Without `commands/`**, slash commands like `/spec` and `/build` won't exist.
-
-All six folders are required.
-
-Commit `.claude/` to the repo so the entire team gets everything when they clone:
+**Step 2 — Install the plugin in your project** (run from inside the project):
 
 ```bash
-git add .claude/
-git commit -m "add avila-tek-skill-pack"
+claude plugin install avila-tek-skill-pack@avila-tek --scope project
 ```
 
-Then open Claude Code from inside the project:
+This installs the plugin at project scope — it gets saved to `.claude/settings.json` so the entire team gets it automatically when they clone the repo.
+
+**Step 3 — Activate without restarting:**
 
 ```bash
-claude
+/reload-plugins
 ```
 
-Stack standards load automatically on session start. No additional setup needed.
+Stack standards load automatically on every session start. No additional setup needed.
 
 ---
 

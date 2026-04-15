@@ -600,6 +600,11 @@ Explore and refine ideas through structured divergent and convergent thinking be
 
 ## Installation
 
-Copy the entire skill pack into `.claude/` in your project — see [README.md](README.md) for the one-command install. All six folders are required (skills, commands, agents, stacks, hooks, references); do not copy only the dev skills in isolation.
+See [README.md](README.md) for the full install steps. In short:
+
+```bash
+claude plugin marketplace add avila-tek github:avila-tek/avila-tek-skill-pack
+claude plugin install avila-tek-skill-pack@avila-tek --scope project
+```
 
 If you also use the planning track, see [PLANNING.md](PLANNING.md).
