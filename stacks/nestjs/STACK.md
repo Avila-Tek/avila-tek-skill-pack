@@ -54,7 +54,6 @@ Full standards live in `stacks/nestjs/agent_docs/`:
 | `module-patterns.md` | Module, service, repository, controller templates |
 | `testing.md` | Unit test patterns, mock strategies, coverage gates |
 | `test.md` | Quick cheat sheet — test commands, watch/coverage/E2E scripts |
-| `erp-context.md` | Domain context specific to ERP-style modules |
 
 ## Specialized Skills
 
