@@ -120,16 +120,16 @@ ${meta_content}
 
 ${stack_section}"
 
-# ── Output JSON via python3 (guarantees correct escaping) ─────────────────────
+# ── Output via python3 (guarantees correct escaping for additionalContext) ────
 
 if ! command -v python3 &>/dev/null; then
-  # Fallback: emit minimal JSON without python3
-  printf '{"priority":"IMPORTANT","message":"avila-tek-skill-pack session-start: python3 not found — skipping hook output. Install python3 to enable stack injection."}\n'
+  # Fallback: plain text output (Claude Code injects stdout as context)
+  printf '%s\n' "$combined"
   exit 0
 fi
 
 python3 -c "
 import json, sys
 msg = sys.stdin.read()
-print(json.dumps({'priority': 'IMPORTANT', 'message': msg}))
+print(json.dumps({'hookSpecificOutput': {'hookEventName': 'SessionStart', 'additionalContext': msg}}))
 " <<< "$combined"
