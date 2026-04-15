@@ -27,11 +27,9 @@ clone anything. The user must provide three inputs before execution can begin:
 | Epic IDs    | One or more epic IDs separated by spaces | `E-002` or `E-002 E-003`  |
 | API Key     | Bearer token for the Avila Tools API     | `sk-xxxx...`               |
 | Base ID     | Target Lark Base identifier              | `base_abc123`              |
-| Endpoint    | API URL (optional — defaults to QA env) | `https://your-api.example.com/your/full/path` |
+| Endpoint    | Full API URL to POST to                  | `https://your-api.example.com/your/full/path` |
 
-If any of the first three are missing, ask the user before proceeding.
-
-> **Default endpoint is the QA environment.** Before sending, confirm with the user: "Sending to QA endpoint. Is this correct, or should I use a different URL?" If the user provides a different URL, use that instead.
+If any of these four are missing, ask the user before proceeding.
 
 ## Repository structure
 
@@ -317,12 +315,13 @@ cat > /tmp/lark-payload.json << 'PAYLOAD'
 PAYLOAD
 
 read -rs AVILA_API_KEY_INPUT
+read -r AVILA_ENDPOINT_INPUT
 curl -s -w "\n%{http_code}" -X POST \
-  https://your-api.example.com/your/full/path \
+  "$AVILA_ENDPOINT_INPUT" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $AVILA_API_KEY_INPUT" \
   -d @/tmp/lark-payload.json
-unset AVILA_API_KEY_INPUT
+unset AVILA_API_KEY_INPUT AVILA_ENDPOINT_INPUT
 ```
 
 The endpoint performs native upsert: it creates records that don't exist and overwrites records
@@ -367,7 +366,7 @@ Not found in repo: E-007
 - Never invent or assume field values. Only include fields that actually exist in the .md files.
 - The `questions` field can be empty — send `""` if the section doesn't exist in the .md.
 - If the API returns an error, show the full response body to help the user debug.
-- The endpoint URL is: `https://your-api.example.com/your/full/path`
+- The endpoint URL is the one provided by the user — never assume or hardcode a default.
 - Auth is via `Authorization: Bearer <API_KEY>` header.
 - All content fields (name, description, acceptanceCriteria, questions, services, views, tasks) are translated to Spanish.
 - Structural/ID fields (id, epic, status, priority, readiness, tShirtSize, dependencies, figma) are never translated.
