@@ -9,6 +9,7 @@ description: Implement the next task incrementally — build, test, verify, comm
 
 | Skill | When |
 |-------|------|
+| `dev-incremental-implementation` | Always — primary execution skill for /build |
 | `dev-test-driven-development` | Always — tests are part of every build increment |
 | `dev-debugging-and-error-recovery` | Any build step, test, or type check fails |
 | `dev-browser-testing-with-devtools` | Change involves browser-rendered code (React, Next.js pages, UI components) |
