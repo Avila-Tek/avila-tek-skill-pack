@@ -181,6 +181,8 @@ When a stack is detected, Claude loads `stacks/{name}/STACK.md` (key patterns, r
 | **Spring Boot** | `pom.xml` or `build.gradle` containing `spring-boot` | 15 files | Ready |
 | **Flutter** | `pubspec.yaml` containing `flutter:` | 16 files | Ready |
 | **React Native** | `react-native` in `package.json` | 11 files | Ready |
+| **Fastify** | `fastify` in `package.json` | 8 files | Ready |
+| **Express** | `express` in `package.json` (excludes NestJS/Angular/React Native) | 7 files | Ready |
 | **Angular** | `angular.json` or `@angular/core` in `package.json` | — | In progress |
 
 **Monorepo:** When multiple stacks are detected (e.g. NestJS + Next.js), all matching standards are loaded. Each stack's rules apply to its part of the codebase.

@@ -163,6 +163,8 @@ Every session auto-loads the stack standards for the detected project. This happ
 | Spring Boot | `pom.xml` or `build.gradle` containing `spring-boot` |
 | Go | `go.mod` present |
 | Flutter | `pubspec.yaml` containing `flutter:` |
+| Fastify | `fastify` in any `package.json` |
+| Express | `express` in any `package.json` (and not NestJS/Angular/React Native) |
 
 ### Monorepo Support
 

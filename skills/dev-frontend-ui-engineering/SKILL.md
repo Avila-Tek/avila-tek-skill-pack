@@ -17,6 +17,40 @@ If not injected, use the detection signals in CLAUDE.md → Stack System.
 
 Apply those patterns and run the Verification Checklist before completing any output.
 
+## MCP Tools
+
+Use these MCP servers when available. At the start of any UI task, check which are active.
+If one is missing, ask the user once: "I can use the [X] MCP for this — do you have it configured? If not, I'll proceed without it."
+Never block on a missing MCP — always offer a fallback path.
+
+### Figma — Extract design specs before building
+
+**If available:** When the user provides a Figma URL or references a design, extract specs before writing a single line of UI code:
+
+1. Invoke `figma:figma-use` skill first — mandatory prerequisite before any `use_figma` call.
+2. Call `get_design_context` with the `fileKey` and `nodeId` from the URL.
+3. Use the returned code, screenshot, and tokens as reference — do not copy verbatim.
+4. Map Figma output to the project's existing components and design tokens.
+
+**URL parsing:** `figma.com/design/:fileKey/:name?node-id=:nodeId` — convert `-` to `:` in `nodeId`.
+
+Key tools: `get_design_context`, `get_screenshot`, `get_metadata`, `search_design_system`.
+
+**If not available:** Ask for screenshots or a written description of the design intent before proceeding.
+
+### shadcn — Find the right component before writing custom code
+
+**If available:** When building with shadcn/ui, query the MCP before implementing a component from scratch:
+
+1. Query the shadcn MCP for a component matching the UI need.
+2. Review the component's API, variants, and built-in accessibility behavior.
+3. If not yet in the project, install via CLI: `npx shadcn@latest add <component>`.
+4. Compose from shadcn primitives — never re-implement what shadcn already provides.
+
+**Prefer shadcn primitives** for: Button, Dialog, Dropdown, Form, Input, Select, Sheet, Toast, Tooltip, Table, Tabs, Command.
+
+**If not available:** Fall back to the project's existing component library (`@repo/ui` or equivalent). Do not introduce shadcn without confirming with the user.
+
 ## Output Artifact
 
 Code generated in the feature slice per the active stack's architecture.

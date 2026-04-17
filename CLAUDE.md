@@ -299,6 +299,8 @@ The session-start hook (`hooks/session-start.sh`) automatically detects and load
 | spring-boot | `pom.xml` or `build.gradle` containing `spring-boot` |
 | go | `go.mod` present |
 | flutter | `pubspec.yaml` containing `flutter:` |
+| fastify | `fastify` in any `package.json` |
+| express | `express` in any `package.json` (excludes NestJS, Angular, React Native) |
 
 ### Monorepo Behavior
 

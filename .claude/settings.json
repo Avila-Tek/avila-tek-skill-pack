@@ -1,0 +1,17 @@
+{
+  "enabledPlugins": {
+    "avila-tek-skill-pack@avila-tek": true
+  },
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"],
+      "env": {}
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": ["-y", "shadcn@latest", "mcp"],
+      "env": {}
+    }
+  }
+}

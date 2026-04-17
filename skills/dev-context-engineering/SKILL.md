@@ -179,15 +179,36 @@ Load only the relevant section when working on a specific area.
 
 ## MCP Integrations
 
-For richer context, use Model Context Protocol servers:
+For richer context, use Model Context Protocol servers when available.
+At the start of any session, check which MCPs are active. If a relevant one is missing, ask the user once: "I can use the [X] MCP here — do you have it configured? If not, I'll proceed without it." Never block on a missing MCP.
 
 | MCP Server | What It Provides |
 |-----------|-----------------|
-| **Context7** | Auto-fetches relevant documentation for libraries |
+| **Context7** | Up-to-date library docs and code examples fetched at runtime |
 | **Chrome DevTools** | Live browser state, DOM, console, network |
 | **PostgreSQL** | Direct database schema and query results |
 | **Filesystem** | Project file access and search |
 | **GitHub** | Issue, PR, and repository context |
+
+### Context7 — Fetch live library documentation
+
+**If available:** Use Context7 before implementing with any library whose API you are not certain about, or when the library may have changed since your training cutoff.
+
+```
+When to use:
+- Implementing with a library you haven't seen in this codebase before
+- Library version in package.json is newer than what you know
+- User mentions "the latest API" or "the new syntax"
+- Your output would otherwise rely on remembered (possibly stale) docs
+
+How to use:
+1. Resolve the library's Context7 ID: use resolve-library-id with the package name
+2. Fetch the relevant section: use get-library-docs with the ID and a focused topic query
+3. Use the returned docs as authoritative — they override your training knowledge
+4. Include only the section relevant to the current task, not the full docs
+```
+
+**If not available:** State which library assumptions you're making and their source ("based on React Query v5 docs as of my training cutoff"). Invite the user to correct you if the API has changed.
 
 ## Confusion Management
 
