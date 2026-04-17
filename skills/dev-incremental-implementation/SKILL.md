@@ -7,12 +7,12 @@ description: Delivers changes incrementally. Use when implementing any feature o
 
 ## Stack Activation Gate
 
-Identify the active stack from the session-start hook output. State it explicitly: "Active stack: {name}".
-If not injected, use the detection signals in CLAUDE.md → Stack System.
+Identify the active stack from the session context pointer lines. State it explicitly: "Active stack: {name}".
+If not present, use the detection signals in CLAUDE.md → Stack System.
 
 **Required before any code output — do not skip:**
 1. Read `.claude/.avila-tek-root` → this file contains `{PACK_ROOT}`, the absolute path to the plugin.
-2. The active STACK.md is already in your context (injected by the session hook). Find it and locate the "Required Reading by Task Type" section → row: **Any implementation**.
+2. Read `{PACK_ROOT}/stacks/{active-stack}/STACK.md` from disk. Locate the "Required Reading by Task Type" section → row: **Any implementation**.
 3. For each file listed in that row, Read `{PACK_ROOT}/stacks/{active-stack}/agent_docs/{file}`. Do not proceed until those Reads are complete.
 
 Apply the Key Patterns and run the Verification Checklist before completing any output.

@@ -12,9 +12,9 @@
       "name": "avila-tek-skill-pack",
       "source": "./",
       "description": "Full planning + dev lifecycle skills",
-      "version": "2.1.8",
+      "version": "2.2.0",
       "category": "development-workflows",
-      "tags": ["planning", "epics", "stories", "lark", "nestjs", "nextjs"]
+      "tags": ["planning", "epics", "stories", "lark", "nestjs", "nextjs", "fastify", "express"]
     }
   ]
 }

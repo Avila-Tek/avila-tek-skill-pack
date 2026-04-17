@@ -60,6 +60,19 @@ if find "$PWD" -maxdepth 3 -name "pubspec.yaml" 2>/dev/null | \
   detected_stacks+=("flutter")
 fi
 
+# Fastify
+if [ -n "$(detect_package_dep 'fastify')" ]; then
+  detected_stacks+=("fastify")
+fi
+
+# Express (exclude NestJS, Angular, React Native — they include Express transitively)
+if [ -n "$(detect_package_dep 'express')" ] && \
+   [ -z "$(detect_package_dep '@nestjs/core')" ] && \
+   [ -z "$(detect_package_dep '@angular/core')" ] && \
+   [ -z "$(detect_package_dep 'react-native')" ]; then
+  detected_stacks+=("express")
+fi
+
 # ── Write plugin root path for skills to resolve agent_docs ───────────────────
 
 mkdir -p "$PWD/.claude"
@@ -96,8 +109,7 @@ To activate real standards: populate stacks/$stack/STACK.md and stacks/$stack/ag
 "
       else
         stack_section="${stack_section}
----
-$(cat "$stack_file")
+Stack detectado: $stack — leer desde $STACKS_DIR/$stack/STACK.md
 "
       fi
     fi
