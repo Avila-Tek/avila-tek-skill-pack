@@ -35,25 +35,26 @@ Build in thin vertical slices — implement one piece, test it, verify it, then 
 ## The Increment Cycle
 
 ```
-┌──────────────────────────────────────┐
-│                                      │
-│   Implement ──→ Test ──→ Verify ──┐  │
-│       ▲                           │  │
-│       └───── Commit ◄─────────────┘  │
-│              │                       │
-│              ▼                       │
-│          Next slice                  │
-│                                      │
-└──────────────────────────────────────┘
+┌──────────────────────────────────────────┐
+│                                          │
+│   RED ──→ GREEN ──→ CLEAN ──→ Verify ──┐ │
+│    ▲                                   │ │
+│    └──────────── Commit ◄──────────────┘ │
+│                    │                     │
+│                    ▼                     │
+│               Next slice                │
+│                                          │
+└──────────────────────────────────────────┘
 ```
 
 For each slice:
 
-1. **Implement** the smallest complete piece of functionality
-2. **Test** — run the test suite (or write a test if none exists)
-3. **Verify** — confirm the slice works as expected (tests pass, build succeeds, manual check)
-4. **Commit** -- save your progress with a descriptive message (see `git-workflow-and-versioning` for atomic commit guidance)
-5. **Move to the next slice** — carry forward, don't restart
+1. **RED** — write a failing test for the expected behavior. The test must fail before any implementation begins. A test that passes immediately proves nothing.
+2. **GREEN** — write the minimum code to make the test pass. Resist the urge to write more than what the test requires.
+3. **CLEAN** — tidy the implementation without changing behavior: improve names, remove duplication, flatten unnecessary nesting. Run tests after every change to confirm they stay green.
+4. **Verify** — run the full test suite and build to confirm no regressions.
+5. **Commit** — save progress with a descriptive message (see `git-workflow-and-versioning` for atomic commit guidance).
+6. **Move to the next slice** — carry forward, don't restart.
 
 ## Slicing Strategies
 
@@ -221,23 +222,12 @@ After each increment, verify:
 - [ ] Linting passes (`npm run lint`)
 - [ ] The new functionality works as expected
 - [ ] The change is committed with a descriptive message
-
-## Common Rationalizations
-
-| Rationalization | Reality |
-|---|---|
-| "I'll test it all at the end" | Bugs compound. A bug in Slice 1 makes Slices 2-5 wrong. Test each slice. |
-| "It's faster to do it all at once" | It *feels* faster until something breaks and you can't find which of 500 changed lines caused it. |
-| "These changes are too small to commit separately" | Small commits are free. Large commits hide bugs and make rollbacks painful. |
-| "I'll add the feature flag later" | If the feature isn't complete, it shouldn't be user-visible. Add the flag now. |
-| "This refactor is small enough to include" | Refactors mixed with features make both harder to review and debug. Separate them. |
-
 ## Red Flags
 
 - More than 100 lines of code written without running tests
 - Multiple unrelated changes in a single increment
 - "Let me just quickly add this too" scope expansion
-- Skipping the test/verify step to move faster
+- Skipping RED (writing the failing test) and going straight to implementation
 - Build or tests broken between increments
 - Large uncommitted changes accumulating
 - Building abstractions before the third use case demands it

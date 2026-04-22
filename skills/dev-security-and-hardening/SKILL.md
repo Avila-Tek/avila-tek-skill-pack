@@ -327,17 +327,6 @@ git diff --cached | grep -i "password\|secret\|api_key\|token"
 ## See Also
 
 For detailed security checklists and pre-commit verification steps, see `references/security-checklist.md`.
-
-## Common Rationalizations
-
-| Rationalization | Reality |
-|---|---|
-| "This is an internal tool, security doesn't matter" | Internal tools get compromised. Attackers target the weakest link. |
-| "We'll add security later" | Security retrofitting is 10x harder than building it in. Add it now. |
-| "No one would try to exploit this" | Automated scanners will find it. Security by obscurity is not security. |
-| "The framework handles security" | Frameworks provide tools, not guarantees. You still need to use them correctly. |
-| "It's just a prototype" | Prototypes become production. Security habits from day one. |
-
 ## Red Flags
 
 - User input passed directly to database queries, shell commands, or HTML rendering
