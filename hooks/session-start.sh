@@ -78,6 +78,9 @@ fi
 mkdir -p "$PWD/.claude"
 echo "$PACK_ROOT" > "$PWD/.claude/.avila-tek-root"
 
+# ── Stack injection disabled temporarily (token cost reduction) ───────────────
+detected_stacks=()
+
 # ── Build message content ──────────────────────────────────────────────────────
 
 meta_content=""
