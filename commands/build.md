@@ -31,18 +31,7 @@ If the story file, spec, or plan is missing, stop and tell the user:
 
 ---
 
-## Step 2 — Stack Activation Gate
-
-1. Read `.claude/.avila-tek-root` → get `{PACK_ROOT}`.
-2. The session context lists each detected stack as a separate pointer line. For each stack, read `{PACK_ROOT}/stacks/{stack}/STACK.md` from disk.
-3. From each STACK.md, read the `agent_docs` files listed in the "Required Reading by Task Type" row for **Any implementation**.
-4. Confirm load — state explicitly for each stack: `✅ Stack loaded: {stack} from {full-path}`. If a file is not found, stop and report: `❌ Stack not found: {full-path} — check .avila-tek-root`.
-
-Do not proceed until step 4 passes for every detected stack.
-
----
-
-## Step 3 — Build Summary
+## Step 2 — Build Summary
 
 Before writing any code, print a brief build plan:
 
@@ -75,7 +64,7 @@ State any assumptions explicitly and wait for confirmation before proceeding.
 
 ---
 
-## Step 4 — Incremental Execution
+## Step 3 — Incremental Execution
 
 Invoke the `dev-incremental-implementation` skill alongside `dev-test-driven-development`.
 
