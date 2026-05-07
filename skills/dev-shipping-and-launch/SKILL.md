@@ -270,17 +270,6 @@ Every deployment needs a rollback plan before it happens:
 - For security pre-launch checks, see `references/security-checklist.md`
 - For performance pre-launch checklist, see `references/performance-checklist.md`
 - For accessibility verification before launch, see `references/accessibility-checklist.md`
-
-## Common Rationalizations
-
-| Rationalization | Reality |
-|---|---|
-| "It works in staging, it'll work in production" | Production has different data, traffic patterns, and edge cases. Monitor after deploy. |
-| "We don't need feature flags for this" | Every feature benefits from a kill switch. Even "simple" changes can break things. |
-| "Monitoring is overhead" | Not having monitoring means you discover problems from user complaints instead of dashboards. |
-| "We'll add monitoring later" | Add it before launch. You can't debug what you can't see. |
-| "Rolling back is admitting failure" | Rolling back is responsible engineering. Shipping a broken feature is the failure. |
-
 ## Red Flags
 
 - Deploying without a rollback plan

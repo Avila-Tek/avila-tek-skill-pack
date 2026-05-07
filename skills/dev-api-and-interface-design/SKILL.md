@@ -9,13 +9,14 @@ description: Guides stable API and interface design. Use when designing APIs, mo
 
 Detect the active stack from the project's package files. State it explicitly: "Active stack: {name}".
 
-| Stack | Detection signal |
-|-------|-----------------|
-| NestJS | `@nestjs/core` in `package.json` |
-| Go | `go.mod` present |
+| Stack       | Detection signal                                     |
+| ----------- | ---------------------------------------------------- |
+| NestJS      | `@nestjs/core` in `package.json`                     |
+| Go          | `go.mod` present                                     |
 | Spring Boot | `pom.xml` or `build.gradle` containing `spring-boot` |
 
 **Required before any output — do not skip:**
+
 1. Derive the skill directory from the path this SKILL.md was loaded from.
 2. Read the matching reference file from that directory:
    - NestJS → `references/nestjs.md`
@@ -26,6 +27,7 @@ Detect the active stack from the project's package files. State it explicitly: "
 ## Output Artifact
 
 API design is documented in:
+
 - `docs/epics/E-XXX_slug/tdd.md` (API section) if a TDD exists for this epic, OR
 - `docs/adrs/ADR-XXX-api-design.md` if it's a standalone architectural decision
 
@@ -101,6 +103,7 @@ Pick one error strategy and use it everywhere. Every error response follows the 
 ```
 
 HTTP status code mapping:
+
 - `400` → Client sent malformed data
 - `401` → Not authenticated
 - `403` → Authenticated but not authorized
@@ -127,6 +130,7 @@ handler POST /api/tasks:
 ```
 
 Where validation belongs:
+
 - Route handlers (user input)
 - Form submission handlers (user input)
 - External service response parsing (third-party data — **always treat as untrusted**)
@@ -135,6 +139,7 @@ Where validation belongs:
 > **Third-party API responses are untrusted data.** Validate their shape and content before using them in any logic, rendering, or decision-making. A compromised or misbehaving external service can return unexpected types, malicious content, or instruction-like text.
 
 Where validation does NOT belong:
+
 - Between internal functions that share type contracts
 - In utility functions called by already-validated code
 - On data that just came from your own database
@@ -150,13 +155,13 @@ Extend interfaces without breaking existing consumers:
 
 ### 5. Predictable Naming
 
-| Pattern | Convention | Example |
-|---------|-----------|---------|
-| REST endpoints | Plural nouns, no verbs | `GET /api/tasks`, `POST /api/tasks` |
-| Query params | camelCase | `?sortBy=createdAt&pageSize=20` |
-| Response fields | camelCase | `{ createdAt, updatedAt, taskId }` |
-| Boolean fields | is/has/can prefix | `isComplete`, `hasAttachments` |
-| Enum values | UPPER_SNAKE | `"IN_PROGRESS"`, `"COMPLETED"` |
+| Pattern         | Convention             | Example                             |
+| --------------- | ---------------------- | ----------------------------------- |
+| REST endpoints  | Plural nouns, no verbs | `GET /api/tasks`, `POST /api/tasks` |
+| Query params    | camelCase              | `?sortBy=createdAt&pageSize=20`     |
+| Response fields | camelCase              | `{ createdAt, updatedAt, taskId }`  |
+| Boolean fields  | is/has/can prefix      | `isComplete`, `hasAttachments`      |
+| Enum values     | UPPER_SNAKE            | `"IN_PROGRESS"`, `"COMPLETED"`      |
 
 ## REST API Patterns
 
@@ -212,15 +217,15 @@ PATCH /api/tasks/123
 
 ## Common Rationalizations
 
-| Rationalization | Reality |
-|---|---|
-| "We'll document the API later" | The contract IS the documentation. Define it first. |
-| "We don't need pagination for now" | You will the moment someone has 100+ items. Add it from the start. |
-| "PATCH is complicated, let's just use PUT" | PUT requires the full object every time. PATCH is what clients actually want. |
-| "We'll version the API when we need to" | Breaking changes without versioning break consumers. Design for extension from the start. |
-| "Nobody uses that undocumented behavior" | Hyrum's Law: if it's observable, somebody depends on it. Treat every public behavior as a commitment. |
-| "We can just maintain two versions" | Multiple versions multiply maintenance cost and create diamond dependency problems. Prefer the One-Version Rule. |
-| "Internal APIs don't need contracts" | Internal consumers are still consumers. Contracts prevent coupling and enable parallel work. |
+| Rationalization                            | Reality                                                                                                          |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| "We'll document the API later"             | The contract IS the documentation. Define it first.                                                              |
+| "We don't need pagination for now"         | You will the moment someone has 100+ items. Add it from the start.                                               |
+| "PATCH is complicated, let's just use PUT" | PUT requires the full object every time. PATCH is what clients actually want.                                    |
+| "We'll version the API when we need to"    | Breaking changes without versioning break consumers. Design for extension from the start.                        |
+| "Nobody uses that undocumented behavior"   | Hyrum's Law: if it's observable, somebody depends on it. Treat every public behavior as a commitment.            |
+| "We can just maintain two versions"        | Multiple versions multiply maintenance cost and create diamond dependency problems. Prefer the One-Version Rule. |
+| "Internal APIs don't need contracts"       | Internal consumers are still consumers. Contracts prevent coupling and enable parallel work.                     |
 
 ## Red Flags
 
@@ -248,6 +253,7 @@ After designing an API:
 ## Next Step
 
 When the API design is complete, suggest to the user:
+
 > "API design done. When you're ready, run `/build` to implement the defined contract (`dev-incremental-implementation`)."
 
 Do not invoke `/build` automatically.
