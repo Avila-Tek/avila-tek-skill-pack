@@ -7,17 +7,29 @@ description: Conducts multi-axis code review. Use before merging any change. Use
 
 ## Stack Activation Gate
 
-Identify the active stack from the session-start hook output. State it explicitly: "Active stack: {name}".
-If not injected, use the detection signals in CLAUDE.md → Stack System.
+Detect the active stack from the project's package files. State it explicitly: "Active stack: {name}".
+
+| Stack | Detection signal |
+|-------|-----------------|
+| NestJS | `@nestjs/core` in `package.json` |
+| Next.js | `next` in `package.json` (not Angular, not React Native) |
+| Go | `go.mod` present |
+| Spring Boot | `pom.xml` or `build.gradle` containing `spring-boot` |
+| React Native | `react-native` in `package.json` |
+| Flutter | `pubspec.yaml` containing `flutter:` |
 
 **Required before beginning review — do not skip:**
-1. Read `.claude/.avila-tek-root` → this file contains `{PACK_ROOT}`, the absolute path to the plugin.
-2. The active STACK.md is already in your context (injected by the session hook). Find it and locate the "Required Reading by Task Type" section → row: **Code review**.
-3. For each file listed in that row, Read `{PACK_ROOT}/stacks/{active-stack}/agent_docs/{file}`. Do not proceed until those Reads are complete.
+1. Derive the skill directory from the path this SKILL.md was loaded from.
+2. Read the matching reference file from that directory:
+   - NestJS → `references/nestjs.md`
+   - Next.js → `references/nextjs.md`
+   - Go → `references/go.md`
+   - Spring Boot → `references/spring-boot.md`
+   - React Native → `references/react-native.md`
+   - Flutter → `references/flutter.md`
+3. Apply the patterns from that file and run its Verification Checklist before completing any output.
 
-Apply the Key Patterns and run the Verification Checklist before completing any output.
-
-> The active STACK.md defines additional Red Flags and a Verification Checklist specific to this project. Run through both as part of Step 3 and the final checklist.
+> Before reviewing: check the Red Flags section of the loaded reference. If any hit, flag as a blocking finding. Run the full Verification Checklist when the review is complete.
 
 ## Overview
 
@@ -99,14 +111,12 @@ For detailed profiling and optimization, see `performance-optimization`. Does th
 
 Does the change follow the project's specific stack standards?
 
-Read the active `stacks/{detected-stack}/STACK.md` and check:
-- Are the **Red Flags** section items absent from this change?
-- Does the code follow the **Key Patterns** listed in the stack profile?
-- Does it reference the correct `agent_docs/` paths (e.g., no direct DB calls in services for NestJS, no `useEffect` for data fetching in Next.js)?
+Check the loaded reference file (from the Stack Activation Gate) for:
+- Are the **Red Flags** absent from this change? (blocking findings if present)
+- Does the code follow the naming conventions and Key Patterns?
+- Does the Verification Checklist pass?
 
-If the stack has a Verification Checklist, run through it and report any items that don't pass.
-
-For monorepos with multiple stacks (NestJS + Next.js): apply each stack's standards to its respective files.
+For monorepos with multiple stacks (NestJS + Next.js): apply each stack's reference to its respective files.
 
 ## Change Sizing
 

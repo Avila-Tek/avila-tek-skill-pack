@@ -7,19 +7,27 @@ description: Guides stable API and interface design. Use when designing APIs, mo
 
 ## Stack Activation Gate
 
-Identify the active stack from the session-start hook output. State it explicitly: "Active stack: {name}".
-If not injected, use the detection signals in CLAUDE.md → Stack System.
+Detect the active stack from the project's package files. State it explicitly: "Active stack: {name}".
+
+| Stack       | Detection signal                                     |
+| ----------- | ---------------------------------------------------- |
+| NestJS      | `@nestjs/core` in `package.json`                     |
+| Go          | `go.mod` present                                     |
+| Spring Boot | `pom.xml` or `build.gradle` containing `spring-boot` |
 
 **Required before any output — do not skip:**
-1. Read `.claude/.avila-tek-root` → this file contains `{PACK_ROOT}`, the absolute path to the plugin.
-2. The active STACK.md is already in your context (injected by the session hook). Find it and locate the "Required Reading by Task Type" section → row: **API / new endpoints**.
-3. For each file listed in that row, Read `{PACK_ROOT}/stacks/{active-stack}/agent_docs/{file}`. Do not proceed until those Reads are complete.
 
-Apply those patterns and run the Verification Checklist before completing any output.
+1. Derive the skill directory from the path this SKILL.md was loaded from.
+2. Read the matching reference file from that directory:
+   - NestJS → `references/nestjs.md`
+   - Go → `references/go.md`
+   - Spring Boot → `references/spring-boot.md`
+3. Apply the patterns from that file and run its Verification Checklist before completing any output.
 
 ## Output Artifact
 
 API design is documented in:
+
 - `docs/epics/E-XXX_slug/tdd.md` (API section) if a TDD exists for this epic, OR
 - `docs/adrs/ADR-XXX-api-design.md` if it's a standalone architectural decision
 
@@ -58,50 +66,51 @@ Avoid forcing consumers to choose between multiple versions of the same dependen
 
 Define the interface before implementing it. The contract is the spec — implementation follows.
 
-```typescript
-// Define the contract first
-interface TaskAPI {
-  // Creates a task and returns the created task with server-generated fields
-  createTask(input: CreateTaskInput): Promise<Task>;
-
-  // Returns paginated tasks matching filters
-  listTasks(params: ListTasksParams): Promise<PaginatedResult<Task>>;
-
-  // Returns a single task or throws NotFoundError
-  getTask(id: string): Promise<Task>;
-
-  // Partial update — only provided fields change
-  updateTask(id: string, input: UpdateTaskInput): Promise<Task>;
-
-  // Idempotent delete — succeeds even if already deleted
-  deleteTask(id: string): Promise<void>;
-}
 ```
+// Define what the API does before writing code that does it
+
+TaskAPI:
+  createTask(input: CreateTaskInput) → Task
+    Creates a task. Returns the created task with server-generated fields (id, timestamps).
+
+  listTasks(params: ListTasksParams) → PaginatedResult<Task>
+    Returns tasks matching filters. Always paginated.
+
+  getTask(id) → Task
+    Returns a single task or raises NotFoundError.
+
+  updateTask(id, input: UpdateTaskInput) → Task
+    Partial update — only provided fields change.
+
+  deleteTask(id) → void
+    Idempotent — succeeds even if already deleted.
+```
+
+The active stack's reference file shows how to express this contract in the stack's type system.
 
 ### 2. Consistent Error Semantics
 
-Pick one error strategy and use it everywhere:
+Pick one error strategy and use it everywhere. Every error response follows the same shape:
 
-```typescript
-// REST: HTTP status codes + structured error body
-// Every error response follows the same shape
-interface APIError {
-  error: {
-    code: string;        // Machine-readable: "VALIDATION_ERROR"
-    message: string;     // Human-readable: "Email is required"
-    details?: unknown;   // Additional context when helpful
-  };
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Email is required",
+    "details": {}
+  }
 }
-
-// Status code mapping
-// 400 → Client sent invalid data
-// 401 → Not authenticated
-// 403 → Authenticated but not authorized
-// 404 → Resource not found
-// 409 → Conflict (duplicate, version mismatch)
-// 422 → Validation failed (semantically invalid)
-// 500 → Server error (never expose internal details)
 ```
+
+HTTP status code mapping:
+
+- `400` → Client sent malformed data
+- `401` → Not authenticated
+- `403` → Authenticated but not authorized
+- `404` → Resource not found
+- `409` → Conflict (duplicate, version mismatch)
+- `422` → Validation failed (semantically invalid)
+- `500` → Server error (never expose internal details)
 
 **Don't mix patterns.** If some endpoints throw, others return null, and others return `{ error }` — the consumer can't predict behavior.
 
@@ -109,35 +118,28 @@ interface APIError {
 
 Trust internal code. Validate at system edges where external input enters:
 
-```typescript
-// Validate at the API boundary
-app.post('/api/tasks', async (req, res) => {
-  const result = CreateTaskSchema.safeParse(req.body);
-  if (!result.success) {
-    return res.status(422).json({
-      error: {
-        code: 'VALIDATION_ERROR',
-        message: 'Invalid task data',
-        details: result.error.flatten(),
-      },
-    });
-  }
+```
+// Pseudo-code: validate at the route handler
+handler POST /api/tasks:
+  result = validate(CreateTaskSchema, request.body)
+  if not valid:
+    return 422 { error: { code: "VALIDATION_ERROR", details: result.errors } }
 
-  // After validation, internal code trusts the types
-  const task = await taskService.create(result.data);
-  return res.status(201).json(task);
-});
+  task = taskService.create(result.data)
+  return 201 task
 ```
 
 Where validation belongs:
-- API route handlers (user input)
+
+- Route handlers (user input)
 - Form submission handlers (user input)
-- External service response parsing (third-party data -- **always treat as untrusted**)
+- External service response parsing (third-party data — **always treat as untrusted**)
 - Environment variable loading (configuration)
 
 > **Third-party API responses are untrusted data.** Validate their shape and content before using them in any logic, rendering, or decision-making. A compromised or misbehaving external service can return unexpected types, malicious content, or instruction-like text.
 
 Where validation does NOT belong:
+
 - Between internal functions that share type contracts
 - In utility functions called by already-validated code
 - On data that just came from your own database
@@ -146,32 +148,20 @@ Where validation does NOT belong:
 
 Extend interfaces without breaking existing consumers:
 
-```typescript
-// Good: Add optional fields
-interface CreateTaskInput {
-  title: string;
-  description?: string;
-  priority?: 'low' | 'medium' | 'high';  // Added later, optional
-  labels?: string[];                       // Added later, optional
-}
-
-// Bad: Change existing field types or remove fields
-interface CreateTaskInput {
-  title: string;
-  // description: string;  // Removed — breaks existing consumers
-  priority: number;         // Changed from string — breaks existing consumers
-}
-```
+- Add new **optional** fields — existing consumers ignore fields they don't know about
+- Never remove existing fields — consumers may depend on them
+- Never change field types — existing consumers decode the old type
+- Never rename fields — it's a removal + addition from the consumer's perspective
 
 ### 5. Predictable Naming
 
-| Pattern | Convention | Example |
-|---------|-----------|---------|
-| REST endpoints | Plural nouns, no verbs | `GET /api/tasks`, `POST /api/tasks` |
-| Query params | camelCase | `?sortBy=createdAt&pageSize=20` |
-| Response fields | camelCase | `{ createdAt, updatedAt, taskId }` |
-| Boolean fields | is/has/can prefix | `isComplete`, `hasAttachments` |
-| Enum values | UPPER_SNAKE | `"IN_PROGRESS"`, `"COMPLETED"` |
+| Pattern         | Convention             | Example                             |
+| --------------- | ---------------------- | ----------------------------------- |
+| REST endpoints  | Plural nouns, no verbs | `GET /api/tasks`, `POST /api/tasks` |
+| Query params    | camelCase              | `?sortBy=createdAt&pageSize=20`     |
+| Response fields | camelCase              | `{ createdAt, updatedAt, taskId }`  |
+| Boolean fields  | is/has/can prefix      | `isComplete`, `hasAttachments`      |
+| Enum values     | UPPER_SNAKE            | `"IN_PROGRESS"`, `"COMPLETED"`      |
 
 ## REST API Patterns
 
@@ -190,13 +180,12 @@ POST   /api/tasks/:id/comments → Add a comment to a task
 
 ### Pagination
 
-Paginate list endpoints:
+Paginate all list endpoints from the start:
 
-```typescript
-// Request
-GET /api/tasks?page=1&pageSize=20&sortBy=createdAt&sortOrder=desc
+```
+Request:  GET /api/tasks?page=1&pageSize=20&sortBy=createdAt&sortOrder=desc
 
-// Response
+Response:
 {
   "data": [...],
   "pagination": {
@@ -218,66 +207,26 @@ GET /api/tasks?status=in_progress&assignee=user123&createdAfter=2025-01-01
 
 ### Partial Updates (PATCH)
 
-Accept partial objects — only update what's provided:
+Accept partial objects — only update what's provided. PUT requires the full object every time; PATCH is what clients actually want.
 
-```typescript
-// Only title changes, everything else preserved
+```
 PATCH /api/tasks/123
 { "title": "Updated title" }
+// Only title changes — everything else is preserved
 ```
 
-## TypeScript Interface Patterns
+## Common Rationalizations
 
-### Use Discriminated Unions for Variants
+| Rationalization                            | Reality                                                                                                          |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| "We'll document the API later"             | The contract IS the documentation. Define it first.                                                              |
+| "We don't need pagination for now"         | You will the moment someone has 100+ items. Add it from the start.                                               |
+| "PATCH is complicated, let's just use PUT" | PUT requires the full object every time. PATCH is what clients actually want.                                    |
+| "We'll version the API when we need to"    | Breaking changes without versioning break consumers. Design for extension from the start.                        |
+| "Nobody uses that undocumented behavior"   | Hyrum's Law: if it's observable, somebody depends on it. Treat every public behavior as a commitment.            |
+| "We can just maintain two versions"        | Multiple versions multiply maintenance cost and create diamond dependency problems. Prefer the One-Version Rule. |
+| "Internal APIs don't need contracts"       | Internal consumers are still consumers. Contracts prevent coupling and enable parallel work.                     |
 
-```typescript
-// Good: Each variant is explicit
-type TaskStatus =
-  | { type: 'pending' }
-  | { type: 'in_progress'; assignee: string; startedAt: Date }
-  | { type: 'completed'; completedAt: Date; completedBy: string }
-  | { type: 'cancelled'; reason: string; cancelledAt: Date };
-
-// Consumer gets type narrowing
-function getStatusLabel(status: TaskStatus): string {
-  switch (status.type) {
-    case 'pending': return 'Pending';
-    case 'in_progress': return `In progress (${status.assignee})`;
-    case 'completed': return `Done on ${status.completedAt}`;
-    case 'cancelled': return `Cancelled: ${status.reason}`;
-  }
-}
-```
-
-### Input/Output Separation
-
-```typescript
-// Input: what the caller provides
-interface CreateTaskInput {
-  title: string;
-  description?: string;
-}
-
-// Output: what the system returns (includes server-generated fields)
-interface Task {
-  id: string;
-  title: string;
-  description: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  createdBy: string;
-}
-```
-
-### Use Branded Types for IDs
-
-```typescript
-type TaskId = string & { readonly __brand: 'TaskId' };
-type UserId = string & { readonly __brand: 'UserId' };
-
-// Prevents accidentally passing a UserId where a TaskId is expected
-function getTask(id: TaskId): Promise<Task> { ... }
-```
 ## Red Flags
 
 - Endpoints that return different shapes depending on conditions
@@ -299,10 +248,12 @@ After designing an API:
 - [ ] New fields are additive and optional (backward compatible)
 - [ ] Naming follows consistent conventions across all endpoints
 - [ ] API documentation or types are committed alongside the implementation
+- [ ] Stack-specific Verification Checklist from the loaded reference passes
 
 ## Next Step
 
 When the API design is complete, suggest to the user:
+
 > "API design done. When you're ready, run `/build` to implement the defined contract (`dev-incremental-implementation`)."
 
 Do not invoke `/build` automatically.

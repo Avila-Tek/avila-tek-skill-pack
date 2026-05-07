@@ -7,17 +7,30 @@ description: Delivers changes incrementally. Use when implementing any feature o
 
 ## Stack Activation Gate
 
-Identify the active stack from the session context pointer lines. State it explicitly: "Active stack: {name}".
-If not present, use the detection signals in CLAUDE.md → Stack System.
+Detect the active stack from the project's package files. State it explicitly: "Active stack: {name}".
+
+| Stack | Detection signal |
+|-------|-----------------|
+| NestJS | `@nestjs/core` in `package.json` |
+| Next.js | `next` in `package.json` (not Angular, not React Native) |
+| Go | `go.mod` present |
+| Spring Boot | `pom.xml` or `build.gradle` containing `spring-boot` |
+| React Native | `react-native` in `package.json` |
+| Flutter | `pubspec.yaml` containing `flutter:` |
+| Angular | `angular.json` present or `@angular/core` in `package.json` |
 
 **Required before any code output — do not skip:**
-1. Read `.claude/.avila-tek-root` → this file contains `{PACK_ROOT}`, the absolute path to the plugin.
-2. Read `{PACK_ROOT}/stacks/{active-stack}/STACK.md` from disk. Locate the "Required Reading by Task Type" section → row: **Any implementation**.
-3. For each file listed in that row, Read `{PACK_ROOT}/stacks/{active-stack}/agent_docs/{file}`. Do not proceed until those Reads are complete.
+1. Derive the skill directory from the path this SKILL.md was loaded from.
+2. Read the matching reference file from the sibling skill:
+   - NestJS → `../dev-api-and-interface-design/references/nestjs.md`
+   - Next.js → `../dev-frontend-ui-engineering/references/nextjs.md`
+   - Go → `../dev-api-and-interface-design/references/go.md`
+   - Spring Boot → `../dev-api-and-interface-design/references/spring-boot.md`
+   - React Native → `../dev-frontend-ui-engineering/references/react-native.md`
+   - Flutter → `../dev-frontend-ui-engineering/references/flutter.md`
+3. Apply the patterns from that file and run its Verification Checklist before completing any output.
 
-Apply the Key Patterns and run the Verification Checklist before completing any output.
-
-> Before each slice: check the active STACK.md Red Flags. If any hit, fix before proceeding. Run the full Verification Checklist when the last slice is complete.
+> Before each slice: check the Red Flags section of the loaded reference. If any hit, fix before proceeding. Run the full Verification Checklist when the last slice is complete.
 
 ## Overview
 
