@@ -7,17 +7,29 @@ description: Drives development with tests. Use when implementing any logic, fix
 
 ## Stack Activation Gate
 
-Identify the active stack from the session-start hook output. State it explicitly: "Active stack: {name}".
-If not injected, use the detection signals in CLAUDE.md → Stack System.
+Detect the active stack from the project's package files. State it explicitly: "Active stack: {name}".
+
+| Stack | Detection signal |
+|-------|-----------------|
+| NestJS | `@nestjs/core` in `package.json` |
+| Next.js | `next` in `package.json` (not Angular, not React Native) |
+| Go | `go.mod` present |
+| Spring Boot | `pom.xml` or `build.gradle` containing `spring-boot` |
+| React Native | `react-native` in `package.json` |
+| Flutter | `pubspec.yaml` containing `flutter:` |
 
 **Required before any code output — do not skip:**
-1. Read `.claude/.avila-tek-root` → this file contains `{PACK_ROOT}`, the absolute path to the plugin.
-2. The active STACK.md is already in your context (injected by the session hook). Find it and locate the "Required Reading by Task Type" section → row: **Testing**.
-3. For each file listed in that row, Read `{PACK_ROOT}/stacks/{active-stack}/agent_docs/{file}`. Do not proceed until those Reads are complete.
+1. Derive the skill directory from the path this SKILL.md was loaded from.
+2. Read the matching reference file from that directory:
+   - NestJS → `references/nestjs.md`
+   - Next.js → `references/nextjs.md`
+   - Go → `references/go.md`
+   - Spring Boot → `references/spring-boot.md`
+   - React Native → `references/react-native.md`
+   - Flutter → `references/flutter.md`
+3. Apply the testing patterns from that file and run its Verification Checklist before completing any output.
 
-Apply the Key Patterns and run the Verification Checklist before completing any output.
-
-> Follow the Testing Conventions from the active STACK.md (test location, mock strategy, coverage gate, test framework).
+> The loaded reference defines the test framework, file co-location convention, mock strategy, and commands for the active stack. Follow them exactly.
 
 ## Overview
 
@@ -394,8 +406,4 @@ After completing any implementation:
 
 ## Output Artifact
 
-Test files co-located with source per active stack convention:
-- NestJS: `*.spec.ts` next to the file under test
-- Next.js: `*.test.tsx` next to the component
-
-Coverage report generated at project root after running the test command.
+Test files co-located with source per the active stack's convention (see the loaded reference file). Coverage report generated at project root after running the test command.

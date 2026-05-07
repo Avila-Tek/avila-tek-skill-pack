@@ -7,15 +7,27 @@ description: Hardens code against vulnerabilities. Use when handling user input,
 
 ## Stack Activation Gate
 
-Identify the active stack from the session-start hook output. State it explicitly: "Active stack: {name}".
-If not injected, use the detection signals in CLAUDE.md → Stack System.
+Detect the active stack from the project's package files. State it explicitly: "Active stack: {name}".
+
+| Stack | Detection signal |
+|-------|-----------------|
+| NestJS | `@nestjs/core` in `package.json` |
+| Next.js | `next` in `package.json` (not Angular, not React Native) |
+| Go | `go.mod` present |
+| Spring Boot | `pom.xml` or `build.gradle` containing `spring-boot` |
+| React Native | `react-native` in `package.json` |
+| Flutter | `pubspec.yaml` containing `flutter:` |
 
 **Required before any output — do not skip:**
-1. Read `.claude/.avila-tek-root` → this file contains `{PACK_ROOT}`, the absolute path to the plugin.
-2. The active STACK.md is already in your context (injected by the session hook). Find it and locate the "Required Reading by Task Type" section → rows: **Any implementation** + **Auth / permissions**.
-3. For each file listed in those rows, Read `{PACK_ROOT}/stacks/{active-stack}/agent_docs/{file}`. Do not proceed until those Reads are complete.
-
-Run the Verification Checklist before delivering any output. For NestJS: confirm guards, pipes, and auth decorators. For Next.js: confirm server-only data handling and no client-side secret exposure.
+1. Derive the skill directory from the path this SKILL.md was loaded from.
+2. Read the matching reference file from that directory:
+   - NestJS → `references/nestjs.md`
+   - Next.js → `references/nextjs.md`
+   - Go → `references/go.md`
+   - Spring Boot → `references/spring-boot.md`
+   - React Native → `references/react-native.md`
+   - Flutter → `references/flutter.md`
+3. Apply the OWASP patterns from that file and run its Verification Checklist before delivering any output.
 
 ## Overview
 
