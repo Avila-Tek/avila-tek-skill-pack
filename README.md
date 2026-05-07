@@ -169,13 +169,23 @@ These skills activate without a slash command — just describe what you need:
 
 ## Stack System
 
-When you open Claude Code inside a project, the session-start hook automatically detects the tech stack and injects the matching standards. No setup needed — just open Claude from within your project directory.
+The session-start hook detects the tech stack present in `$PWD` and writes the pack root path to `.claude/.avila-tek-root`. Stack standards are **not** injected into the session context — loading full standards on every session was too expensive in tokens.
 
-When a stack is detected, Claude loads `stacks/{name}/STACK.md` (key patterns, red flags, verification checklist) and all docs from `stacks/{name}/agent_docs/` (architecture, auth, testing, error handling, and more). These become mandatory quality gates for every code task in the session.
+Instead, each skill that needs stack-specific rules carries its own `references/` folder with per-stack files. These are loaded on demand when the skill runs.
 
-| Stack | Detection signal | Standards docs | Status |
-|-------|-----------------|----------------|--------|
-| **NestJS** | `@nestjs/core` in `package.json` | 12 files | Ready |
+| Skill | Stack references included |
+|-------|--------------------------|
+| `dev-code-review-and-quality` | NestJS, Next.js, Go, Spring Boot, Flutter, React Native |
+| `dev-test-driven-development` | NestJS, Next.js, Go, Spring Boot, Flutter, React Native |
+| `dev-security-and-hardening` | NestJS, Next.js, Go, Spring Boot, Flutter, React Native |
+| `dev-api-and-interface-design` | NestJS, Go, Spring Boot |
+| `dev-frontend-ui-engineering` | Next.js, Angular, Flutter, React Native |
+
+The `stacks/` folder is maintained as **reference documentation** — the authoritative source for each stack's key patterns, red flags, and full agent_docs. Skills point to it; humans and agents can read it directly.
+
+| Stack | Detection signal | agent_docs | Status |
+|-------|-----------------|------------|--------|
+| **NestJS** | `@nestjs/core` in `package.json` | 11 files | Ready |
 | **Next.js** | `next` in `package.json` | 17 files | Ready |
 | **Go** | `go.mod` present | 13 files | Ready |
 | **Spring Boot** | `pom.xml` or `build.gradle` containing `spring-boot` | 15 files | Ready |
@@ -183,9 +193,9 @@ When a stack is detected, Claude loads `stacks/{name}/STACK.md` (key patterns, r
 | **React Native** | `react-native` in `package.json` | 11 files | Ready |
 | **Fastify** | `fastify` in `package.json` | 8 files | Ready |
 | **Express** | `express` in `package.json` (excludes NestJS/Angular/React Native) | 7 files | Ready |
-| **Angular** | `angular.json` or `@angular/core` in `package.json` | — | In progress |
+| **Angular** | `angular.json` or `@angular/core` in `package.json` | — | Pending |
 
-**Monorepo:** When multiple stacks are detected (e.g. NestJS + Next.js), all matching standards are loaded. Each stack's rules apply to its part of the codebase.
+**Monorepo:** When multiple stacks are detected, all matching skill references apply to their respective parts of the codebase.
 
 ---
 
@@ -272,7 +282,7 @@ This installs the plugin at project scope — it gets saved to `.claude/settings
 /reload-plugins
 ```
 
-Stack standards load automatically on every session start. No additional setup needed.
+The session-start hook runs automatically — it detects the stack and writes `.claude/.avila-tek-root`. Stack-specific rules are loaded by each skill on demand via their `references/` folder.
 
 ---
 

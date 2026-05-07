@@ -200,7 +200,7 @@ Sequential numbered files. Run automatically at startup.
 | Auth | Spring Security 6, JWT filter, method security (`@PreAuthorize`) |
 | Testing | JUnit 5 + Mockito for unit, `@WebMvcTest` for HTTP, `@DataJpaTest` + Testcontainers for DB |
 
-For deeper standards, see `stacks/spring-boot/agent_docs/`.
+Deeper standards will be added directly to the relevant skills when the stack is formally adopted.
 
 ## Red Flags
 
