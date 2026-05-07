@@ -338,7 +338,7 @@ git diff --cached | grep -i "password\|secret\|api_key\|token"
 ```
 ## See Also
 
-For detailed security checklists and pre-commit verification steps, see `references/security-checklist.md`.
+For detailed security checklists and pre-commit verification steps, see `../../references/security-checklist.md`.
 ## Red Flags
 
 - User input passed directly to database queries, shell commands, or HTML rendering

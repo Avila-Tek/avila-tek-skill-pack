@@ -28,6 +28,7 @@ Detect the active stack from the project's package files. State it explicitly: "
    - Spring Boot → `../dev-api-and-interface-design/references/spring-boot.md`
    - React Native → `../dev-frontend-ui-engineering/references/react-native.md`
    - Flutter → `../dev-frontend-ui-engineering/references/flutter.md`
+   - Angular → `../dev-frontend-ui-engineering/references/angular.md`
 3. Apply the patterns from that file and run its Verification Checklist before completing any output.
 
 > Before each slice: check the Red Flags section of the loaded reference. If any hit, fix before proceeding. Run the full Verification Checklist when the last slice is complete.

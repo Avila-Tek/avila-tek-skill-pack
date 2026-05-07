@@ -1,7 +1,4 @@
 {
-  "enabledPlugins": {
-    "avila-tek-skill-pack@avila-tek": true
-  },
   "mcpServers": {
     "context7": {
       "command": "npx",

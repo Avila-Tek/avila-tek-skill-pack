@@ -13,4 +13,4 @@ Apply general Angular best practices:
 - Standalone components (Angular 14+)
 - Signal-based reactivity (Angular 17+) where available
 
-Standards will be populated in `stacks/angular/agent_docs/` when the stack is formally adopted.
+Standards will be added directly to the relevant skills (e.g. `dev-frontend-ui-engineering`, `dev-api-and-interface-design`) when the stack is formally adopted.

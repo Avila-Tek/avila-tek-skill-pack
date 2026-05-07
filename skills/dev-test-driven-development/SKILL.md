@@ -45,7 +45,7 @@ Write a failing test before writing the code that makes it pass. For bug fixes, 
 
 **When NOT to use:** Pure configuration changes, documentation updates, or static content changes that have no behavioral impact.
 
-**Related:** For browser-based changes, combine TDD with runtime verification using Chrome DevTools MCP — see `references/testing-patterns.md` → Browser Testing with DevTools.
+**Related:** For browser-based changes, combine TDD with runtime verification using Chrome DevTools MCP — see the `dev-browser-testing-with-devtools` skill.
 
 ## The TDD Cycle
 
@@ -155,7 +155,7 @@ export async function completeTask(id: string): Promise<Task> {
 
 ## See Also
 
-For detailed testing patterns, examples, and anti-patterns across frameworks, see `references/testing-patterns.md`.
+For detailed testing patterns, examples, and anti-patterns across frameworks, see `../../references/testing-patterns.md`.
 
 ## Red Flags
 

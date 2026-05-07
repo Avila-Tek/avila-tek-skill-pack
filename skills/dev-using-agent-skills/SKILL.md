@@ -172,25 +172,13 @@ In a monorepo with multiple stacks (e.g. NestJS + Next.js), all detected STACK.m
 
 ### Where Standards Live
 
-```
-stacks/
-├── nestjs/STACK.md        ← Key patterns, Red Flags, Verification Checklist
-│   └── agent_docs/        ← Full standards for NestJS (architecture, auth, testing, etc.)
-├── nextjs/STACK.md
-│   └── agent_docs/        ← Full standards for Next.js (components, data-fetching, layers, etc.)
-├── spring-boot/STACK.md   ← [PENDIENTE] — fill in when stack is adopted
-├── go/STACK.md            ← [PENDIENTE]
-├── angular/STACK.md       ← [PENDIENTE]
-├── flutter/STACK.md       ← [PENDIENTE]
-└── react-native/STACK.md  ← [PENDIENTE]
-```
+Stack standards live directly inside each skill (e.g. `dev-api-and-interface-design`, `dev-frontend-ui-engineering`). The `stacks/{name}/agent_docs/` folders contain general reference documentation only — skills do not defer to them at runtime.
 
 ### Adding a New Stack
 
 1. Create `stacks/{name}/STACK.md` using the template format (frontmatter + 7 sections)
 2. Add detection logic to `hooks/session-start.sh`
-3. Populate `stacks/{name}/agent_docs/` with standards as the team defines them
-4. Update the detection table above
+3. Update the detection table above
 
 ---
 
