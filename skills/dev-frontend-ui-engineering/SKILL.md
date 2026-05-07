@@ -46,17 +46,18 @@ Key tools: `get_design_context`, `get_screenshot`, `get_metadata`, `search_desig
 
 **If not available:** Ask for screenshots or a written description of the design intent before proceeding.
 
-### Component Library — Use what exists before writing custom code
+### Component Library — Find the right component before writing custom code
 
-When a component library or design system is available for the active stack, check it before implementing anything from scratch:
+**If available:** When building with shadcn/ui, query the MCP before implementing a component from scratch:
 
-1. Identify the available primitives for the UI need.
+1. Query the shadcn MCP for a component matching the UI need.
 2. Review the component's API, variants, and built-in accessibility behavior.
-3. Compose from existing primitives — never re-implement what the library already provides.
+3. If not yet in the project, install via CLI: `npx shadcn@latest add <component>`.
+4. Compose from shadcn primitives — never re-implement what shadcn already provides.
 
-The active stack's reference file specifies the component library and how to use it. Check there before adding new dependencies.
+**Prefer shadcn primitives** for: Button, Dialog, Dropdown, Form, Input, Select, Sheet, Toast, Tooltip, Table, Tabs, Command.
 
-**If not available:** Fall back to the project's existing shared component directory.
+**If not available:** Fall back to the project's existing component library (`@repo/ui` or equivalent). Do not introduce shadcn without confirming with the user. The active stack's reference file specifies the component library and how to use it. Check there before adding new dependencies.
 
 ## Output Artifact
 
@@ -77,34 +78,101 @@ Build production-quality user interfaces that are accessible, performant, and vi
 
 ## Component Architecture
 
-### File Co-location
+### File Structure
 
 Keep all files related to a component in one directory: implementation, tests, stories (if applicable), custom state hooks, and component-specific types. Delete the directory and that capability disappears cleanly.
 
-### Key Principles
+Locate everything related to a component:
 
-**Prefer composition over configuration.** Compose UIs from small, focused pieces rather than building large components with many configuration props. A component with five boolean flags is five components in disguise.
+```
+src/components/
+  TaskList/
+    TaskList.tsx          # Component implementation
+    TaskList.test.tsx     # Tests
+    TaskList.stories.tsx  # Storybook stories (if using)
+    use-task-list.ts      # Custom hook (if complex state)
+    types.ts              # Component-specific types (if needed)
+```
 
-**Keep components focused.** Each component should do one thing. Split when a component manages unrelated state or when the template grows beyond what fits on one screen.
+### Component Patterns
 
-**Separate data from presentation.** A container handles data fetching, loading, error, and empty states; a presentation component receives props and renders. Presentation components are independently testable, reusable, and easier to review.
+**Prefer composition over configuration:** Compose UIs from small, focused pieces rather than building large components with many configuration props. A component with five boolean flags is five components in disguise.
+
+```tsx
+// Good: Composable
+<Card>
+  <CardHeader>
+    <CardTitle>Tasks</CardTitle>
+  </CardHeader>
+  <CardBody>
+    <TaskList tasks={tasks} />
+  </CardBody>
+</Card>
+
+// Avoid: Over-configured
+<Card
+  title="Tasks"
+  headerVariant="large"
+  bodyPadding="md"
+  content={<TaskList tasks={tasks} />}
+/>
+```
+
+**Keep components focused:** Each component should do one thing. Split when a component manages unrelated state or when the template grows beyond what fits on one screen.
+
+```tsx
+// Good: Does one thing
+export function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
+  return (
+    <li className="flex items-center gap-3 p-3">
+      <Checkbox checked={task.done} onChange={() => onToggle(task.id)} />
+      <span className={task.done ? 'line-through text-muted' : ''}>{task.title}</span>
+      <Button variant="ghost" size="sm" onClick={() => onDelete(task.id)}>
+        <TrashIcon />
+      </Button>
+    </li>
+  );
+}
+```
+
+**Separate data fetching from presentation:** A container handles data fetching, loading, error, and empty states; a presentation component receives props and renders. Presentation components are independently testable, reusable, and easier to review.
+
+```tsx
+// Container: handles data
+export function TaskListContainer() {
+  const { tasks, isLoading, error } = useTasks();
+
+  if (isLoading) return <TaskListSkeleton />;
+  if (error) return <ErrorState message="Failed to load tasks" retry={refetch} />;
+  if (tasks.length === 0) return <EmptyState message="No tasks yet" />;
+
+  return <TaskList tasks={tasks} />;
+}
+
+// Presentation: handles rendering
+export function TaskList({ tasks }: { tasks: Task[] }) {
+  return (
+    <ul role="list" className="divide-y">
+      {tasks.map(task => <TaskItem key={task.id} task={task} />)}
+    </ul>
+  );
+}
+```
 
 ## State Management
 
-Choose the simplest tier that works. Escalate only when the current tier is insufficient:
+**Choose the simplest approach that works:**
 
 ```
-Local state             → Component-specific ephemeral UI state (toggle, input value)
-Lifted state            → Shared between 2–3 siblings — no library needed
-Scoped context          → Theme, locale, feature config — read-heavy, write-rare
-URL state               → Filters, pagination, tabs — shareable, bookmarkable
-Server state            → Remote data with caching and invalidation
-Global store            → Complex app-wide client state
+Local state (useState)           → Component-specific UI state
+Lifted state                     → Shared between 2-3 sibling components
+Context                          → Theme, auth, locale (read-heavy, write-rare)
+URL state (searchParams)         → Filters, pagination, shareable UI state
+Server state (React Query, SWR)  → Remote data with caching
+Global store (Zustand, Redux)    → Complex client state shared app-wide
 ```
 
-The active stack's reference file specifies the libraries for each tier.
-
-Avoid prop drilling beyond 3 levels. If you're passing props through components that don't use them, introduce context or restructure the component tree.
+**Avoid prop drilling deeper than 3 levels.** If you're passing props through components that don't use them, introduce context or restructure the component tree.
 
 ## Design System Adherence
 
@@ -125,7 +193,15 @@ AI-generated UI has recognizable patterns. Avoid all of them:
 
 ### Spacing and Layout
 
-Use the project's spacing scale. Don't invent arbitrary values. If the design system uses a 4px base unit, all spacing should be multiples of that unit. Inconsistent spacing values are a code smell.
+Use a consistent spacing scale. Don't invent values:
+
+```css
+/* Use the scale: 0.25rem increments (or whatever the project uses) */
+/* Good */  padding: 1rem;      /* 16px */
+/* Good */  gap: 0.75rem;       /* 12px */
+/* Bad */   padding: 13px;      /* Not on any scale */
+/* Bad */   margin-top: 2.3rem; /* Not on any scale */
+```
 
 ### Typography
 
@@ -143,48 +219,137 @@ Don't skip heading levels. Don't use heading styles for non-heading content.
 
 ### Color
 
-- Use semantic color tokens defined in the design system — not raw hex or primitive scale values
+- Use semantic color tokens: `text-primary`, `bg-surface`, `border-default` — not raw hex values
 - Ensure sufficient contrast (4.5:1 for normal text, 3:1 for large text)
 - Don't rely solely on color to convey information (use icons, text, or patterns too)
 
 ## Accessibility (WCAG 2.1 AA)
 
-Every component must meet these standards.
+Every component must meet these standards:
 
 ### Keyboard Navigation
 
-Every interactive element must be reachable and operable via keyboard alone. Use native interactive elements (button, anchor, input, select) — they have built-in keyboard support and accessible semantics for free. Custom interactive elements need explicit tab stops, keyboard event handlers (Enter/Space), and ARIA roles.
+```tsx
+// Every interactive element must be keyboard accessible
+<button onClick={handleClick}>Click me</button>        // ✓ Focusable by default
+<div onClick={handleClick}>Click me</div>               // ✗ Not focusable
+<div role="button" tabIndex={0} onClick={handleClick}    // ✓ But prefer <button>
+     onKeyDown={e => e.key === 'Enter' && handleClick()}>
+  Click me
+</div>
+```
 
 ### ARIA Labels
 
-Label every interactive element that lacks visible text (icon buttons, inputs without visible labels). Use ARIA landmark roles to describe page structure. Do not add ARIA attributes that duplicate what the native element already expresses.
+```tsx
+// Label interactive elements that lack visible text
+<button aria-label="Close dialog"><XIcon /></button>
+
+// Label form inputs
+<label htmlFor="email">Email</label>
+<input id="email" type="email" />
+
+// Or use aria-label when no visible label exists
+<input aria-label="Search tasks" type="search" />
+```
 
 ### Focus Management
 
-When content changes due to user action — opening a dialog, navigating to a new step, showing an inline form — move focus to a meaningful element inside the new content. For modals and dialogs: trap focus inside while open; restore it to the trigger element when closed.
+```tsx
+// Move focus when content changes
+function Dialog({ isOpen, onClose }: DialogProps) {
+  const closeRef = useRef<HTMLButtonElement>(null);
 
-### Meaningful States
+  useEffect(() => {
+    if (isOpen) closeRef.current?.focus();
+  }, [isOpen]);
 
-Every component that fetches data must handle all states:
-- **Loading** — show a skeleton for content areas; reserve spinners for user-triggered actions
-- **Error** — show a recoverable message with a retry action
-- **Empty** — explain why nothing is there and what the user can do about it
+  // Trap focus inside dialog when open
+  return (
+    <dialog open={isOpen}>
+      <button ref={closeRef} onClick={onClose}>Close</button>
+      {/* dialog content */}
+    </dialog>
+  );
+}
+```
 
-Never show a blank screen.
+### Meaningful Empty and Error States
+
+```tsx
+// Don't show blank screens
+function TaskList({ tasks }: { tasks: Task[] }) {
+  if (tasks.length === 0) {
+    return (
+      <div role="status" className="text-center py-12">
+        <TasksEmptyIcon className="mx-auto h-12 w-12 text-muted" />
+        <h3 className="mt-2 text-sm font-medium">No tasks</h3>
+        <p className="mt-1 text-sm text-muted">Get started by creating a new task.</p>
+        <Button className="mt-4" onClick={onCreateTask}>Create Task</Button>
+      </div>
+    );
+  }
+
+  return <ul role="list">...</ul>;
+}
+```
 
 ## Responsive Design
 
-Design mobile-first: write base styles for the smallest viewport, then expand with breakpoint overrides. Test at minimum: 320px, 768px, 1024px, 1440px.
+Design for mobile first, then expand:
 
-The active stack's reference file specifies the responsive utilities available (CSS breakpoints, responsive classes, media query helpers).
+```tsx
+// Tailwind: mobile-first responsive
+<div className="
+  grid grid-cols-1      /* Mobile: single column */
+  sm:grid-cols-2        /* Small: 2 columns */
+  lg:grid-cols-3        /* Large: 3 columns */
+  gap-4
+">
+```
+
+Test at these breakpoints: 320px, 768px, 1024px, 1440px.
 
 ## Loading and Transitions
 
-- **Prefer skeletons over spinners** for content areas — skeletons preserve layout and reduce perceived latency.
-- **Use optimistic updates** for frequent, low-risk mutations to make the UI feel instant. Revert on error.
-- **Avoid layout shift** during transitions — reserve space for loading content rather than having the page reflow when data arrives.
+```tsx
+// Skeleton loading (not spinners for content)
+function TaskListSkeleton() {
+  return (
+    <div className="space-y-3" aria-busy="true" aria-label="Loading tasks">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="h-12 bg-muted animate-pulse rounded" />
+      ))}
+    </div>
+  );
+}
 
-The active stack's reference file provides specific implementation patterns for loading states and optimistic updates.
+// Optimistic updates for perceived speed
+function useToggleTask() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: toggleTask,
+    onMutate: async (taskId) => {
+      await queryClient.cancelQueries({ queryKey: ['tasks'] });
+      const previous = queryClient.getQueryData(['tasks']);
+
+      queryClient.setQueryData(['tasks'], (old: Task[]) =>
+        old.map(t => t.id === taskId ? { ...t, done: !t.done } : t)
+      );
+
+      return { previous };
+    },
+    onError: (_err, _taskId, context) => {
+      queryClient.setQueryData(['tasks'], context?.previous);
+    },
+  });
+}
+```
+
+## See Also
+
+For detailed accessibility requirements and testing tools, see `references/accessibility-checklist.md`.
 
 ## Common Rationalizations
 
@@ -199,12 +364,11 @@ The active stack's reference file provides specific implementation patterns for 
 ## Red Flags
 
 - Components with more than 200 lines (split them)
-- Inline styles or arbitrary spacing values not on the project's scale
+- Inline styles or arbitrary pixel values
 - Missing error states, loading states, or empty states
 - No keyboard navigation testing
 - Color as the sole indicator of state (red/green without text or icons)
 - Generic "AI look" (purple gradients, oversized cards, stock layouts)
-- Prop drilling beyond 3 levels without context
 
 ## Verification
 
@@ -212,11 +376,11 @@ After building UI:
 
 - [ ] Component renders without console errors
 - [ ] All interactive elements are keyboard accessible (Tab through the page)
-- [ ] Screen reader / accessibility tool can convey the page's content and structure
+- [ ] Screen reader can convey the page's content and structure
 - [ ] Responsive: works at 320px, 768px, 1024px, 1440px
 - [ ] Loading, error, and empty states all handled
 - [ ] Follows the project's design system (spacing, colors, typography)
-- [ ] Stack-specific Verification Checklist from the loaded reference passes
+- [ ] No accessibility warnings in dev tools or axe-core
 
 ## Next Step
 
