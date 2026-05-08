@@ -83,6 +83,7 @@ Activate from natural language or slash commands:
 | `/build` | `dev-incremental-implementation` + `dev-test-driven-development` | On failure → `dev-debugging-and-error-recovery`; on commit → `dev-git-workflow-and-versioning` |
 | `/review` | `dev-code-review-and-quality` | Security findings → `dev-security-and-hardening`; perf findings → `dev-performance-optimization` |
 | `/test` | `dev-test-driven-development` | — |
+| `/test-restructure` | `dev-test-restructure` | — |
 | `/ship` | `dev-shipping-and-launch` | — |
 | `/code-simplify` | `dev-code-simplification` | — |
 
@@ -102,6 +103,7 @@ Activate from natural language or slash commands:
 | `dev-context-engineering` | "what context do I need", "load the right files", "configure context" |
 | `dev-deprecation-and-migration` | "deprecate this", "migrate from X to Y", "sunset this feature" |
 | `dev-idea-refine` | "ideate on this", "not sure what to build", "refine this idea" |
+| `dev-test-restructure` | "refactor the tests", "fix test structure", "our test suite is a mess", "bring tests in line" |
 
 ### `/spec` — Two Modes
 
