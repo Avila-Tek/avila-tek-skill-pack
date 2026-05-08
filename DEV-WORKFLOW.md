@@ -17,6 +17,8 @@ DEFINE        PLAN          BUILD         VERIFY        REVIEW        SHIP
                                                        /code-simplify
 ```
 
+> `/harness` can be run at any point to configure lint rules and self-check tooling. See [Phase 0](#phase-0--harness-setup-harness) for details.
+
 Each phase has a **gate** — do not advance until the gate is met.
 
 ---
@@ -33,6 +35,7 @@ docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug/
   spec.md               ← /spec output
   plan.md               ← /plan output
   todo.md               ← /plan output
+  summary.md            ← /review output (session retrospective)
 ```
 
 ### Without planning track (standalone feature)
@@ -44,6 +47,7 @@ docs/features/<feature>/
   spec.md        ← /spec output
   plan.md        ← /plan output
   todo.md        ← /plan output
+  summary.md     ← /review output (session retrospective)
 ```
 
 **Naming conventions for `<feature>`:**
@@ -55,6 +59,33 @@ docs/features/<feature>/
 docs/features/auth/spec.md
 docs/features/TASK-420/plan.md
 ```
+
+---
+
+## Phase 0 — Harness Setup (`/harness`)
+
+**Goal:** Configure lint rules and static analysis so the agent can self-correct during `/build`.
+
+**Usage:**
+```
+/harness
+/harness eslint
+```
+
+**What Claude does:**
+1. Discovers the project's folder structure, import patterns, and any existing lint config
+2. Surfaces findings — confirms layer boundaries before generating rules
+3. Generates ESLint rules that encode team conventions (layer boundaries, naming, import discipline)
+4. Verifies rules pass on the current codebase
+5. Adds `lint` and `lint:fix` scripts to `package.json`
+
+**When to run:** Once per project setup, and again after any significant architecture change.
+
+**Effect on `/build`:** After `/harness` runs, the agent adds `npm run lint` to every verify cycle and treats lint failures as build failures.
+
+**Gate to advance:**
+- [ ] `npm run lint` exits 0 (or known violations documented inline)
+- [ ] Layer boundaries are encoded as rules in the ESLint config
 
 ---
 
@@ -252,10 +283,13 @@ Reduces complexity without changing behavior. Targets:
 
 **Rule:** Tests must pass before and after. Never changes behavior.
 
+**`/review` also writes `summary.md`** to the active feature or story folder after the five-axis review. The summary records findings, recurring patterns, positive practices, and follow-up actions — a session retrospective the developer can reference in future work on this feature.
+
 **Gate to advance:**
 - [ ] No Critical findings pending
 - [ ] Important findings resolved or explicitly accepted with justification
 - [ ] Code simplified where applicable
+- [ ] `summary.md` written to the feature or story folder
 
 ---
 

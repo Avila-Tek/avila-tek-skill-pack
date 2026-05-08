@@ -216,6 +216,53 @@ Check the author's verification story:
 - Is there a before/after comparison?
 ```
 
+### Step 6: Generate Session Summary
+
+After the review is complete, write `summary.md` to the active feature or story folder. This is always the last step — do not skip it.
+
+**Location:**
+- Story track: `docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug/summary.md`
+- Feature track: `docs/features/<feature>/summary.md`
+
+**Format:**
+
+```markdown
+# Review Summary — [Feature or Story name]
+
+**Date:** YYYY-MM-DD
+**Scope:** [Commit range, PR title, or "recent session"]
+
+## Findings
+
+| Axis | Severity | Location | Issue | Resolution |
+|------|----------|----------|-------|------------|
+| Correctness | Critical | src/foo.ts:42 | Missing null check on user input | Fixed in commit abc123 |
+| Architecture | Important | src/bar.ts:15 | Controller imports repository directly | Deferred — tracking TASK-421 |
+| Readability | Suggestion | src/baz.ts:8 | Generic name `data` — rename to `userProfile` | Fixed |
+
+## Recurring Patterns
+
+Patterns that appeared more than once during this session. Watch for these going forward:
+
+- [pattern description — what it is and why it matters]
+
+## Positive Patterns
+
+Good practices observed — keep doing these:
+
+- [practice description]
+
+## Follow-Up Actions
+
+- [ ] [Specific action, owner if known]
+```
+
+**Rules for the summary:**
+- If there are no findings in a section, omit it rather than writing "None"
+- Recurring patterns require at least two instances in the session — don't manufacture them
+- Follow-up actions must be concrete and actionable, not vague ("improve performance" is not an action)
+- Resolution column must reflect actual state: "Fixed", "Deferred", "Accepted with justification: [reason]", or "Won't fix: [reason]"
+
 ## Multi-Model Review Pattern
 
 Use different models for different review perspectives:

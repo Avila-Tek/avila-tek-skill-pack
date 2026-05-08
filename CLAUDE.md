@@ -81,7 +81,8 @@ Activate from natural language or slash commands:
 | `/spec` | `dev-spec-driven-development` | Story-Driven Mode if story file exists |
 | `/plan` | `dev-planning-and-task-breakdown` | — |
 | `/build` | `dev-incremental-implementation` + `dev-test-driven-development` | On failure → `dev-debugging-and-error-recovery`; on commit → `dev-git-workflow-and-versioning` |
-| `/review` | `dev-code-review-and-quality` | Security findings → `dev-security-and-hardening`; perf findings → `dev-performance-optimization` |
+| `/harness` | `dev-harness-eslint` | On success → integrate lint into `/build` verify step |
+| `/review` | `dev-code-review-and-quality` | Security findings → `dev-security-and-hardening`; perf findings → `dev-performance-optimization`; always → writes `summary.md` |
 | `/test` | `dev-test-driven-development` | — |
 | `/test-restructure` | `dev-test-restructure` | — |
 | `/ship` | `dev-shipping-and-launch` | — |
@@ -104,6 +105,7 @@ Activate from natural language or slash commands:
 | `dev-deprecation-and-migration` | "deprecate this", "migrate from X to Y", "sunset this feature" |
 | `dev-idea-refine` | "ideate on this", "not sure what to build", "refine this idea" |
 | `dev-test-restructure` | "refactor the tests", "fix test structure", "our test suite is a mess", "bring tests in line" |
+| `dev-harness-eslint` | "set up eslint", "add lint rules", "the agent keeps making the same architecture mistake", "encode our layer boundaries", "configure the linter", "add harness" |
 
 ### `/spec` — Two Modes
 
