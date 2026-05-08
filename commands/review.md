@@ -24,3 +24,10 @@ Review the current changes (staged or recent commits) across all five axes:
 
 Categorize findings as Critical, Important, or Suggestion.
 Output a structured review with specific file:line references and fix recommendations.
+
+After the review is complete, write `summary.md` to the active feature or story folder:
+
+- **With story file:** `docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug/summary.md`
+- **Without story file:** `docs/features/<feature>/summary.md`
+
+The summary captures: findings table (axis / severity / location / resolution), recurring patterns observed during the session, positive practices to keep, and follow-up actions. See `dev-code-review-and-quality` Step 6 for the full format.
