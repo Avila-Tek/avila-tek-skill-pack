@@ -300,4 +300,24 @@ After completing any implementation:
 
 ## Output Artifact
 
-Test files co-located with source per the active stack's convention (see the loaded reference file). Coverage report generated at project root after running the test command.
+### Where to place the test file
+
+Before creating a new test file, detect the project's layout from existing test files:
+
+```
+Layout A — co-located (spec file sits next to its source file):
+  src/modules/users/application/use-cases/create-user.use-case.ts
+  src/modules/users/application/use-cases/user-creation.spec.ts   ← same directory
+
+Layout B — mirrored test folder (test/ mirrors src/ structure):
+  src/modules/users/application/use-cases/create-user.use-case.ts
+  test/modules/users/application/use-cases/user-creation.spec.ts  ← test/ replaces src/
+```
+
+Pick the layout that already exists in the project and follow it consistently. Never mix layouts in the same project.
+
+For layer-specific placement within a module (e.g., domain vs. use-case vs. infrastructure), follow the pyramid defined in the loaded stack reference file.
+
+If the test file you're about to create would end up in a flat `test/` root with no sub-structure, stop — derive the correct path from the source file's location using the rules above.
+
+Coverage report is generated at the project root after running the test command.

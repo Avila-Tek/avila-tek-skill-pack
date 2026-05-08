@@ -104,6 +104,53 @@ A flat `test/` root with no sub-structure is **not** acceptable regardless of fi
 
 Detect which layout the project uses and enforce it consistently. If the project is mixed, pick the dominant pattern and migrate stragglers to it.
 
+### How to determine the target location for a file
+
+Every test file is derived from the source file(s) it exercises. Use that relationship to derive the correct path:
+
+**Step 1 — Identify the source file.** Read the test file's imports. The source module under test is the primary non-test, non-fixture import.
+
+```typescript
+// From the imports you can read:
+import { CreateUserUseCase } from '../../application/use-cases/create-user.use-case';
+//                                  ↑ this is the source file path
+```
+
+**Step 2 — Derive the target path from the layout.**
+
+```
+Layout A (co-located):
+  Source: src/modules/users/application/use-cases/create-user.use-case.ts
+  Test:   src/modules/users/application/use-cases/user-creation.spec.ts
+                                                   ↑ same directory, behavior-based name
+
+Layout B (mirrored folder):
+  Source: src/modules/users/application/use-cases/create-user.use-case.ts
+  Test:   test/modules/users/application/use-cases/user-creation.spec.ts
+               ↑ test/ root replaces src/, everything else mirrors
+```
+
+**Step 3 — For RESTRUCTURE: map each behavior group to its source layer.**
+
+When splitting a file, each behavior group tests a specific class or layer. Identify which source file each group belongs to, then place the new spec file next to that source file.
+
+```
+users.module.spec.ts contains tests for:
+  → CreateUserUseCase   → src/modules/users/application/use-cases/user-creation.spec.ts
+  → User entity         → src/modules/users/domain/entities/user.spec.ts
+  → UserRepository      → src/modules/users/infrastructure/persistence/user-repository.spec.ts
+```
+
+For NestJS specifically, respect the layer hierarchy defined in `../dev-test-driven-development/references/nestjs.md`:
+
+```
+domain/entities/        ← unit tests for domain objects (no mocks)
+application/use-cases/  ← unit tests for use-cases (mocked repos)
+infrastructure/         ← integration tests (real DB or HTTP)
+```
+
+If a behavior group doesn't map cleanly to a single source file (e.g., it tests a collaboration between two layers), place it at the closest common ancestor directory and name it after the scenario: `user-registration-flow.spec.ts`.
+
 ### Classification decision tree
 
 For each file, answer in order:
@@ -217,9 +264,10 @@ REFACTOR: sign-in.spec.ts
 
 A well-structured file in the wrong place gets moved without content changes.
 
-1. Move the file to its correct location under the module tree.
-2. Update any import paths that reference the old location.
-3. Run tests immediately — a failing test here is always an import path issue.
+1. Derive the target path using the mapping rule in the **Folder structure rule** section above: read the file's imports, find the source module, apply the project layout.
+2. Move the file to the derived target path.
+3. Update any import paths inside the file that break due to the new location.
+4. Run tests immediately — a failing test here is always an import path issue.
 
 ```
 RELOCATE: test/sign-out.spec.ts
