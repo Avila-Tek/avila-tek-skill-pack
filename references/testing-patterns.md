@@ -315,6 +315,154 @@ it('validates titles correctly', () => {
 
 ---
 
+## Test File Organization
+
+### One file = one behavior group
+
+Name files after what they test, not what class or module they live in. A class-named file becomes a dumping ground that grows without a natural stopping point.
+
+```
+✅ user-registration.spec.ts       ← behavior
+✅ user-password-reset.spec.ts     ← behavior
+✅ user-email-verification.spec.ts ← behavior
+❌ user.service.spec.ts            ← class — no clear boundary for when to stop adding
+```
+
+### Size thresholds
+
+| Lines (excl. fixtures) | Action |
+|---|---|
+| < 150 | Fine |
+| 150–250 | Signal — consider splitting by behavior group |
+| > 250 | Hard limit — split before adding more tests |
+
+### Splitting a file that has grown too large
+
+When a file hits the threshold, split along `describe` boundaries. Each top-level `describe` block becomes its own file:
+
+```
+// Before: task.spec.ts (320 lines)
+describe('TaskService')
+  describe('creation') ...      // 80 lines
+  describe('assignment') ...    // 90 lines
+  describe('completion') ...    // 80 lines
+  describe('archival') ...      // 70 lines
+
+// After
+task-creation.spec.ts      ← describe('TaskService — creation')
+task-assignment.spec.ts    ← describe('TaskService — assignment')
+task-completion.spec.ts    ← describe('TaskService — completion')
+task-archival.spec.ts      ← describe('TaskService — archival')
+```
+
+Keep shared setup (fake/mock instantiation) in a dedicated fixtures file imported by each spec:
+
+```
+tasks/
+  task-creation.spec.ts
+  task-assignment.spec.ts
+  task-completion.spec.ts
+  task-archival.spec.ts
+  task.fixtures.ts           ← shared factories and fakes
+```
+
+### Factory helpers
+
+Never repeat object construction inline. Inline setup duplicates noise and makes the test's *intent* hard to see at a glance.
+
+**Basic factory — `make` function with overrides:**
+
+```typescript
+// task.fixtures.ts
+export function makeTask(overrides?: Partial<TaskProps>): Task {
+  return Task.create({
+    id: 'task-1',
+    title: 'Buy groceries',
+    status: 'pending',
+    assigneeId: 'user-1',
+    createdAt: new Date('2024-01-01'),
+    ...overrides,
+  });
+}
+```
+
+Usage — only the fields relevant to the test appear in the test body:
+
+```typescript
+it('cannot assign an already completed task', () => {
+  const task = makeTask({ status: 'completed' });
+  expect(() => task.assign('user-2')).toThrow(TaskAlreadyCompletedError);
+});
+```
+
+**Builder pattern — for objects with complex construction sequences:**
+
+Use a builder when the factory needs more than one step to reach the desired state (e.g., a task that has been assigned *and then* started):
+
+```typescript
+// task.fixtures.ts
+export class TaskBuilder {
+  private props: TaskProps = {
+    id: 'task-1',
+    title: 'Buy groceries',
+    status: 'pending',
+    assigneeId: null,
+    createdAt: new Date('2024-01-01'),
+  };
+
+  assigned(assigneeId = 'user-1'): this {
+    this.props.assigneeId = assigneeId;
+    this.props.status = 'assigned';
+    return this;
+  }
+
+  inProgress(): this {
+    this.props.status = 'in_progress';
+    return this;
+  }
+
+  withTitle(title: string): this {
+    this.props.title = title;
+    return this;
+  }
+
+  build(): Task {
+    return Task.restore(this.props);
+  }
+}
+
+// Usage — reads like a sentence
+it('cannot restart a task that is already in progress', () => {
+  const task = new TaskBuilder().assigned().inProgress().build();
+  expect(() => task.start()).toThrow(TaskAlreadyStartedError);
+});
+```
+
+Prefer the simple `make` factory by default. Reach for a builder only when a test needs to express a sequence of state transitions to reach a precondition.
+
+### Describe block depth
+
+Two levels maximum: one for the subject, one for the scenario. Deeper nesting is a sign the scenario group should become its own file.
+
+```typescript
+// ✅ Two levels
+describe('TaskService — completion', () => {
+  describe('when task is overdue', () => {
+    it('sends a reminder notification', ...);
+    it('marks task as at-risk', ...);
+  });
+});
+
+// ❌ Three levels — extract to task-completion-overdue.spec.ts instead
+describe('TaskService', () => {
+  describe('completion', () => {
+    describe('when overdue', () => { ... });
+  });
+});
+```
+
+---
+
 ## Test Anti-Patterns
 
 | Anti-Pattern | Problem | Better Approach |
