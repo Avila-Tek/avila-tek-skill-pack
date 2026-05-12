@@ -15,7 +15,7 @@ This skill applies to any project that uses Cypress. Network interception conven
 
 | Stack | Network mock approach | Reference |
 |---|---|---|
-| Next.js (continental) | `MockHttpClient` in-process interceptor + `cy.apiError` / `cy.apiResponse` custom commands | See `references/author/author-rules.md` — Network section |
+| Next.js | `MockHttpClient` in-process interceptor + `cy.apiError` / `cy.apiResponse` custom commands | See `references/author/author-rules.md` — Network section |
 | Other stacks | TODO — document `cy.intercept()` conventions per project |
 
 ## Task

@@ -65,11 +65,11 @@ You MUST read and follow [../documentation/documentation-rules.md](../documentat
 
 ## Network
 
-> **Next.js / continental stack:** This project uses `MockHttpClient` — an in-process JavaScript interceptor. It handles API calls **before** they reach the network, so `cy.intercept()` alone is **silently ignored** in mock mode.
+> **Next.js stack:** This project uses `MockHttpClient` — an in-process JavaScript interceptor. It handles API calls **before** they reach the network, so `cy.intercept()` alone is **silently ignored** in mock mode.
 >
 > **Other stacks:** TODO — document the network mock approach for each stack.
 
-### Next.js / continental — always use the environment-aware custom commands:
+### Next.js — always use the environment-aware custom commands:
 
 - `cy.apiError(method, path, statusCode, error)` — stub a failing response (mock mode: programs MockHttpClient; real-API mode: registers a `cy.intercept()` stub)
 - `cy.apiResponse(method, path, data)` — override a default mock response with custom data (same dual behavior)
