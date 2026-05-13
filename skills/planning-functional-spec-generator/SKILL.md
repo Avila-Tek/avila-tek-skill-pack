@@ -110,7 +110,7 @@ Rules for this step:
 
 ## Step 5 — Generate the Spec
 
-Populate ALL 9 sections using the canonical template below. The structure is **mandatory and fixed** — never add, remove, or rename sections. Write the output **always in Spanish**.
+Populate ALL 8 sections using the canonical template below. The structure is **mandatory and fixed** — never add, remove, or rename sections. Write the output **always in Spanish**.
 
 ### No-invention rule (mandatory, no exceptions)
 
@@ -127,11 +127,11 @@ Populate ALL 9 sections using the canonical template below. The structure is **m
 - Section 5 flows follow the exact sub-structure: Entrada, Proceso del Sistema, Bloqueos Funcionales, Integración, Resultado final — then Detalles with: Reglas funcionales, Casos bordes, Datos y validaciones del flujo, Estados funcionales.
 - Keep language functional. Avoid unnecessary technical implementation details unless they are explicit functional requirements in the design doc.
 - **Anti-repetición:** Nunca repetir información entre secciones. Si un dato ya aparece en flujos (sección 5), no repetirlo en reglas de negocio (sección 4) ni en criterios de aceptación (sección 9). Cada dato vive en una sola sección.
-- **Compacidad:** Preferir bullets concisos sobre párrafos. Si un punto puede decirse en una línea, no usar dos.
+- **Economía de palabras:** La extensión de cada campo es proporcional a su complejidad real. Un caso simple: una cláusula. Un caso complejo: una oración. Sin frases introductorias, sin justificaciones, sin elaborar más allá de lo que el equipo describió. Si un subcampo de flujo no tiene contenido relevante, omitirlo por completo en lugar de completarlo con texto genérico.
 
 ---
 
-## Canonical Spec Template (9 sections — MANDATORY)
+## Canonical Spec Template (8 sections — MANDATORY)
 
 The template below defines the exact output structure. All section names and field labels are in Spanish and must be reproduced exactly as written here.
 
@@ -225,14 +225,6 @@ Solo listar integraciones explícitamente mencionadas en el design doc. No inven
 
 ---
 
-### 9. Criterios de aceptación
-
-- **[Criterio 1]:** [Condición sine qua non para el paso a producción].
-- **[Criterio 2]:** [Comportamiento esperado en escenarios críticos].
-- **[Criterio N]:** [Validación de flujos de extremo a extremo].
-
----
-
 ## Step 6 — Produce the Output File
 
 Write the spec as a Markdown file. The Spec Funcional lives in **Lark Wiki** — it does NOT go in the repo.
@@ -258,13 +250,13 @@ Formatting:
 
 ## Quality Checklist
 
-- [ ] All 9 sections present with exact names from the template
+- [ ] All 8 sections present with exact names from the template
 - [ ] Every bullet uses bold_prefix + text format
 - [ ] Section 1 has exactly 3 bullets — no intro paragraph
 - [ ] Section 3 has no "Sistemas internos" bullet
 - [ ] Section 5 flows each have: Entrada, Proceso del Sistema, Bloqueos Funcionales, Integración, Resultado final + Detalles (Reglas funcionales, Casos bordes, Datos y validaciones, Estados funcionales)
 - [ ] Section 6 integrations only list what's explicitly in the design doc — no invented API details
-- [ ] No information repeated across sections 4, 5, and 9
+- [ ] No information repeated across sections 4 and 5
 - [ ] All gaps were surfaced as questions to the user before generating (Step 4)
 - [ ] Skipped questions appear as `[PENDIENTE: debe definirse — <pregunta>]` in the relevant section
 - [ ] Output is written in Spanish regardless of the input language

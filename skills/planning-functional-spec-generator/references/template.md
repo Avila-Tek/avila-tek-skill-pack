@@ -83,15 +83,7 @@ Reglas globales que rigen toda la funcionalidad, independientemente del flujo.
 
 ---
 
-## 9. Criterios de aceptación
-
-- [Criterio 1: Condición sine qua non para el paso a producción].
-- [Criterio 2: Comportamiento esperado en pruebas de estrés o seguridad].
-- [Criterio 3: Validación de flujos críticos de extremo a extremo].
-
----
-
-## 10. Preguntas abiertas
+## 9. Preguntas abiertas
 
 - [Duda 1: Temas técnicos o de negocio pendientes de definición].
 - [Duda 2: Limitaciones de terceros por confirmar].

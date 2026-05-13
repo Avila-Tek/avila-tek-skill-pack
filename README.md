@@ -31,7 +31,7 @@ PLANNING TRACK (Tech Lead)                           DEV TRACK (Developer)
 /domain-model-generator ───────► docs/domain_model.md
           │
           ▼
-/functional-spec-generator ────► Spec Funcional (Lark Wiki)
+/functional-spec-meeting ───────► Spec Funcional (Lark Wiki)
           │
           ▼
 /technical-design-document ────► docs/epics/E-XXX/tdd.md  (optional)
@@ -73,7 +73,8 @@ Seven sequential skills that move a Design Doc through context, domain model, sp
 |---------|----------------|----------------|
 | `/project-context-generator` | `project_context.md` | `docs/` |
 | `/domain-model-generator` | `domain_model.md` | `docs/` |
-| `/functional-spec-generator` | Spec Funcional | Lark Wiki (copy/export) |
+| `/functional-spec-meeting` | Spec Funcional | Lark Wiki (via meeting + recap) |
+| `/functional-spec-generator` | Spec Funcional | Lark Wiki (standalone, from design doc) |
 | `/technical-design-document` | `tdd.md` | `docs/epics/E-XXX/` |
 | `/epic-generator` | `epic.md` | `docs/epics/E-XXX/` |
 | `/story-generator` | `E-XXX_S-YYY_slug.md` | `docs/epics/E-XXX/stories/E-XXX_S-YYY/` |
@@ -228,7 +229,7 @@ Every artifact has exactly one home. No duplication.
 | Design Doc | Lark Wiki | Team (manual) |
 | `project_context.md` | `docs/` | `/project-context-generator` |
 | `domain_model.md` | `docs/` | `/domain-model-generator` |
-| Spec Funcional | Lark Wiki | `/functional-spec-generator` |
+| Spec Funcional | Lark Wiki | `/functional-spec-meeting` or `/functional-spec-generator` |
 | `tdd.md` | `docs/epics/E-XXX/` | `/technical-design-document` |
 | `epic.md` | `docs/epics/E-XXX/` | `/epic-generator` |
 | Story file + folder | `docs/epics/E-XXX/stories/E-XXX_S-YYY/` | `/story-generator` |

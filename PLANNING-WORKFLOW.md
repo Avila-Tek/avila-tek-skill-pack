@@ -15,7 +15,7 @@ CONTEXT        DOMAIN         SPEC          TDD           EPICS        STORIES  
   |              |              |             |              |             |              |
 /project-    /domain-      /functional-  /technical-    /epic-       /story-       /write-epics-
 context-     model-        spec-         design-        generator    generator     and-hu-in-base
-generator    generator     generator     document
+generator    generator     meeting       document
                                          (optional)
 ```
 
@@ -133,27 +133,34 @@ This is a **living document** — each run is additive. Never rewrites. Appends 
 
 ---
 
-## Phase 3 — FUNCTIONAL SPEC (`/functional-spec-generator`)
+## Phase 3 — FUNCTIONAL SPEC (`/functional-spec-meeting`)
 
-**Goal:** Produce a complete functional specification per epic — the bridge between the Design Doc and the engineering backlog.
+**Goal:** Produce a complete functional specification per epic through a live working session — the bridge between the Design Doc and the engineering backlog.
 
 **Usage:**
 ```
-/functional-spec-generator
+/functional-spec-meeting
 ```
 
-**What Claude does:**
-1. Reads the Design Doc and `docs/project_context.md`
-2. Asks which epic to generate the spec for
-3. Generates the Spec Funcional in Markdown (in Spanish)
-4. Presents the output for the user to copy/export to Lark Wiki
+**Standalone path (no meeting):** Use `/functional-spec-generator` when you have a written design doc and want to generate the spec directly, without a meeting.
 
-**What the document captures:** actors, step-by-step flows (main + alternative), business rules (numbered BR-001, BR-002…), external integrations, edge cases, acceptance criteria, open questions with owner and due date.
+**What Claude does (meeting flow):**
+1. Silently loads `docs/project_context.md` and `docs/domain_model.md` if they exist
+2. Posts a short opening message — two lines, no preamble
+3. PM + tech lead discuss the epic verbally; the chat lead types what was discussed
+4. Claude asks 1–2 short, specific questions per turn — never lectures or suggests unprompted
+5. When the team signals they're done, Claude posts a structured recap (≤ 30 lines)
+6. Team approves or corrects the recap
+7. Claude generates the Spec Funcional via the generator (skipping re-asking questions already answered)
+8. Presents the output for the team to upload to Lark Wiki
+
+**What the document captures:** actors, step-by-step flows (main + alternative), business rules (numbered BR-001, BR-002…), external integrations, edge cases, acceptance criteria, gaps marked `[PENDIENTE]`.
 
 **Rules:**
-- Output always in Spanish (source language doesn't matter)
+- Output always in Spanish (meeting language doesn't matter)
 - One spec per epic — not a multi-epic document
 - Lives in Lark Wiki — not written to the repo
+- Claude never generates before the team explicitly approves the recap
 - Business rules are numbered so stories can reference them (BR-001, BR-002…)
 - No implementation details
 
@@ -341,8 +348,9 @@ See [DEV-WORKFLOW.md](DEV-WORKFLOW.md) for the complete development workflow.
     → Saved to docs/domain_model.md
     → Team reviews and approves, commit
 
-4.  /functional-spec-generator  (repeat per epic)
-    → Claude generates Spec Funcional in Spanish
+4.  /functional-spec-meeting  (repeat per epic)
+    → PM + tech lead discuss; Claude facilitates with 1–2 questions per turn
+    → Team approves recap → Claude generates Spec Funcional in Spanish
     → Team pastes to Lark Wiki
 
 5.  /technical-design-document  (optional, per complex epic)
@@ -373,7 +381,7 @@ See [DEV-WORKFLOW.md](DEV-WORKFLOW.md) for the complete development workflow.
 
 1. **Every artifact is confirmed before the next phase starts**
 2. **Never invent business rules** — use `[PENDING]` for gaps
-3. **One question at a time** — Claude never dumps a list of questions
+3. **1–2 questions per turn in skill-2** — Claude asks short, specific questions and waits; never interrogates or lectures
 4. **Artifacts are additive** — re-running skill-0 or skill-1 updates, never overwrites
 5. **English everywhere except skill-2** — Spec Funcional is always in Spanish
 6. **The story file is immutable after commit** — it is planning output; developers must not modify it

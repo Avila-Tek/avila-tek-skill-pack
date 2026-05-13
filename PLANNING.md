@@ -22,7 +22,8 @@ Planning skills activate with **natural language phrases** in Claude Code. Each 
 |---|---|
 | "generate the project context" | `/project-context-generator` |
 | "create the domain model" | `/domain-model-generator` |
-| "generate a functional spec for E-002" | `/functional-spec-generator` |
+| "let's start the spec meeting for E-002", "kick off the spec for E-002" | `/functional-spec-meeting` |
+| "generate a functional spec from this doc" | `/functional-spec-generator` |
 | "create a TDD" | `/technical-design-document` |
 | "generate epics from the spec" | `/epic-generator` |
 | "generate stories for E-002" | `/story-generator` |
@@ -59,12 +60,12 @@ Planning skills activate with **natural language phrases** in Claude Code. Each 
                          │                                      │
               ┌──────────▼───────────┐                         │
               │  /functional-spec-   │  skill-2                │
-              │  generator           │                          │
+              │  meeting             │                          │
               │                      │  Output: Lark Wiki       │
-              │  One per epic.       │  (Markdown, in Spanish)  │
-              │  Bridge between      │  Step-by-step flows,     │
-              │  Design Doc and      │  rules, ACs, edge cases  │
-              │  the backlog.        │                          │
+              │  PM + tech lead      │  (Markdown, in Spanish)  │
+              │  hold the meeting.   │  Step-by-step flows,     │
+              │  Claude facilitates. │  rules, ACs, edge cases  │
+              │  One per epic.       │                          │
               └──────┬───────────────┘                         │
                      │            │                            │
            ┌─────────▼──────┐     └──────► ┌────────────────┐ │
@@ -200,13 +201,13 @@ Run it:
 
 ---
 
-### `/functional-spec-generator` — skill-2
+### `/functional-spec-meeting` — skill-2
 
-Generates a complete Functional Spec in Spanish from a Design Doc for a specific epic. This is the bridge between the Design Doc (product vision) and the engineering backlog (execution).
+Facilitates a live working session between the PM and tech lead to produce the Spec Funcional for a specific epic. Claude is the third chair — attentive, brief, and question-driven. The team is the protagonist. This is the bridge between the Design Doc (product vision) and the engineering backlog (execution).
 
-#### Why Spanish
+#### Why a meeting instead of a generator
 
-The Spec Funcional lives in Lark Wiki and is read by the entire team — including stakeholders who work primarily in Spanish. The source Design Doc may be in any language; the output is always Spanish.
+The Spec Funcional captures decisions that live in people's heads, not in a design doc. Running it as a facilitated meeting brings the PM and tech lead into alignment during the process — gaps and conflicts surface through conversation, not after the fact.
 
 #### What it documents
 
@@ -218,27 +219,36 @@ The Spec Funcional lives in Lark Wiki and is read by the entire team — includi
 | Integrations | External systems and contracts |
 | Edge cases | What happens when things go wrong |
 | Acceptance criteria | Measurable conditions for completion |
-| Open questions | Unresolved items with owner and due date |
+| Open questions | Unresolved items marked `[PENDIENTE]` |
 
-#### Process
+#### Meeting process
 
-1. Reads the Design Doc and `docs/project_context.md`
-2. Asks clarifying questions about the target epic
-3. Generates the Spec Funcional in Markdown
-4. Presents the output for the user to copy/export to Lark Wiki
+1. Claude silently loads `docs/project_context.md` and `docs/domain_model.md` (if they exist)
+2. PM + tech lead discuss the epic verbally and type what was discussed into the chat
+3. Claude asks 1–2 questions per turn — specific, open-ended, tied to what was just said
+4. When the team is done, Claude posts a structured recap (≤ 30 lines)
+5. Team approves or corrects the recap
+6. Claude generates the Spec Funcional via `functional-spec-generator` (skipping the clarifying-questions step — those were resolved in the meeting)
+7. Output is presented for the team to upload to Lark Wiki
 
-**Important:** This artifact lives in Lark Wiki, not in the repo. The skill presents the output but does not write it to disk.
+**Important:** This artifact lives in Lark Wiki, not in the repo.
 
 #### Rules
 
-- Output always in Spanish
+- Output always in Spanish (regardless of meeting language)
 - One spec per epic — not a multi-epic document
+- Claude never invents content — gaps become `[PENDIENTE: debe definirse — <pregunta>]`
 - No implementation details (that's what the TDD is for)
 - Business rules are numbered (BR-001, BR-002…) so stories can reference them
+- Claude never generates the document before the team explicitly approves the recap
+
+#### Standalone path (no meeting)
+
+Use `/functional-spec-generator` when you have a design doc and want to generate the spec directly, without a meeting. The generator reads the doc, asks clarifying questions about gaps, and produces the same 9-section Spec Funcional.
 
 | | |
 |---|---|
-| **Input** | Design Doc + epic name |
+| **Input** | Live meeting conversation (PM + tech lead) |
 | **Output** | Spec Funcional `.md` ready to paste into Lark Wiki |
 | **Language** | Always Spanish |
 | **Cadence** | One per epic, before generating `epic.md` |
@@ -444,7 +454,7 @@ Reads epic and story `.md` files from the repo, translates content fields to Spa
 | Design Doc | Lark Wiki | Team (manual) |
 | `project_context.md` | `docs/` | skill-0 |
 | `domain_model.md` | `docs/` | skill-1 |
-| Spec Funcional | Lark Wiki | skill-2 |
+| Spec Funcional | Lark Wiki | skill-2 (`/functional-spec-meeting`) or `/functional-spec-generator` |
 | `tdd.md` | `docs/epics/E-XXX/` | skill-3 |
 | `epic.md` | `docs/epics/E-XXX/` | skill-4 |
 | Story folder + `.md` | `docs/epics/E-XXX/stories/E-XXX_S-YYY_slug/` | skill-5 |
@@ -486,7 +496,7 @@ docs/
 
 **Artifacts are additive.** Running skill-0 or skill-1 again does not overwrite — it updates and appends. The history of decisions is preserved in the repo.
 
-**English everywhere except skill-2.** All artifacts in the repo are in English. The Spec Funcional (skill-2) is Spanish because it lives in Lark Wiki and is read by the broader team.
+**English everywhere except skill-2.** All artifacts in the repo are in English. The Spec Funcional (skill-2) is Spanish because it lives in Lark Wiki and is read by the broader team. The meeting itself can be in any language — Claude matches it — but the generated document is always Spanish.
 
 ---
 

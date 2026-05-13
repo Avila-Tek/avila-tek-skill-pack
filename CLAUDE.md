@@ -54,7 +54,8 @@ Activate from natural language or slash commands:
 |---|---|---|
 | `planning-0-project-context-generator` | `/project-context-generator` | "generate project context", "create master context", "bootstrap the project" |
 | `planning-1-domain-model-generator` | `/domain-model-generator` | "domain model", "modelo de dominio", "update the domain model" |
-| `planning-2-functional-spec-generator` | `/functional-spec-generator` | "functional spec", "spec funcional", "generate the spec" |
+| `planning-2-functional-spec-meeting` | `/functional-spec-meeting` | "let's start the spec meeting", "vamos a armar el spec funcional", "kick off the spec for E-XXX", "start the spec session" |
+| `planning-functional-spec-generator` | `/functional-spec-generator` | "generate spec from design doc", "turn this doc into a spec", "generate the spec" *(standalone — no meeting)* |
 | `planning-3-technical-design-document` | `/technical-design-document` | "TDD", "technical design", "diseño técnico", "create a TDD" |
 | `planning-4-epic-generator` | `/epic-generator` | "generate epics", "genera las épicas", "break this spec into epics" |
 | `planning-5-story-generator` | `/story-generator` | "generate stories for E-XXX", "expand this epic into stories" |
@@ -64,7 +65,8 @@ Activate from natural language or slash commands:
 
 - **skill-0:** Create or Update mode. Ask questions one at a time. English. Max 500 lines.
 - **skill-1:** Living doc. Use exact Domain Glossary terms. `[PENDING]` for gaps. Additive — never rewrite history.
-- **skill-2:** Output always in Spanish. One per epic. Lark Wiki only — do not write to repo.
+- **skill-2 (meeting):** PM + tech lead hold the conversation; Claude asks 1–2 questions per turn, never lectures. Generates after team approves a recap (calls `functional-spec-generator` internally). Output always in Spanish. Lark Wiki only.
+- **functional-spec-generator (standalone):** For solo generation from a design doc — skips the meeting flow. Same output rules as skill-2.
 - **skill-3:** Ask "TDD before or after epics?" first. English. ASCII diagrams only. Output → `docs/epics/E-XXX_slug/tdd.md`.
 - **skill-4:** Primary source is Spec Funcional. Max 150–200 lines per epic.
 - **skill-5:** Resolve all open questions before generating. Output → `docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug/E-XXX_S-YYY_slug.md`.
