@@ -1,6 +1,6 @@
 ---
 name: test-restructure
-description: Refactors an existing test suite to match behavioral naming, correct folder structure, and internal quality standards — without breaking passing tests.
+description: Refactors an existing test suite to match behavioral naming, correct folder structure, and internal quality standards — without breaking passing tests. Spanish triggers: "refactoriza las pruebas", "los tests están desorganizados", "arregla la estructura de pruebas".
 ---
 
 # Test Suite Restructure

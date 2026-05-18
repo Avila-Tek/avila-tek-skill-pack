@@ -1,6 +1,6 @@
 ---
 name: build
-description: Implement the next task incrementally — build, test, verify, commit
+description: Implement the next task incrementally — build, test, verify, commit — implementa esto / construye paso a paso
 ---
 
 ## Step 0 — Context Cleanup (suggest first, always)

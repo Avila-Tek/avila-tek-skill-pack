@@ -1,6 +1,6 @@
 ---
 name: harness
-description: Configure development harness tooling — linters, static analysis, and self-check rules that let the agent catch violations automatically during build
+description: Configure development harness tooling — linters, static analysis, and self-check rules that let the agent catch violations automatically during build — configura eslint / añade reglas de lint
 ---
 
 ## Overview

@@ -11,12 +11,13 @@ This document defines the complete planning workflow for moving from a Design Do
 ## Lifecycle
 
 ```
-CONTEXT        DOMAIN         SPEC          TDD           EPICS        STORIES        SYNC
-  |              |              |             |              |             |              |
-/project-    /domain-      /functional-  /technical-    /epic-       /story-       /write-epics-
-context-     model-        spec-         design-        generator    generator     and-hu-in-base
-generator    generator     generator     document
-                                         (optional)
+CONTEXT        DOMAIN         SPEC          TDD           EPICS+STORIES               SYNC
+  |              |              |             |              |                            |
+/project-    /domain-      /functional-  /technical-    /epic-and-                  /write-epics-
+context-     model-        spec-         design-        stories-                    and-hu-in-base
+generator    generator     generator     document       generator
+                                         (optional)     (Phase 1: epics
+                                                         Phase 2: stories)
 ```
 
 Each phase has a **gate** — do not advance until the gate is met.
@@ -36,11 +37,11 @@ docs/
 ├── domain_model.md            ← skill-1 output (living document)
 ├── epics/
 │   └── E-XXX_slug/
-│       ├── epic.md            ← skill-4 output
+│       ├── epic.md            ← skill-4 output (Phase 1)
 │       ├── tdd.md             ← skill-3 output (optional)
 │       └── stories/
 │           └── E-XXX_S-YYY_slug/
-│               ├── E-XXX_S-YYY_slug.md   ← skill-5 output (HANDOFF to dev)
+│               ├── E-XXX_S-YYY_slug.md   ← skill-4 output (Phase 2 — HANDOFF to dev)
 │               ├── spec.md               ← dev output (/spec)
 │               ├── plan.md               ← dev output (/plan)
 │               └── todo.md               ← dev output (/plan)
@@ -195,51 +196,32 @@ This is a **living document** — each run is additive. Never rewrites. Appends 
 
 ---
 
-## Phase 5 — EPICS (`/epic-generator`)
+## Phase 5 — EPICS & STORIES (`/epic-and-stories-generator`)
 
-**Goal:** Generate individual epic documents from the Spec Funcional — the units of sprint planning.
-
-**Usage:**
-```
-/epic-generator
-```
-
-**What Claude does:**
-1. Reads the Spec Funcional
-2. If a TDD exists in `docs/epics/E-XXX/tdd.md`, reads it automatically to enrich technical details
-3. Presents the discovered epics (IDs + one-line descriptions)
-4. Asks which epics to generate
-5. Generates one `epic.md` per requested epic
-
-**What each `epic.md` contains:** objective, scope (in/out), happy path ASCII flow (max 8 steps), KPIs, user stories (3–8 with abbreviated ACs).
-
-**Rules:**
-- 150–200 lines per epic — focused, not exhaustive
-- Uses `[TO BE DEFINED]` for gaps — never invents content
-- Epic IDs: `E-{3-digit-number}` (E-001, E-002…)
-- User stories inside `epic.md` are abbreviated — full stories come from `/story-generator`
-
-**Gate to advance:**
-- [ ] `docs/epics/E-XXX_slug/epic.md` committed for each target epic
-- [ ] Scope (in/out) explicitly defined per epic
-- [ ] Happy path flow present
-- [ ] KPIs defined
-
----
-
-## Phase 6 — STORIES (`/story-generator`)
-
-**Goal:** Generate all User Stories (HUs) for an epic — the handoff artifact to the development team.
+**Goal:** Generate epic documents and story files from the Spec Funcional in one command — epics for sprint planning (Phase 1), then full HU files for developer handoff (Phase 2).
 
 **Usage:**
 ```
-/story-generator
+/epic-and-stories-generator
 ```
 
 **What Claude does:**
-1. Reads `epic.md` + Spec Funcional + `tdd.md` (if exists)
-2. Resolves all open questions before generating — no ambiguities in the final output
-3. Generates one folder + story file per HU
+
+*Phase 1 — Epics:*
+1. Loads `docs/project_context.md`, `docs/domain_model.md`, and TDD (if available)
+2. Reads the Spec Funcional
+3. Surfaces 4–8 targeted questions that cannot be answered by loaded documents
+4. Presents the discovered epics (IDs + one-line descriptions)
+5. Asks which epics to generate
+6. Generates one `epic.md` per requested epic
+
+*Phase 2 — Stories (after epics are generated):*
+1. Asks: "Generate stories now? (all, or specify: E-001, E-003…)"
+2. Collects Figma URLs in batch before generating any story
+3. Resolves open questions per story before generating
+4. Generates one folder + story file per HU
+
+**What each `epic.md` contains:** objective, scope (in/out), happy path ASCII flow (max 6 steps), unhappy paths, PRD signal, stories table, optional KPIs.
 
 **What each story file contains:**
 
@@ -255,28 +237,26 @@ This is a **living document** — each run is additive. Never rewrites. Appends 
 - Section 7: Telemetry (events and metrics)
 - Section 8: Testing Guidance (unit, integration, E2E)
 
-**Pre-generation checklist (Claude verifies before writing):**
-- All ACs are testable — not vague ("should work correctly" → rejected)
-- All technical scope references real entities from `domain_model.md`
-- All business rules trace back to the Spec Funcional
-- No open questions remain
-
 **Rules:**
-- No ambiguities in the final document
-- ACs must be measurable and testable
-- Block B must be concrete — no "TBD"
+- 50–150 lines per epic — navigation layer, not a restatement of the Spec Funcional
+- Uses `[TO BE DEFINED]` for gaps — never invents content
+- Epic IDs: `E-{3-digit-number}` (E-001, E-002…)
+- Story IDs: `S-{3-digit-number}` within the epic (S-001, S-002…)
+- No ambiguities in the final story document — ACs must be measurable and testable
 - Do not modify story files after committing — they are planning output
 
 **Gate to advance:**
-- [ ] All stories for the target epic committed
-- [ ] Each story has its own folder
+- [ ] `docs/epics/E-XXX_slug/epic.md` committed for each target epic
+- [ ] All story files committed, each in its own folder
+- [ ] Scope (in/out) explicitly defined per epic
+- [ ] Happy path flow present
 - [ ] All ACs are testable
 - [ ] Block B is complete with no gaps
-- [ ] Story files reviewed and approved by the team
+- [ ] Epic and story files reviewed and approved by the team
 
 ---
 
-## Phase 7 — SYNC (`/write-epics-and-hu-in-base`)
+## Phase 6 — SYNC (`/write-epics-and-hu-in-base`)
 
 **Goal:** Keep Lark Base synchronized with the repo — epics and stories as structured records.
 
@@ -350,21 +330,19 @@ See [DEV-WORKFLOW.md](DEV-WORKFLOW.md) for the complete development workflow.
     → Saved to docs/epics/E-XXX_slug/tdd.md
     → Team reviews and approves, commit
 
-6.  /epic-generator
-    → Claude presents discovered epics, asks which to generate
+6.  /epic-and-stories-generator
+    Phase 1: Claude surfaces questions, presents discovered epics, asks which to generate
     → Saved to docs/epics/E-XXX_slug/epic.md
     → Team reviews and approves, commit
-
-7.  /story-generator  (per epic)
-    → Claude resolves open questions, generates all HUs
+    Phase 2: Claude collects Figma URLs, resolves open questions, generates all HUs
     → Saved to docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug/
     → Team reviews and approves, commit
 
-8.  /write-epics-and-hu-in-base
+7.  /write-epics-and-hu-in-base
     → Claude shows preview → team confirms
     → Records synced to Lark Base
 
-9.  HANDOFF → developer picks up story file and runs /spec
+8.  HANDOFF → developer picks up story file and runs /spec
 ```
 
 ---

@@ -1,6 +1,6 @@
 ---
 name: code-review-and-quality
-description: Conducts multi-axis code review. Use before merging any change. Use when reviewing code written by yourself, another agent, or a human. Use when you need to assess code quality across multiple dimensions before it enters the main branch.
+description: Conducts multi-axis code review. Use before merging any change. Use when reviewing code written by yourself, another agent, or a human. Use when you need to assess code quality across multiple dimensions before it enters the main branch. Spanish triggers: "revisa el código", "revisión de código", "revisa este PR".
 ---
 
 # Code Review and Quality
@@ -282,6 +282,19 @@ Human makes the final call
 
 This catches issues that a single model might miss — different models have different blind spots.
 
+### Adversarial Review for High-Stakes Decisions
+
+For decisions that are non-obvious, irreversible, or have high blast radius, run an adversarial check before finalizing:
+
+1. Identify the decision (an architecture choice, an API design, a security boundary)
+2. Write a brief statement of: what it is, what contract it must satisfy, what was NOT considered
+3. Review the artifact as if you are a skeptic with no knowledge of the original reasoning — look for problems, not validation
+4. If you find a real problem: document it, propose an alternative, and present both to the user
+
+**The key rule:** the adversarial reviewer receives only the artifact + its contract — not the reasoning that led to the decision. Reasoning is where blind spots live; the reviewer must work from evidence, not intent.
+
+Use this when: the change is hard to reverse, it affects a shared interface, or you notice yourself rationalizing rather than reasoning.
+
 **Example prompt for a review agent:**
 ```
 Review this code change for correctness, security, and adherence to
@@ -336,6 +349,45 @@ When reviewing code — whether written by you, another agent, or a human:
 - **Quantify problems when possible.** "This N+1 query will add ~50ms per item in the list" is better than "this could be slow."
 - **Push back on approaches with clear problems.** Sycophancy is a failure mode in reviews. If the implementation has issues, say so directly and propose alternatives.
 - **Accept override gracefully.** If the author has full context and disagrees, defer to their judgment. Comment on code, not people — reframe personal critiques to focus on the code itself.
+
+## Responding to Review Feedback
+
+When receiving a review — from a human, another agent, or a model in multi-model review:
+
+### The Response Pattern
+
+1. **Read** the comment fully before responding
+2. **Verify** the claim against the actual code — check whether the reviewer's reading is correct
+3. **Evaluate** the technical soundness of the suggestion
+4. **Respond** with either pushback or acknowledgment — then implement if accepting
+
+### When to Push Back
+
+Push back when the suggestion would break existing functionality, adds complexity with no corresponding benefit (YAGNI), relies on missing context that changes the analysis, or contradicts the spec or an accepted design decision.
+
+```
+I disagree with [suggestion] because [technical reason].
+The alternative would [concrete downside].
+The current implementation handles [specific case] that the suggestion does not.
+```
+
+### When to Accept
+
+Accept when the reviewer's reasoning is technically sound, even if you'd have done it differently. Acknowledge by showing the fix, not by thanking:
+
+```
+Fixed: renamed `data` to `userProfile` across the affected files.
+```
+
+### Forbidden Responses
+
+These are failures, not politeness:
+- "You're absolutely right!" — performative, skips evaluation
+- "Great catch!" — same
+- "I'll keep that in mind" — commits to nothing
+- Implementing a suggestion without verifying it won't break something
+
+Demonstrate receipt by showing the change.
 
 ## Dependency Discipline
 

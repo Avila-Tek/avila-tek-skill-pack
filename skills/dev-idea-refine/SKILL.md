@@ -1,6 +1,6 @@
 ---
 name: idea-refine
-description: Refines ideas iteratively. Refine ideas through structured divergent and convergent thinking. Use "idea-refine" or "ideate" to trigger.
+description: Refines ideas iteratively. Refine ideas through structured divergent and convergent thinking. Use "idea-refine" or "ideate" to trigger. Spanish triggers: "refina esta idea", "quiero idear sobre esto", "no sé qué construir".
 ---
 
 # Idea Refine

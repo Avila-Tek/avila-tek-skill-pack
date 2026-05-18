@@ -1,6 +1,6 @@
 ---
 name: incremental-implementation
-description: Delivers changes incrementally. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step.
+description: Delivers changes incrementally. Use when implementing any feature or change that touches more than one file. Use when you're about to write a large amount of code at once, or when a task feels too big to land in one step. Spanish triggers: "implementa esto", "construye esto paso a paso", "implementación incremental".
 ---
 
 # Incremental Implementation
@@ -45,6 +45,28 @@ Build in thin vertical slices — implement one piece, test it, verify it, then 
 - Any time you're tempted to write more than ~100 lines before testing
 
 **When NOT to use:** Single-file, single-function changes where the scope is already minimal.
+
+## Prototype Mode
+
+Use before The Increment Cycle when you don't yet know if an approach will work.
+
+**When to prototype:**
+- The technical approach is uncertain (new library, novel pattern, unclear feasibility)
+- You need to explore two competing implementations before committing to one
+- A core assumption needs to be validated before building on it
+
+**Rules for prototype code:**
+- Mark files clearly: `// PROTOTYPE — delete before merging`
+- No tests, no error handling, no production-quality naming required
+- Single command to run — no setup steps
+- In-memory or ephemeral state only — no schema changes, no migrations
+
+**After prototyping:**
+1. Capture the finding in a single note: what worked, what didn't, which approach to use and why
+2. Delete all prototype code before starting the real implementation
+3. Begin The Increment Cycle with the validated approach
+
+If the prototype fails: that's the point. Fail fast, learn, try the next approach. Do not preserve prototype code "just in case" — it creates confusion about what is real.
 
 ## The Increment Cycle
 
@@ -257,6 +279,23 @@ After completing all increments for a task:
 - [ ] The build is clean
 - [ ] The feature works end-to-end as specified
 - [ ] No uncommitted changes remain
+
+## Story Update Gate
+
+After all increments are complete, check if a story file exists in the story folder (`E-XXX_S-YYY_slug.md`).
+
+If yes, run a final verification: compare the story's Block A, Block B, and Open Questions against `spec.md`, `plan.md`, `todo.md`, and recent commits. Identify any fields that diverged from what was actually built.
+
+If differences are found, report them to the dev:
+> "Implementation complete. The following story fields appear to be out of date:
+> - {field}: {what the story says} → {what was actually built}
+> - ...
+> Run `planning-4-epic-and-stories-generator` Update Mode to sync the story."
+
+If no differences are found:
+> "Implementation complete. Story S-XXX is up to date."
+
+Do not update the story automatically.
 
 ## Next Step
 

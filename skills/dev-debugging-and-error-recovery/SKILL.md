@@ -1,6 +1,6 @@
 ---
 name: debugging-and-error-recovery
-description: Guides systematic root-cause debugging. Use when tests fail, builds break, behavior doesn't match expectations, or you encounter any unexpected error. Use when you need a systematic approach to finding and fixing the root cause rather than guessing.
+description: Guides systematic root-cause debugging. Use when tests fail, builds break, behavior doesn't match expectations, or you encounter any unexpected error. Use when you need a systematic approach to finding and fixing the root cause rather than guessing. Spanish triggers: "la prueba está fallando", "el build se rompió", "corrige este error", "arregla esto".
 ---
 
 # Debugging and Error Recovery
@@ -38,6 +38,24 @@ When anything unexpected happens:
 ```
 
 **Don't push past a failing test or broken build to work on the next feature.** Errors compound. A bug in Step 3 that goes unfixed makes Steps 4-10 wrong.
+
+## Phase 0: Build a Feedback Loop
+
+Before forming any hypothesis, build a fast, deterministic way to observe the failure. An agent that hypothesizes without a feedback loop guesses — and generates fix attempts that can't be verified cheaply. This phase produces the command you run after every fix attempt.
+
+Pick the shortest path that makes the failure visible:
+
+| Scenario | Feedback loop |
+|----------|--------------|
+| Unit / integration test | `npm test -- --grep "failing test name" --runInBand` |
+| HTTP bug | Minimal `curl` or `fetch` script reproducing the exact request |
+| CLI bug | Standalone command with minimal flags and fixtures |
+| UI interaction | Failing Playwright/Cypress test or isolated reproduction |
+| Data race / timing | Script that runs the scenario in a tight loop until it fails |
+
+**The loop must be:** fast (< 10s to observe failure), deterministic (same result every run), self-contained (no manual steps), and runnable without human input.
+
+Do NOT form a hypothesis before the loop exists. If you cannot construct one, say so and ask.
 
 ## The Triage Checklist
 
@@ -156,6 +174,15 @@ it('finds tasks with special characters in title', async () => {
 ```
 
 This test will prevent the same bug from recurring. It should fail without the fix and pass with it.
+
+**After writing the regression test, ask: can I make this structurally impossible?**
+
+Consider adding validation at the layer where the bad input enters:
+- **Entry point** — reject invalid input at the API/form boundary before it propagates
+- **Business logic** — assert invariants at domain boundaries (not just in tests)
+- **Type system** — can a type change prevent this class of bug entirely?
+
+If two of the three layers can be hardened in < 10 lines, do it. More than that: note it and defer — don't turn a bug fix into a refactor.
 
 ### Step 6: Verify End-to-End
 

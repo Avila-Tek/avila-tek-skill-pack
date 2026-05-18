@@ -1,6 +1,6 @@
 ---
 name: test-restructure
-description: Refactor an existing test suite — snapshot, classify, restructure module by module, compare.
+description: Refactor an existing test suite — snapshot, classify, restructure module by module, compare. — refactoriza las pruebas / arregla los tests
 ---
 
 Invoke the agent-skills:test-restructure skill.

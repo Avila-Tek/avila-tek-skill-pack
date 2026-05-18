@@ -1,6 +1,6 @@
 ---
 name: code-simplify
-description: Simplify code for clarity and maintainability — reduce complexity without changing behavior
+description: Simplify code for clarity and maintainability — reduce complexity without changing behavior — simplifica esto / reduce la complejidad
 ---
 
 Invoke the agent-skills:code-simplification skill.

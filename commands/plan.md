@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Break work into small verifiable tasks with acceptance criteria and dependency ordering
+description: Break work into small verifiable tasks with acceptance criteria and dependency ordering — parte el trabajo en tareas / planifica las tareas
 ---
 
 Invoke the agent-skills:planning-and-task-breakdown skill.

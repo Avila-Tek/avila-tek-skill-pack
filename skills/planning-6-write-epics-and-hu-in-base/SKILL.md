@@ -8,6 +8,7 @@ description: >
   "carga la épica al Lark", "sincroniza el backlog", "push E-002 to Lark".
   This skill reads .md files from the local repo (it does NOT clone anything),
   parses them, translates content to Spanish, and POSTs to the Lark Base endpoint.
+  Spanish triggers: "sube el backlog a Lark", "empuja las épicas a Lark".
 ---
 
 # Lark Backlog Sync
@@ -133,7 +134,7 @@ Extract fields from markdown sections of each story file:
 | `## 1) User story` or `## User story`        | `description`          | `string`   | Full paragraph content of the section                                                              |
 | `## Acceptance criteria` (any number prefix) | `acceptanceCriteria`   | `string`   | Full list content — match by section name, ignore leading `## N)` number                          |
 | `## Open questions` (any number prefix)      | `questions`            | `string`   | Full content. Match by name, ignore leading number. If section absent or empty, use `""`          |
-| `### Services & components` (inside `## 3)`) | `services`             | `string[]` | Each bullet line → one array element (strip leading `- `). Omit if absent/empty.                 |
+| `### Backend services` (inside `## 3)`)      | `services`             | `string[]` | Each bullet line → one array element (strip leading `- `). Omit if absent/empty.                 |
 | `### Views / screens` (inside `## 3)`)       | `views`                | `string[]` | Each bullet line → one array element (strip leading `- `). Omit if absent/empty.                 |
 | `### Ranked tasks` (inside `## 3)`)          | `tasks`                | `string[]` | Each table data row → `"{Priority}: {Task text}"` as one array element. Skip header and separator rows. Omit if absent/empty. |
 

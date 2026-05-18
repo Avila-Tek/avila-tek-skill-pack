@@ -1,6 +1,6 @@
 ---
 name: spec
-description: Start spec-driven development — write a structured specification before writing code
+description: Start spec-driven development — write a structured specification before writing code — crea el spec / escribe el spec
 ---
 
 Invoke the agent-skills:spec-driven-development skill.

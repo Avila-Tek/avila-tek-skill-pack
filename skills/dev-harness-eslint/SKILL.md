@@ -1,6 +1,6 @@
 ---
 name: dev-harness-eslint
-description: Analyzes project architecture and generates ESLint rules that encode team conventions — giving the agent and developers immediate feedback when code drifts from established patterns.
+description: Analyzes project architecture and generates ESLint rules that encode team conventions — giving the agent and developers immediate feedback when code drifts from established patterns. Spanish triggers: "configura eslint", "añade reglas de lint", "el agente sigue cometiendo el mismo error de arquitectura".
 ---
 
 # ESLint Harness

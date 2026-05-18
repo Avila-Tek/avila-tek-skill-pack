@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Run the pre-launch checklist and prepare for production deployment
+description: Run the pre-launch checklist and prepare for production deployment — despliega / prepara el lanzamiento
 ---
 
 Invoke the agent-skills:shipping-and-launch skill.
