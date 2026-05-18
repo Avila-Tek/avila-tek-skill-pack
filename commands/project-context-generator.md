@@ -1,6 +1,6 @@
 ---
 name: project-context-generator
-description: Generate or update the Project Master Context (docs/project_context.md) from a Design Doc or Intake Brief
+description: Generate or update the Project Master Context (docs/project_context.md) from a Design Doc or Intake Brief — genera el contexto del proyecto / crea el contexto maestro
 ---
 
 Invoke the planning-0-project-context-generator skill.

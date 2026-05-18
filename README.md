@@ -37,11 +37,9 @@ PLANNING TRACK (Tech Lead)                           DEV TRACK (Developer)
 /technical-design-document ────► docs/epics/E-XXX/tdd.md  (optional)
           │
           ▼
-/epic-generator ───────────────► docs/epics/E-XXX/epic.md
-          │
-          ▼
-/story-generator ──────────────► ┌─────────────────────────────────┐
-          │                       │  docs/epics/E-XXX/stories/       │
+/epic-and-stories-generator ───► ┌─────────────────────────────────┐
+          │  Phase 1: epic.md      │  docs/epics/E-XXX/epic.md       │
+          │  Phase 2: stories      │  docs/epics/E-XXX/stories/       │
           │                       │    E-XXX_S-YYY_slug/             │◄── HANDOFF
           │                       │      E-XXX_S-YYY_slug.md         │
           │                       └─────────────────────────────────┘
@@ -75,8 +73,7 @@ Seven sequential skills that move a Design Doc through context, domain model, sp
 | `/domain-model-generator` | `domain_model.md` | `docs/` |
 | `/functional-spec-generator` | Spec Funcional | Lark Wiki (copy/export) |
 | `/technical-design-document` | `tdd.md` | `docs/epics/E-XXX/` |
-| `/epic-generator` | `epic.md` | `docs/epics/E-XXX/` |
-| `/story-generator` | `E-XXX_S-YYY_slug.md` | `docs/epics/E-XXX/stories/E-XXX_S-YYY/` |
+| `/epic-and-stories-generator` | `epic.md` + story files | `docs/epics/E-XXX/` + `docs/epics/E-XXX/stories/` |
 | `/write-epics-and-hu-in-base` | Epics + stories synced | Lark Base |
 
 > **To use the Planning Track effectively, read [PLANNING.md](PLANNING.md) first.** It covers every skill in detail: what each one asks before generating, what each artifact contains, the rules that govern the process, and how the skills connect. The table above is a summary — the full picture is in that document.
@@ -230,8 +227,8 @@ Every artifact has exactly one home. No duplication.
 | `domain_model.md` | `docs/` | `/domain-model-generator` |
 | Spec Funcional | Lark Wiki | `/functional-spec-generator` |
 | `tdd.md` | `docs/epics/E-XXX/` | `/technical-design-document` |
-| `epic.md` | `docs/epics/E-XXX/` | `/epic-generator` |
-| Story file + folder | `docs/epics/E-XXX/stories/E-XXX_S-YYY/` | `/story-generator` |
+| `epic.md` | `docs/epics/E-XXX/` | `/epic-and-stories-generator` |
+| Story file + folder | `docs/epics/E-XXX/stories/E-XXX_S-YYY/` | `/epic-and-stories-generator` |
 | Lark Base records | Lark Base | `/write-epics-and-hu-in-base` |
 | `spec.md` | story folder | `/spec` |
 | `plan.md` + `todo.md` | story folder | `/plan` |
@@ -247,11 +244,11 @@ docs/
 ├── domain_model.md                      ← /domain-model-generator
 ├── epics/
 │   └── E-XXX_slug/
-│       ├── epic.md                      ← /epic-generator
+│       ├── epic.md                      ← /epic-and-stories-generator (Phase 1)
 │       ├── tdd.md                       ← /technical-design-document (optional)
 │       └── stories/
 │           └── E-XXX_S-YYY_slug/
-│               ├── E-XXX_S-YYY_slug.md  ← /story-generator (do not modify)
+│               ├── E-XXX_S-YYY_slug.md  ← /epic-and-stories-generator (Phase 2, do not modify)
 │               ├── spec.md              ← /spec
 │               ├── plan.md              ← /plan
 │               └── todo.md              ← /plan

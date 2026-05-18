@@ -6,6 +6,7 @@ description: >
   "domain model", "update the domain model", "model the domain of [feature]",
   "genera el domain model", "modelo de dominio",
   or any variation requesting a domain model, entity model, or data model document.
+  Spanish triggers: "crea el modelo de dominio", "actualiza el modelo de dominio", "modela el dominio".
 ---
 
 # Domain Model Generator
@@ -42,23 +43,27 @@ Read the following files (if they exist):
 
 ---
 
-## Step 3 — Interactive exploration (one question at a time)
+## Step 3 — Surface ambiguities (4–8 questions)
 
-Ask high-value questions **one at a time**. Use exact terms from the Domain Glossary — no synonyms.
+From `docs/project_context.md` and any provided inputs, derive 4–8 targeted questions that cannot be answered from existing documents. Focus on:
 
-Cover the following areas (not all questions are required — stop when enough information is gathered):
+- Main tables and their primary keys
+- Critical fields and their types/constraints
+- Key relationships and cardinalities
+- Uniqueness constraints, nullability, indexes
+- Any field whose meaning is ambiguous from the name alone
 
-- **Entities:** What are the main business objects?
-- **Attributes:** What are the core attributes of each entity?
-- **State/lifecycle:** Does this entity have states? What triggers transitions?
-- **Invariants:** What rules must always hold (e.g., an Order must have at least one item)?
-- **Relationships:** How do entities relate? What are the cardinalities?
-- **Domain events:** What significant things happen in the system? What do they trigger?
-- **Workflows:** Walk me through the happy path. What are the edge cases?
+Do NOT ask about:
+- Domain events or workflows — only include if the user volunteers them
+- Details already in `docs/project_context.md` or provided inputs
+- Anything you can infer unambiguously from context
 
-Rules:
-- Never invent facts. If something is unknown, record it as an Open Question in the document.
-- When enough information is gathered, confirm: "Ready for me to draft/update Domain Model v{N}?"
+Present all questions as a numbered list before asking any:
+> "Before generating, I have [N] questions. Answer all or tell me which to skip — skipped ones will be marked [PENDING]:"
+>
+> 1. ...
+
+Ask each chosen question individually and wait for the response. Once done, confirm: "Ready to draft Domain Model v{N}?"
 
 ---
 
@@ -84,103 +89,51 @@ Write output to `docs/domain_model.md` in the target project repo.
 ## Canonical template
 
 ```markdown
-# Domain Model & Data Model — <Project Name> (v<version>)
-
-> **Purpose:** Living source of truth for domain concepts + how they map to the system's data model.
-> **Audience:** Humans + AI assistants.
-> **Rule:** Uses the **Domain Glossary** from `/docs/project_context.md` as the vocabulary contract.
-> **Update rule:** Append changes to logs; don't rewrite history without recording it.
+# Domain Model — <Project Name> (v<version>)
 
 ---
 
-## 0) How to read and use this document
+## Entities
 
-### What this model represents
-- **Domain Model:** The business concepts (entities, states, rules) independent of implementation.
-- **Data Model:** The current persisted representation (database schema) that supports those concepts.
-- **Relationship:** The data model is an evolving approximation of the domain model (tradeoffs allowed, must be documented).
+### <EntityName>
+**Description:** <what it is in business terms — one sentence>
+**Table:** `<table_name>`
 
-### How it evolves
-- We iterate this document whenever: a new workflow is added/changed, a business rule changes, an entity/state/event changes, the DB schema changes.
-
-### Source links
-- Master Context: `/docs/project_context.md`
-- Epics: `/docs/epics/`
-
----
-
-## 1) Domain Glossary alignment
-- Glossary source: `/docs/project_context.md#2-domain-glossary`
-- Terms used heavily in this doc: <list terms>
-
----
-
-## 2) Domain entities (conceptual)
-
-### Entity: <EntityName>
-**Description:** <what it is in business terms>
-
-**Core attributes:**
-- `<attr>`: <meaning>
-
-**State / lifecycle (if applicable):**
-- States: `<STATE_A>`, `<STATE_B>`, ...
-- Valid transitions:
-  - `<STATE_A>` → `<STATE_B>` when `<condition>`
-
-**Invariants (must always hold):**
-- INV-1: <rule>
+**Attributes:**
+| Field | Type | Constraints | Description |
+|---|---|---|---|
+| `id` | `uuid` | PK | — |
+| `<field>` | `<type>` | <NOT NULL / UNIQUE / FK / —> | <meaning> |
 
 **Relationships:**
-- `<EntityName>` 1..N `<OtherEntity>` because <why>
+- `<EntityName>` 1..N `<OtherEntity>` — <why>
+
+**State / lifecycle** *(omit if entity has no lifecycle)*
+- States: `<STATE_A>`, `<STATE_B>`
+- `<STATE_A>` → `<STATE_B>` when `<condition>`
+
+**Invariants** *(omit if none)*
+- INV-1: <rule>
 
 ---
 
-## 3) Domain events (if applicable)
-
-- **Event: `<EventName>`**
-  - Trigger: <what causes it>
-  - Payload (conceptual): <fields>
-  - Consumers (conceptual): <who cares>
-
----
-
-## 4) Main workflows
-
-### Workflow: <Name> (happy path)
-1. <Step>
-2. <Step>
-
-### Edge cases
-- <Case>: <handling>
-
----
-
-## 5) DB Schema (DBML — dbdiagram.io compatible)
+## DB Schema (DBML — dbdiagram.io compatible)
 
 \`\`\`dbml
 Table <table_name> {
   id uuid [pk]
-  <field> <type> [note: "<meaning>"]
+  <field> <type> [not null, note: "<meaning>"]
 }
 
 Ref: <table_a.field> > <table_b.field>
 \`\`\`
 
-### Schema evolution notes
-- v0.1: <what was added/changed and why>
-
 ---
-
-## Change Log (append-only)
-| Version | Date | Author | Summary |
-|---|---|---|---|
-| v0.1 | <date> | <author> | Initial draft |
 
 ## Schema Evolution Log (append-only)
 | Version | Migration | Reason |
 |---|---|---|
-| v0.1 | Initial schema | - |
+| v0.1 | Initial schema | — |
 ```
 
 ---
@@ -196,4 +149,4 @@ Ref: <table_a.field> > <table_b.field>
 ## Cross-references
 
 - Vocabulary source: `docs/project_context.md` (Domain Glossary + Business Rules)
-- Consumers of this artifact: skill-4 (epic-generator), skill-5 (story-generator), skill-3 (technical-design-document)
+- Consumers of this artifact: `planning-4-epic-and-stories-generator`, `planning-3-technical-design-document`

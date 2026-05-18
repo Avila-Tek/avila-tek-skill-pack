@@ -24,8 +24,7 @@ Planning skills activate with **natural language phrases** in Claude Code. Each 
 | "create the domain model" | `/domain-model-generator` |
 | "generate a functional spec for E-002" | `/functional-spec-generator` |
 | "create a TDD" | `/technical-design-document` |
-| "generate epics from the spec" | `/epic-generator` |
-| "generate stories for E-002" | `/story-generator` |
+| "generate epics from the spec", "generate epics and stories", "break this spec into epics" | `/epic-and-stories-generator` |
 | "sync E-002 E-003 to Lark" | `/write-epics-and-hu-in-base` |
 
 ---
@@ -68,24 +67,21 @@ Planning skills activate with **natural language phrases** in Claude Code. Each 
               └──────┬───────────────┘                         │
                      │            │                            │
            ┌─────────▼──────┐     └──────► ┌────────────────┐ │
-           │  /epic-         │  skill-4     │  /technical-   │─┘
-           │  generator      │              │  design-       │  skill-3
-           │                 │◄─────────────│  document      │  (optional)
-           │  Output:        │  TDD         │                │
-           │  docs/epics/    │  enriches    │  Output:       │
-           │  E-XXX_slug/    │  epics       │  docs/epics/   │
-           │  epic.md        │              │  E-XXX/tdd.md  │
-           └─────────┬───────┘              └────────────────┘
-                     │
-           ┌─────────▼────────────┐
-           │  /story-generator    │  skill-5
-           │                      │
-           │  One folder per HU.  │  Output:
-           │  The folder is the   │  docs/epics/E-XXX_slug/
-           │  dev workspace.      │  stories/E-XXX_S-YYY_slug/
-           │                      │  E-XXX_S-YYY_slug.md
-           │  ← HANDOFF to dev →  │
-           └─────────┬────────────┘
+           │  /epic-and-     │  skill-4     │  /technical-   │─┘
+           │  stories-       │              │  design-       │  skill-3
+           │  generator      │◄─────────────│  document      │  (optional)
+           │                 │  TDD         │                │
+           │  Phase 1:       │  enriches    │  Output:       │
+           │  docs/epics/    │  epics       │  docs/epics/   │
+           │  E-XXX_slug/    │              │  E-XXX/tdd.md  │
+           │  epic.md        │              └────────────────┘
+           │                 │
+           │  Phase 2:       │  Output:
+           │  One folder     │  docs/epics/E-XXX_slug/
+           │  per HU         │  stories/E-XXX_S-YYY_slug/
+           │                 │  E-XXX_S-YYY_slug.md
+           │  ← HANDOFF →    │
+           └─────────┬───────┘
                      │
            ┌─────────▼────────────┐
            │  /write-epics-and-   │  skill-6
@@ -277,7 +273,7 @@ Skip it for simple CRUD epics where the Spec Funcional is self-explanatory.
 
 Before drafting, always ask: **"Should the TDD be created before or after the epics?"**
 
-- **Before epics:** The TDD defines the technical scope. `/epic-generator` uses it to populate story technical scope automatically.
+- **Before epics:** The TDD defines the technical scope. `/epic-and-stories-generator` uses it to populate story technical scope automatically.
 - **After epics:** Epics already exist with placeholders. The TDD fills in the technical details retroactively.
 
 This changes how Epic IDs are populated in section 4.3.
@@ -297,51 +293,36 @@ This changes how Epic IDs are populated in section 4.3.
 
 ---
 
-### `/epic-generator` — skill-4
+### `/epic-and-stories-generator` — skill-4
 
-Generates individual Epic documents from a Spec Funcional. Each epic is a standalone document for sprint planning and story generation. If a TDD exists, it is used automatically to enrich with technical details.
+Generates Epic documents and Story files (HUs) from a Spec Funcional in one command. **Phase 1** generates slim `epic.md` files; **Phase 2** generates full story files with Block A + Block B for developer handoff. If a TDD exists, it enriches both phases automatically.
 
-#### What each `epic.md` contains
+#### Phase 1 — Epics
+
+**What each `epic.md` contains:**
 
 | Section | Content |
 |---|---|
 | Objective | What this epic achieves and why it matters |
 | Scope (In / Out) | What is and isn't included |
-| Happy path | ASCII flow diagram — max 8 steps |
-| KPIs | Measurable success criteria |
-| User stories | 3–8 per epic with short ACs |
+| Happy path | ASCII flow diagram — max 6 steps |
+| Unhappy paths | Key failure scenarios |
+| PRD Signal | Problem statement, solution, implementation decisions |
+| Stories table | ID + title + user statement + max 2 ACs per story |
+| KPIs | Optional — asked once before generation |
 
-#### Process
-
-1. Reads the Spec Funcional
-2. If a TDD exists in `docs/epics/E-XXX/tdd.md`, reads it automatically
-3. Presents the discovered epics (with IDs and one-line descriptions)
-4. Asks which epics to generate (can be all or a subset)
+**Phase 1 process:**
+1. Loads `docs/project_context.md`, `docs/domain_model.md`, and TDD (if available)
+2. Reads the Spec Funcional
+3. Surfaces 4–8 targeted questions that cannot be answered by loaded documents
+4. Presents the discovered epics (IDs + titles) and asks which to generate
 5. Generates one `epic.md` per requested epic
 
-#### Rules
+#### Phase 2 — Stories (HUs)
 
-- Each `epic.md` is 150–200 lines max — focused, not exhaustive
-- Uses `[TO BE DEFINED]` for gaps — never invents content
-- Epic IDs follow the format `E-{3-digit-number}` (E-001, E-002…)
-- Folder naming: `E-{number}_{lowercase_slug}` (e.g. `E-002_authentication`)
-- User stories inside the epic file are abbreviated — full stories come from `/story-generator`
+After epics are generated, asks: "Generate stories now? (all, or specify: E-001, E-003…)"
 
-| | |
-|---|---|
-| **Input** | Spec Funcional (required) + TDD (optional) |
-| **Output** | `docs/epics/E-XXX_slug/epic.md` per epic |
-| **Limit** | 150–200 lines per epic |
-
----
-
-### `/story-generator` — skill-5
-
-Generates all User Stories (HUs) for an epic. Before generating, resolves all open questions with the operator — the final document has no ambiguities.
-
-#### Story structure — two blocks
-
-Every story file has two blocks designed for different moments in the dev workflow:
+**Story structure — two blocks:**
 
 **Block A — Read before estimating**
 
@@ -361,7 +342,7 @@ Every story file has two blocks designed for different moments in the dev workfl
 | 7. Telemetry | Events and metrics to track |
 | 8. Testing Guidance | Unit, integration, E2E expectations |
 
-#### File naming convention
+**File naming convention:**
 
 ```
 docs/epics/E-XXX_slug/stories/
@@ -369,37 +350,25 @@ docs/epics/E-XXX_slug/stories/
     └── E-XXX_S-YYY_slug.md         ← story file (same name as folder)
 ```
 
-Example:
-```
-docs/epics/E-002_authentication/stories/
-└── E-002_S-001_sign_up/
-    └── E-002_S-001_sign_up.md
-```
-
 The folder is the dev workspace. After the story is committed, the developer adds `spec.md`, `plan.md`, and `todo.md` to the same folder when implementing.
-
-#### Pre-generation checklist
-
-Before generating any story, the skill verifies:
-- All ACs are testable (not vague like "should work correctly")
-- All technical scope sections reference real entities from `domain_model.md`
-- All business rules are traceable to the Spec Funcional
-- No open questions remain — if any, resolve them first
 
 #### Rules
 
-- No ambiguities in the final document
-- ACs must be measurable and testable
-- Technical scope must be concrete — no "TBD" in Block B
+- Each `epic.md` is 50–150 lines — navigation layer, not a restatement of the Spec Funcional
+- Uses `[TO BE DEFINED]` for gaps — never invents content
+- Epic IDs follow the format `E-{3-digit-number}` (E-001, E-002…)
+- Folder naming: `E-{number}_{lowercase_slug}` (e.g. `E-002_authentication`)
 - Story IDs: `S-{3-digit-number}` within the epic (S-001, S-002…)
+- No ambiguities in the final story document — ACs must be measurable and testable
 - Do not modify story files after committing — they are planning output
 
 | | |
 |---|---|
-| **Input** | `epic.md` + Spec Funcional (if exists) + `tdd.md` (if exists) |
-| **Output** | `docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug/E-XXX_S-YYY_slug.md` |
+| **Input** | Spec Funcional (required) + TDD (optional) + `docs/domain_model.md` (optional) |
+| **Output** | `docs/epics/E-XXX_slug/epic.md` + `docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug/E-XXX_S-YYY_slug.md` |
+| **Limit** | 50–150 lines per epic |
 
-Once committed, the developer takes this file and runs `/spec` → `/plan` → `/build`. See [DEV.md](DEV.md).
+Once committed, the developer takes the story file and runs `/spec` → `/plan` → `/build`. See [DEV.md](DEV.md).
 
 ---
 
@@ -446,8 +415,8 @@ Reads epic and story `.md` files from the repo, translates content fields to Spa
 | `domain_model.md` | `docs/` | skill-1 |
 | Spec Funcional | Lark Wiki | skill-2 |
 | `tdd.md` | `docs/epics/E-XXX/` | skill-3 |
-| `epic.md` | `docs/epics/E-XXX/` | skill-4 |
-| Story folder + `.md` | `docs/epics/E-XXX/stories/E-XXX_S-YYY_slug/` | skill-5 |
+| `epic.md` | `docs/epics/E-XXX/` | skill-4 (Phase 1) |
+| Story folder + `.md` | `docs/epics/E-XXX/stories/E-XXX_S-YYY_slug/` | skill-4 (Phase 2) |
 | Lark Base records | Lark Base | skill-6 |
 
 ---

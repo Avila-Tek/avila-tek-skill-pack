@@ -1,6 +1,6 @@
 ---
 name: planning-and-task-breakdown
-description: Breaks work into ordered tasks. Use when you have a spec or clear requirements and need to break work into implementable tasks. Use when a task feels too large to start, when you need to estimate scope, or when parallel work is possible.
+description: Breaks work into ordered tasks. Use when you have a spec or clear requirements and need to break work into implementable tasks. Use when a task feels too large to start, when you need to estimate scope, or when parallel work is possible. Spanish triggers: "parte el trabajo en tareas", "divide en tareas", "planifica las tareas".
 ---
 
 # Planning and Task Breakdown
@@ -228,7 +228,7 @@ When working on an Avila Tek story, write plan artifacts to the story's own fold
 
 ```
 docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug/
-├── E-XXX_S-YYY_slug.md   ← story file (created by planning-5-story-generator)
+├── E-XXX_S-YYY_slug.md   ← story file (created by planning-4-epic-and-stories-generator)
 ├── spec.md               ← written by /spec (Story-Driven Mode)
 ├── plan.md               ← written here (this skill)
 └── todo.md               ← task checklist written here (this skill)
@@ -236,6 +236,15 @@ docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug/
 
 - **`plan.md`** — full implementation plan using the template above
 - **`todo.md`** — flat task checklist for daily tracking, derived from plan.md
+
+## Story Update Gate
+
+After writing `plan.md` and `todo.md`, check if a story file exists in the same folder (`E-XXX_S-YYY_slug.md`).
+
+If yes, notify the dev:
+> "Story S-XXX may be out of date now that the plan is written. Update it now? (Runs `planning-4-epic-and-stories-generator` Update Mode)"
+
+Do not update the story automatically. Wait for confirmation.
 
 ## Next Step
 

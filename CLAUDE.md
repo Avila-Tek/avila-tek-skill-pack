@@ -52,13 +52,12 @@ Activate from natural language or slash commands:
 
 | Skill | Command | Trigger phrases |
 |---|---|---|
-| `planning-0-project-context-generator` | `/project-context-generator` | "generate project context", "create master context", "bootstrap the project" |
-| `planning-1-domain-model-generator` | `/domain-model-generator` | "domain model", "modelo de dominio", "update the domain model" |
-| `planning-2-functional-spec-generator` | `/functional-spec-generator` | "functional spec", "spec funcional", "generate the spec" |
-| `planning-3-technical-design-document` | `/technical-design-document` | "TDD", "technical design", "diseño técnico", "create a TDD" |
-| `planning-4-epic-generator` | `/epic-generator` | "generate epics", "genera las épicas", "break this spec into epics" |
-| `planning-5-story-generator` | `/story-generator` | "generate stories for E-XXX", "expand this epic into stories" |
-| `planning-6-write-epics-and-hu-in-base` | `/write-epics-and-hu-in-base` | "sync to Lark", "push E-XXX to Lark", "sincroniza el backlog" |
+| `planning-0-project-context-generator` | `/project-context-generator` | "generate project context", "create master context", "bootstrap the project", "genera el contexto del proyecto", "crea el contexto maestro", "procesa este brief" |
+| `planning-1-domain-model-generator` | `/domain-model-generator` | "domain model", "modelo de dominio", "update the domain model", "crea el modelo de dominio", "actualiza el modelo de dominio" |
+| `planning-2-functional-spec-generator` | `/functional-spec-generator` | "functional spec", "spec funcional", "generate the spec", "crea el spec funcional", "genera el spec" |
+| `planning-3-technical-design-document` | `/technical-design-document` | "TDD", "technical design", "diseño técnico", "create a TDD", "genera el documento de diseño", "documenta la solución técnica" |
+| `planning-4-epic-and-stories-generator` | `/epic-and-stories-generator` | "generate epics", "genera las épicas", "break this spec into epics", "generate epics and stories", "genera épicas e historias", "tengo el spec ¿qué sigue?", "quiero las historias de usuario" |
+| `planning-6-write-epics-and-hu-in-base` | `/write-epics-and-hu-in-base` | "sync to Lark", "push E-XXX to Lark", "sincroniza el backlog", "sube el backlog a Lark", "empuja las épicas a Lark" |
 
 ### Key rules per planning skill
 
@@ -66,8 +65,7 @@ Activate from natural language or slash commands:
 - **skill-1:** Living doc. Use exact Domain Glossary terms. `[PENDING]` for gaps. Additive — never rewrite history.
 - **skill-2:** Output always in Spanish. One per epic. Lark Wiki only — do not write to repo.
 - **skill-3:** Ask "TDD before or after epics?" first. English. ASCII diagrams only. Output → `docs/epics/E-XXX_slug/tdd.md`.
-- **skill-4:** Primary source is Spec Funcional. Max 150–200 lines per epic.
-- **skill-5:** Resolve all open questions before generating. Output → `docs/epics/E-XXX_slug/stories/E-XXX_S-YYY_slug/E-XXX_S-YYY_slug.md`.
+- **skill-4:** Unified epic + story generator. Spec Funcional is primary source. 50–150 lines per epic. Phase 1 → epics; Phase 2 → stories. HU format unchanged.
 - **skill-6:** Requires Epic IDs + API Key + Base ID. Show preview, wait for confirmation before POST.
 
 ---
@@ -92,20 +90,20 @@ Activate from natural language or slash commands:
 
 | Skill | Activate when |
 |---|---|
-| `dev-debugging-and-error-recovery` | "test is failing", "build broke", "fix this error", unexpected error or failing assertion |
-| `dev-security-and-hardening` | "security review", "harden this", anything touching auth/authz, user input, or secrets |
-| `dev-performance-optimization` | "this is slow", "N+1 query", "bundle size", "Core Web Vitals" |
-| `dev-api-and-interface-design` | "design this API", "define the contract", "REST endpoint design" |
-| `dev-frontend-ui-engineering` | "build this UI", "this component", anything that renders in the browser |
-| `dev-documentation-and-adrs` | "write an ADR", "document this decision", "record this" |
-| `dev-git-workflow-and-versioning` | "how should I commit this", "branch naming", "resolve this conflict" |
-| `dev-ci-cd-and-automation` | "set up CI", "configure the pipeline", "automate the build" |
-| `dev-browser-testing-with-devtools` | "test in the browser", "inspect the DOM", "Chrome DevTools" |
-| `dev-context-engineering` | "what context do I need", "load the right files", "configure context" |
-| `dev-deprecation-and-migration` | "deprecate this", "migrate from X to Y", "sunset this feature" |
-| `dev-idea-refine` | "ideate on this", "not sure what to build", "refine this idea" |
-| `dev-test-restructure` | "refactor the tests", "fix test structure", "our test suite is a mess", "bring tests in line" |
-| `dev-harness-eslint` | "set up eslint", "add lint rules", "the agent keeps making the same architecture mistake", "encode our layer boundaries", "configure the linter", "add harness" |
+| `dev-debugging-and-error-recovery` | "test is failing", "build broke", "fix this error", "la prueba está fallando", "el build se rompió", "corrige este error", "arregla esto" |
+| `dev-security-and-hardening` | "security review", "harden this", "revisión de seguridad", "refuerza esto", "endurece la seguridad", anything touching auth/authz, user input, or secrets |
+| `dev-performance-optimization` | "this is slow", "N+1 query", "bundle size", "Core Web Vitals", "esto es lento", "optimiza el rendimiento", "mejora la performance" |
+| `dev-api-and-interface-design` | "design this API", "define the contract", "REST endpoint design", "diseña esta API", "define el contrato", "diseño de endpoint REST" |
+| `dev-frontend-ui-engineering` | "build this UI", "this component", "construye esta interfaz", "crea este componente", "implementa la UI", anything that renders in the browser |
+| `dev-documentation-and-adrs` | "write an ADR", "document this decision", "record this", "escribe un ADR", "documenta esta decisión", "registra esto" |
+| `dev-git-workflow-and-versioning` | "how should I commit this", "branch naming", "resolve this conflict", "¿cómo hago el commit?", "nombre de rama", "resuelve el conflicto" |
+| `dev-ci-cd-and-automation` | "set up CI", "configure the pipeline", "automate the build", "configura el CI", "configura el pipeline", "automatiza el build" |
+| `dev-browser-testing-with-devtools` | "test in the browser", "inspect the DOM", "Chrome DevTools", "prueba en el navegador", "inspecciona el DOM", "verifica en el browser" |
+| `dev-context-engineering` | "what context do I need", "load the right files", "configure context", "¿qué contexto necesito?", "carga los archivos correctos", "configura el contexto" |
+| `dev-deprecation-and-migration` | "deprecate this", "migrate from X to Y", "sunset this feature", "depreca esto", "migra de X a Y", "retira esta funcionalidad" |
+| `dev-idea-refine` | "ideate on this", "not sure what to build", "refine this idea", "refina esta idea", "quiero idear sobre esto", "no sé qué construir" |
+| `dev-test-restructure` | "refactor the tests", "fix test structure", "our test suite is a mess", "bring tests in line", "refactoriza las pruebas", "los tests están desorganizados", "arregla la estructura de pruebas" |
+| `dev-harness-eslint` | "set up eslint", "add lint rules", "the agent keeps making the same architecture mistake", "encode our layer boundaries", "configure the linter", "add harness", "configura eslint", "añade reglas de lint", "el agente sigue cometiendo el mismo error de arquitectura" |
 
 ### `/spec` — Two Modes
 
@@ -153,7 +151,7 @@ docs/
         ├── tdd.md                  ← skill-3
         └── stories/
             └── E-XXX_S-YYY_slug/
-                ├── E-XXX_S-YYY_slug.md  ← skill-5
+                ├── E-XXX_S-YYY_slug.md  ← skill-4
                 ├── spec.md              ← /spec
                 ├── plan.md              ← /plan
                 └── todo.md             ← /plan

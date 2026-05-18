@@ -1,6 +1,6 @@
 ---
 name: review
-description: Conduct a five-axis code review — correctness, readability, architecture, security, performance
+description: Conduct a five-axis code review — correctness, readability, architecture, security, performance — revisa el código / revisión de código
 ---
 
 ## Chaining Rules

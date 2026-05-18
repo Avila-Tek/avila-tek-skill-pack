@@ -186,6 +186,61 @@ If none: "No open questions. All decisions resolved from epic and context."
 
 ---
 
+## Update Mode
+
+Keeps the story file in sync with what actually got built. Activated automatically by gates in `/spec`, `/plan`, and `/build` — never silently, always with confirmation.
+
+### When it activates
+
+Each dev skill gate notifies the dev when it detects divergence or completes its output. Update Mode only proceeds if the dev confirms.
+
+### Step U1 — Read all sources
+
+Read in this order:
+1. The existing story file (current state)
+2. `spec.md` (if present in the story folder)
+3. `plan.md` (if present in the story folder)
+4. `todo.md` (if present — task completion status)
+5. Recent commits in the story folder scope (if accessible via git log)
+
+### Step U2 — Synthesize proposed values
+
+For each story field, synthesize the most accurate value from all available sources — the same inference logic used in Create Mode, but starting from the existing story as base.
+
+Do NOT show raw diffs between individual source files. Show only: current value in story vs. proposed updated value.
+
+### Step U3 — Show diff per field
+
+Only show fields that have changed. For each divergent field:
+
+```
+FIELD: {section name}
+  Current:  {current value in story}
+  Proposed: {synthesized value from spec.md + plan.md + commits}
+```
+
+If no fields changed, tell the dev: *"Story is up to date. No fields to update."* and stop.
+
+### Step U4 — Confirm and write
+
+Ask: *"Apply these changes to the story?"*
+
+If yes, write the updated story to the same path. Never change the file path or folder.
+
+### Open Questions in Update Mode
+
+- **Resolved OQ** = the question has a documented answer in `spec.md`, `plan.md`, or commits → update the resolution in section 9.
+- **Obsolete OQ** = scope evolved and the question no longer applies → remove from the document.
+- **New OQ** = infer from the artifacts first (decisions made during implementation not documented in the original story), then ask the dev: *"Did any decisions come up during implementation that aren't documented in the story?"* → add as a resolved OQ in section 9.
+
+### What Update Mode never does
+
+- Run without dev confirmation
+- Change the file path or folder name
+- Invent values not backed by the artifacts
+
+---
+
 ## Dev Handoff
 
 Once a story is committed, the developer's workflow starts from the story file:

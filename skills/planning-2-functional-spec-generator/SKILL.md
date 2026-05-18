@@ -9,6 +9,7 @@ description: >
   "turn this design into a spec", "dame el spec funcional", "genera el spec de esta épica", or any
   variation. If the user uploads a PDF, DOCX, or MD file alongside a request to produce a spec or
   functional document, always use this skill.
+  Spanish triggers: "crea el spec funcional", "escribe el spec para esta funcionalidad", "genera el spec".
 ---
 
 # Functional Spec Generator

@@ -1,6 +1,6 @@
 ---
 name: technical-design-document
-description: Generate a Technical Design Document (TDD) from a Spec Funcional and domain model
+description: Generate a Technical Design Document (TDD) from a Spec Funcional and domain model — genera el TDD / diseño técnico
 ---
 
 Invoke the planning-3-technical-design-document skill.

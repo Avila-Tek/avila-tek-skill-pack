@@ -1,6 +1,6 @@
 ---
 name: write-epics-and-hu-in-base
-description: Sync epics and stories from the repo to Lark Base via the Avila Tools API
+description: Sync epics and stories from the repo to Lark Base via the Avila Tools API — sincroniza el backlog / sube a Lark
 ---
 
 Invoke the planning-6-write-epics-and-hu-in-base skill.

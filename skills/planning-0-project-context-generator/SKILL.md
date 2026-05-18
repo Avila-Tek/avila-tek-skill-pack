@@ -6,6 +6,7 @@ description: >
   "create the project context", "generate project_context.md", "build the master context", "bootstrap the project",
   "update the project context", "process this design doc", "process this intake brief". Also trigger when the user
   uploads a Design Doc PDF or Intake Brief docx and asks to extract or structure the project context.
+  Spanish triggers: "genera el contexto del proyecto", "crea el contexto maestro", "actualiza el contexto del proyecto", "procesa este brief".
 ---
 
 # Project Master Context Generator

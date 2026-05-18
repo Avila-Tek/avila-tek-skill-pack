@@ -1,6 +1,6 @@
 ---
 name: shipping-and-launch
-description: Prepares production launches. Use when preparing to deploy to production. Use when you need a pre-launch checklist, when setting up monitoring, when planning a staged rollout, or when you need a rollback strategy.
+description: Prepares production launches. Use when preparing to deploy to production. Use when you need a pre-launch checklist, when setting up monitoring, when planning a staged rollout, or when you need a rollback strategy. Spanish triggers: "despliega a producción", "prepara el lanzamiento", "checklist de deploy".
 ---
 
 # Shipping and Launch
@@ -267,9 +267,9 @@ Every deployment needs a rollback plan before it happens:
 ```
 ## See Also
 
-- For security pre-launch checks, see `references/security-checklist.md`
-- For performance pre-launch checklist, see `references/performance-checklist.md`
-- For accessibility verification before launch, see `references/accessibility-checklist.md`
+- For security pre-launch checks, see `../../references/security-checklist.md`
+- For performance pre-launch checklist, see `../../references/performance-checklist.md`
+- For accessibility verification before launch, see `../../references/accessibility-checklist.md`
 ## Red Flags
 
 - Deploying without a rollback plan

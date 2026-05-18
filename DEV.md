@@ -69,7 +69,7 @@ All skills also activate when you describe the situation in plain language:
 
 ## Story-Driven Mode (with planning artifacts)
 
-When the Tech Lead generated stories with planning skill-5, you start here:
+When the Tech Lead generated stories with planning skill-4 (Phase 2), you start here:
 
 ```
 docs/epics/E-002_auth/stories/E-002_S-001_sign_up/
