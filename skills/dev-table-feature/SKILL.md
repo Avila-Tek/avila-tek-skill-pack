@@ -1,21 +1,22 @@
 ---
 name: dev-table-feature
-description: Use when building a paginated, filterable, configurable table feature that spans backend + frontend. Use when the task involves a view<Entity> or list<Entity> feature with server-side pagination, URL-based filters, and column configuration.
+description: Use when building a paginated, filterable, configurable table feature (frontend only). Use when the task involves a view<Entity> or list<Entity> feature with server-side pagination, URL-based filters, and column configuration.
 ---
 
 # Table Feature
+
+> **Scope: Frontend only.** This skill covers the frontend feature slice (`view<Entity>`) — table UI, URL-driven filters, and data-fetching hooks. Designing the backend paginated endpoint the table consumes is outside this skill's scope — see `dev-api-and-interface-design`.
 
 ## When to Use
 
 - Building a new paginated list/table for an entity
 - Adding filters to an existing table
 - Creating a `view<Entities>` feature
-- Wiring a backend paginated endpoint to a frontend table
 - **For CRUD forms** (create/edit/view) → use **dev-form-engineering** skill instead
 
 ## Output Artifact
 
-A complete `view<Entity>` vertical slice in the target project — backend paginated endpoint + frontend table with URL-driven filters.
+A complete `view<Entity>` frontend feature slice — table UI with URL-driven filters, data-fetching hooks, and column configuration.
 
 ## Stack Activation Gate
 

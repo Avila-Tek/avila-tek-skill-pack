@@ -5,6 +5,8 @@ description: Use when building or modifying forms — create/edit/view flows wit
 
 # Form Engineering
 
+> **Scope: Frontend only.** This skill covers the frontend feature slice (`manage<Entity>`) — UI, form state, validation, and data-fetching hooks. Designing the backend endpoints the form consumes is outside this skill's scope — see `dev-api-and-interface-design`.
+
 ## When to Use
 
 - Building a new create/edit/view form for an entity
