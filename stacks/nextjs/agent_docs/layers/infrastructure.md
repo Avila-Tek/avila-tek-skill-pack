@@ -89,11 +89,53 @@ Rules:
 - Always transform responses to domain models — never return raw DTOs.
 - Services orchestrate: call API, transform result, compose multiple calls if needed.
 
+### Features that need more than one API
+
+When a feature's methods span two or more API resources, declare each resource as a separate interface in `*.interfaces.ts` and inject them as separate constructor parameters. `getAPIClient()` is called **only** in `index.ts` — never in the service itself.
+
+```typescript
+// features/habits/infrastructure/habits.interfaces.ts
+export interface HabitsApi {
+  getForDate(query: TGetHabitsForDateQuery): Promise<Safe<THabitsForDateResponse>>;
+  create(input: TCreateHabitInput): Promise<Safe<THabit>>;
+  // ...
+}
+
+export interface HabitLogsApi {
+  upsert(input: TCreateHabitLogInput): Promise<Safe<THabitLog>>;
+}
+```
+
+```typescript
+// features/habits/infrastructure/habits.service.ts
+export class HabitsServiceClass {
+  constructor(
+    private habitsApi: HabitsApi,
+    private habitLogsApi: HabitLogsApi   // second API as a separate param
+  ) {}
+
+  async logProgress(input: TCreateHabitLogInput): Promise<Safe<HabitLog>> {
+    const result = await this.habitLogsApi.upsert(input);
+    if (!result.success) return result;
+    return { success: true, data: toHabitLogDomain(result.data) };
+  }
+}
+```
+
+```typescript
+// features/habits/infrastructure/index.ts  ← only place that calls getAPIClient()
+import { getAPIClient } from '@/lib/api';
+import { HabitsServiceClass } from './habits.service';
+
+const api = getAPIClient();
+export const HabitsService = new HabitsServiceClass(api.v1.habits, api.v1.habitLogs);
+```
+
 ---
 
 ## Singleton export (`index.ts`)
 
-Wire the real API implementation and export a singleton instance.
+Wire the real API implementation and export a singleton instance. This is the **only file** in a feature that may call `getAPIClient()`.
 
 ```typescript
 // features/habits/infrastructure/index.ts
@@ -224,3 +266,5 @@ export function getAPIClient(token?: string): API {
 - **DTOs without transforms** — Never pass raw API response data to UI components. Always map through `*.transform.ts`.
 - **Importing services directly in UI** — UI should go through the application layer (queries/mutations). Only Server Component pages may call services directly for simple reads.
 - **Services importing API directly** — Use constructor DI. The service depends on an interface, the singleton in `index.ts` wires the real implementation.
+- **Calling `getAPIClient()` outside `index.ts`** — The API client singleton must only be instantiated in `infrastructure/index.ts`. Calling `getAPIClient()` (or `new API()`) in a query, mutation, component, or use case bypasses DI and makes the code untestable.
+- **One interface for multiple unrelated resources** — When a feature needs two API resources (e.g. `habits` and `habitLogs`), define a separate interface for each and inject them as separate constructor parameters. Merging unrelated API contracts into a single interface hides the dependency.

@@ -1,5 +1,19 @@
 # Next.js + React Query — Frontend Standards
 
+## Shared Components Scan
+
+Before applying any pattern in this file, scan the project for these shared components and use the names you find — not the names in the examples below.
+
+| Component | Fallback search terms |
+|---|---|
+| SSR prefetch wrapper | `PrefetchBoundary`, `HydrationBoundary` |
+| Safe result guard | `QueryResultGuard`, `ResultGuard` |
+| Loading skeleton | `FormSkeleton`, `Skeleton` |
+
+If any are not found, show the reference implementation from `stacks/nextjs/agent_docs/references/components.md` and ask the user before proceeding.
+
+---
+
 ## Architecture
 
 Feature-driven Clean Architecture. A feature is a complete user-facing capability — delete the folder, that capability disappears.
@@ -22,18 +36,21 @@ src/
         mutations/use*.mutation.ts  ← React Query writes
         useCases/*.useCase.ts       ← flow orchestration
       domain/
-        *.model.ts        ← types, value objects (no React)
+        *.model.ts        ← domain entities/value objects (frontend-friendly shapes)
         *.logic.ts        ← pure rules, no side effects
+        *.constants.ts    ← enums, query keys, domain constants
         *.form.ts         ← Zod form schemas, default value factories
       infrastructure/
-        *.interfaces.ts   ← DTO aliases from @repo/schemas
+        *.interfaces.ts   ← DTO aliases from @repo/schemas, response wrappers, service contracts
         *.transform.ts    ← DTO ↔ Domain mapping
-        *.service.ts      ← data-access logic
+        *.service.ts      ← data-access logic (implements contracts from interfaces)
   shared/               ← Cross-cutting UI + utilities
   lib/                  ← App-level helpers (query client, env, config)
 ```
 
 **Dependency rule:** `UI → Application → Infrastructure → Domain`. Domain knows nothing. No feature imports from another feature (shared belongs in `shared/` or `packages/`).
+
+> **DTOs:** API input/output types are defined in `@repo/schemas`. `*.interfaces.ts` files create local aliases, response wrapper types, and service contracts — not raw DTO definitions.
 
 ## Key Patterns
 
@@ -93,47 +110,141 @@ export function HabitListWidget({ date }: { date: Date }) {
 | Scenario | Pattern |
 |---|---|
 | Page-level, no interactivity | Server Component + direct service call |
-| Client widget, initial data from server | RSC prefetch + `HydrationBoundary` + `dehydrate` |
-| Interactive / polling / realtime | `useQuery` (TanStack React Query) |
-| Mutations | `useMutation` with `invalidateQueries` |
+| Client widget, initial data from server | `PrefetchBoundary` + client hook |
+| Client-side pagination / filtering / search | `useQuery` with dynamic query keys |
+| Detail/edit pages with Suspense | `useSuspenseQuery` + `QueryResultGuard` |
+| Mutations | `useMutation` passthrough → use case handles errors |
 | Server-side mutations (progressive) | Server Actions (`'use server'`) |
 
 **Pattern 1 — Server Component:**
 ```tsx
 export default async function HabitsPage() {
-  const habits = await new HabitsService().getAll();
+  const habits = await habitsService.getAll();
   return <HabitList habits={habits} />;
 }
 ```
 
-**Pattern 2 — RSC prefetch + HydrationBoundary (default for client widgets):**
+**Pattern 2 — PrefetchBoundary + three-layer query (default for client widgets):**
+
+Every query file follows a three-layer structure:
+
+- **`queryOptions`** — always a `Safe<T>` passthrough. Never throws, never selects. Used by `PrefetchBoundary` (server) and as base for both hooks.
+- **`useXxx()`** — `useQuery` + `select` that throws on `!result.success`. Consumer receives `T + isError`.
+- **`useXxxSuspense()`** — `useSuspenseQuery`, returns `Safe<T>` directly for `QueryResultGuard`.
+
+```tsx
+// Layer 1: queryOptions — always Safe<T>
+export function habitsQueryOptions() {
+  return queryOptions({
+    queryKey: ['habits'],
+    queryFn: () => habitsService.getAll(),  // service is a singleton
+  });
+}
+
+// Layer 2a: client hook — select throw → T + isError
+export function useHabits() {
+  return useQuery({
+    ...habitsQueryOptions(),
+    select: (result) => {
+      if (!result.success) throw new Error(result.error);
+      return result.data;
+    },
+  });
+}
+
+// Layer 2b: suspense hook — Safe<T> for QueryResultGuard
+export function useHabitsSuspense() {
+  return useSuspenseQuery(habitsQueryOptions());
+}
+```
+
+Page-level prefetch with `PrefetchBoundary`:
+
 ```tsx
 // page.tsx (Server Component)
 export default function HabitsPage() {
-  const queryClient = getQueryClient();
-  void queryClient.prefetchQuery(habitsQueryOptions());
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
+    <PrefetchBoundary queries={[habitsQueryOptions()]}>
       <HabitsWidget />
-    </HydrationBoundary>
+    </PrefetchBoundary>
+  );
+}
+```
+
+For detail/edit pages — use `useSuspenseQuery` + `QueryResultGuard`:
+
+```tsx
+// page.tsx (Server Component)
+export default async function HabitDetailRoute({ params }: Props) {
+  const habitId = parseIdParam((await params).id);
+  return (
+    <PrefetchBoundary queries={[habitQueryOptions(habitId)]}>
+      <Suspense fallback={<FormSkeleton />}>
+        <HabitDetailLoader habitId={habitId} />
+      </Suspense>
+    </PrefetchBoundary>
   );
 }
 
-// Shared factory — used by both server and client
-export function habitsQueryOptions() {
-  return queryOptions({ queryKey: ['habits'], queryFn: () => new HabitsService().getAll() });
+// Client loader — 'use client'
+export function HabitDetailLoader({ habitId }: Props) {
+  const { data: result } = useHabitSuspense(habitId);
+  return (
+    <QueryResultGuard result={result} title="Habit not found" redirectTo={routeBuilders.habits()}>
+      {(habit) => <HabitDetailContent habit={habit} />}
+    </QueryResultGuard>
+  );
 }
-export function useHabits() { return useQuery(habitsQueryOptions()); }
 ```
 
-Use `useSuspenseQuery` when the parent has a `<Suspense>` boundary with a skeleton (eliminates `isLoading` check). Use `useQuery` when the widget handles its own loading state.
+Use `useSuspenseQuery` when the parent provides a `<Suspense>` boundary with a skeleton. Use `useQuery` when the widget handles its own loading state.
 
 **Pattern 3 — Mutations:**
+
+Mutations are passthroughs — never put error handling in the mutation hook. A **use case** wraps the mutation and handles `Safe<T>` results with toast + navigation:
+
 ```tsx
+// Mutation: passthrough only
+export function useCreateHabitMutation() {
+  return useMutation({
+    mutationFn: (data: TCreateHabitForm) => habitsService.create(data),
+  });
+}
+
+// Use case: handles Safe<T> with toast + navigation
 export function useCreateHabit() {
+  const createMutation = useCreateHabitMutation();
+  const router = useRouter();
+  const { showToast } = useToast();
+  return {
+    createHabit: (data: TCreateHabitForm) =>
+      createHabitUseCase(data, { mutate: createMutation.mutateAsync, showToast, push: router.push }),
+    isPending: createMutation.isPending,
+  };
+}
+
+async function createHabitUseCase(data: TCreateHabitForm, deps: CreateHabitDeps) {
+  const result = await deps.mutate(data).catch(() => null);
+  if (!result) {
+    deps.showToast({ type: 'error', title: 'Ha ocurrido un error inesperado' });
+    return;
+  }
+  if (!result.success) {
+    deps.showToast({ type: 'error', title: result.error });
+    return;
+  }
+  deps.showToast({ type: 'success', title: result.message ?? 'Hábito creado exitosamente' });
+  deps.push(routeBuilders.habits());
+}
+```
+
+For mutations that only need cache invalidation (no navigation or complex error flow), `onSuccess` is sufficient:
+
+```tsx
+export function useToggleHabitStatus() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateHabitInput) => new HabitsService().create(data),
+    mutationFn: (habitId: string) => habitsService.toggleStatus(habitId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['habits'] }),
   });
 }
@@ -141,7 +252,9 @@ export function useCreateHabit() {
 
 **Query key conventions:** hierarchical arrays — `['habits']`, `['habits', 'by-date', date]`, `['habits', id]`. Invalidating `['habits']` cascades to all nested keys.
 
-**Anti-patterns:** `useEffect` for fetching, no `staleTime` set, duplicate query keys, Server Actions for reads.
+**Service singletons:** Services are exported as singletons from `infrastructure/index.ts`. Use `habitsService.getAll()`, not `new HabitsService().getAll()`.
+
+**Anti-patterns:** `useEffect` for fetching, throwing in `queryFn` (throw belongs in `select`), `new Service()` in `queryFn`, `HydrationBoundary`+`dehydrate` directly (use `PrefetchBoundary`), error handling in mutation hooks (use the use case layer), no `staleTime` set, Server Actions for reads.
 
 ## Forms
 
@@ -182,6 +295,36 @@ return (
 ```
 
 **Rules:** `mutation.isPending` for disabled state (no manual `useState`). `.safeParse()` not `.parse()`. Schemas in `domain/*.form.ts` — never inside components.
+
+### Cross-field validation (`superRefine`)
+
+When one field's validity depends on another, use `superRefine` on the relevant sub-schema:
+
+```typescript
+const transactionDefinition = z.object({
+  amount: z.number().positive(),
+  isNational: z.boolean(),
+  routingNumberCode: z.string().optional(),
+  routingNumberType: z.enum(['aba', 'swift']).optional(),
+});
+
+function refineRoutingNumber(value: z.infer<typeof transactionDefinition>, ctx: z.RefinementCtx) {
+  if (value.isNational) return;
+  if (!value.routingNumberCode) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Routing number required for international transactions',
+      path: ['routingNumberCode'],
+    });
+  }
+}
+
+export const payOrderFormDefinition = z.object({
+  transactions: z.array(transactionDefinition.superRefine(refineRoutingNumber)).min(1),
+});
+```
+
+State-dependent validation (e.g. "name not taken") belongs in a use case, not the schema.
 
 ## Routing
 
@@ -288,7 +431,7 @@ return items.length && <List items={items} />;
 return items.length > 0 ? <List items={items} /> : <EmptyState />;
 ```
 
-**Error handling:** Infrastructure services return `Safe<T>` — never throw. Unwrap `Safe<T>` in `queryFn`/`mutationFn` (throw at React Query boundary). Server Actions return `Safe<T>`.
+**Error handling:** Infrastructure services return `Safe<T>` — never throw. `queryFn` is always a passthrough — never throw there. The throw belongs in the hook's `select` (React Query catches it, sets `isError: true`). Mutations are passthroughs — use case layer handles errors with toast + navigation. Server Actions return `Safe<T>`.
 
 ## shadcn Component Library
 
@@ -419,6 +562,10 @@ if (!data?.length) return <EmptyState />;
 - Missing loading, error, or empty states in widgets
 - `any` type without explanatory comment
 - Magic route strings instead of `routeBuilders`
+- `HydrationBoundary` + `dehydrate` used directly (use `PrefetchBoundary`)
+- Throwing in `queryFn` (throw belongs in the hook's `select`)
+- `onError`, toast, or navigation logic in mutation hooks (use the use case layer)
+- `new Service()` in `queryFn` (services are singletons)
 
 ## Verification Checklist
 
