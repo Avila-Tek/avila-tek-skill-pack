@@ -1,7 +1,6 @@
-# Migration Guide — API (NestJS + Hexagonal + CQRS)
+# Module Patterns — API (NestJS + Hexagonal + CQRS)
 
-Reference context for migrating modules from the `.old-aren` project (MongoDB/Express)
-to the new stack (NestJS + PostgreSQL + Hexagonal Architecture).
+Reference guide for implementing modules following the NestJS + PostgreSQL + Hexagonal Architecture stack.
 
 ---
 
@@ -664,8 +663,8 @@ Due to a WSL2 bug with the `node-postgres` driver, `drizzle-kit migrate` hangs.
 npx drizzle-kit generate
 
 # 2. Apply the SQL (replace with the generated file name)
-docker exec -i continental-postgres-1 psql -U postgres -d continental \
-  < ~/continental/apps/api/drizzle/0000_xxxx.sql
+docker exec -i <project>-postgres-1 psql -U postgres -d <dbname> \
+  < apps/api/drizzle/0000_xxxx.sql
 ```
 
 The `apps/api/drizzle/` folder is in `.gitignore` (regenerate with `npx drizzle-kit generate`).
@@ -727,9 +726,8 @@ describe('CreateXxxUseCase', () => {
 
 ---
 
-## Migration checklist
+## Implementation checklist
 
-- [ ] Read the model in `.old-aren/models/<Model>.js`
 - [ ] Create `domain/<Entity>.ts` with `create()`, `restore()`, `update()`
 - [ ] Create necessary value objects with local enums
 - [ ] Create 5 input ports (`Create`, `Update`, `Delete`, `GetOne`, `GetAll`)
