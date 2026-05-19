@@ -24,7 +24,10 @@ These are blocking findings in a code review:
 
 - `@Entity` or `@Table` annotation inside `domain/` package — JPA annotations belong in `infrastructure/persistence/` only
 - Direct Drizzle imports (`db.select()`, `db.insert()`, etc.) inside a use-case or domain class — all DB access goes through repository adapters
+- Use-case injected directly into a controller — all controller calls must go through `CommandBus` or `QueryBus`
+- `commandBus.execute()` used for a GET (read) operation — reads must use `QueryBus`
 - Cross-module imports not going through `CommandBus`/`QueryBus` — modules must be independent
+- Drizzle schema defined inside `infrastructure/persistence/` of a module — schemas belong in `src/infrastructure/database/schemas/<module>.schema.ts`
 - Cross-domain Drizzle relations defined inside a feature module schema — they belong in `src/infrastructure/database/schema.ts`
 - Hard delete (`db.delete(...)`) where soft delete (`isActive = false`) should be used — all deletes must be soft
 - Every read query must filter `eq(table.isActive, true)` — soft-deleted records must be excluded
@@ -38,10 +41,11 @@ These are blocking findings in a code review:
 - Prefer `interface` for object shapes; `type` for unions/mapped types
 
 **NestJS patterns:**
-- Controllers are thin: parse request → call use-case → map response. No business logic.
-- Use-cases: single `execute()` method, orchestrate only, no business rules
-- Domain classes have zero NestJS and zero Drizzle imports
-- No `@Autowired`-style field injection — constructor injection only
+- Controllers are thin: parse request → dispatch via `CommandBus`/`QueryBus` → map response. No business logic.
+- Controllers always inject `CommandBus` (writes) and `QueryBus` (reads) — never individual use-cases.
+- Write use-cases implement `ICommandHandler`, read use-cases implement `IQueryHandler`.
+- Domain classes have zero NestJS and zero Drizzle imports.
+- No `@Autowired`-style field injection — constructor injection only.
 
 **Async:**
 - Prefer `async/await` over `.then()`

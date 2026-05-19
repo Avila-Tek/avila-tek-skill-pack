@@ -153,10 +153,10 @@ Never deserialize untrusted data without schema validation. All `@Body()` must g
 Log once at the boundary, not at every propagation level. Never log sensitive data:
 
 ```typescript
-// ✅ Log the error, not the credentials
-@ExceptionHandler(DomainException.class)
-catch (e: DomainException) {
-  this.logger.error('Domain error', { code: e.code, path: request.url });
+// ✅ Log the error, not the credentials — inside an ExceptionFilter
+catch(exception: DomainError, host: ArgumentsHost): void {
+  const request = host.switchToHttp().getRequest<Request>();
+  this.logger.error('Domain error', { code: exception.code, path: request.url });
   // ❌ never: this.logger.error('Error', { body: request.body })
 }
 ```

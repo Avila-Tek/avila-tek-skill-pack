@@ -116,15 +116,19 @@ describe('OfficeModule (wiring)', () => {
 });
 ```
 
-For controller tests: mock `CommandBus`, not individual use-cases:
+For controller tests: mock both `CommandBus` and `QueryBus` — controllers inject both:
 
 ```typescript
 const commandBus = { execute: vi.fn() };
+const queryBus = { execute: vi.fn() };
 
 beforeEach(async () => {
   const module = await Test.createTestingModule({
     controllers: [OfficeController],
-    providers: [{ provide: CommandBus, useValue: commandBus }],
+    providers: [
+      { provide: CommandBus, useValue: commandBus },
+      { provide: QueryBus,   useValue: queryBus },
+    ],
   }).compile();
   controller = module.get(OfficeController);
 });

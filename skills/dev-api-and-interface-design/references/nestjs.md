@@ -15,7 +15,7 @@ src/modules/<feature>/
 │   └── policies/                     # Cross-field business rule validators
 ├── application/
 │   ├── ports/
-│   │   ├── in/                       # CQRS Commands/Queries (cross-module only)
+│   │   ├── in/                       # CQRS Commands/Queries
 │   │   │   └── Create<Feature>Port.ts
 │   │   └── out/                      # Abstract repositories (output ports)
 │   │       └── <Feature>Repository.ts
@@ -27,8 +27,7 @@ src/modules/<feature>/
 │       └── Get<Feature>sUseCase.ts
 ├── infrastructure/
 │   ├── persistence/
-│   │   ├── <feature>.schema.ts       # Drizzle table definition
-│   │   └── <Feature>RepositoryAdapter.ts
+│   │   └── <Feature>RepositoryAdapter.ts   # No schema here — see below
 │   └── web/
 │       ├── <Feature>Controller.ts
 │       └── dto/
@@ -37,6 +36,14 @@ src/modules/<feature>/
 │           └── <Feature>Response.ts
 └── module.ts                         # Composition root
 ```
+
+Drizzle schemas live in the **central schemas directory**, outside the module:
+
+```
+src/infrastructure/database/schemas/<feature>.schema.ts
+```
+
+Cross-domain Drizzle relations go in `src/infrastructure/database/schema.ts`.
 
 ## Dependency Rule
 
@@ -100,27 +107,76 @@ export abstract class OfficeRepository {
 }
 ```
 
-CQRS input ports (`ports/in/`) only when **another module** needs to trigger this module's logic. Within the same module, controllers call use-cases directly.
+Input ports (`ports/in/`) are needed for **every use-case** — controllers always dispatch via `CommandBus` or `QueryBus`, never injecting use-cases directly.
+
+## CQRS: Commands and Queries
+
+**Write operations** (POST / PUT / PATCH / DELETE) extend `Command<T>` and are dispatched via `CommandBus`:
+
+```typescript
+// application/ports/in/CreateOfficePort.ts
+export class CreateOfficePort extends Command<Office> {
+  constructor(
+    public readonly name: string,
+    public readonly phone: string,
+  ) { super(); }
+}
+```
+
+**Read operations** (GET) extend `Query<T>` and are dispatched via `QueryBus`:
+
+```typescript
+// application/ports/in/GetOfficeByIdPort.ts
+export class GetOfficeByIdPort extends Query<Office> {
+  constructor(public readonly id: number) { super(); }
+}
+
+// application/ports/in/GetOfficesPaginatedPort.ts
+export class GetOfficesPaginatedPort extends Query<PaginatedResult<Office>> {
+  constructor(
+    public readonly page: number,
+    public readonly perPage: number,
+  ) { super(); }
+}
+```
+
+Cross-module reads also use `QueryBus`:
+```typescript
+// ✓ read from another module — QueryBus
+const currency = await this.queryBus.execute(new GetCurrencyByIdPort(dto.currencyId));
+```
 
 ## Application: Use Cases
 
+Write use-case — implements `ICommandHandler`:
+
 ```typescript
 // application/use-cases/CreateOfficeUseCase.ts
-@Injectable()
-export class CreateOfficeUseCase {
+@CommandHandler(CreateOfficePort)
+export class CreateOfficeUseCase implements ICommandHandler<CreateOfficePort> {
   constructor(private readonly officeRepository: OfficeRepository) {}
 
-  async execute(dto: CreateOfficeDto): Promise<Office> {
-    const location = Location.create({ address: dto.location.address });
-    const newOffice = NewOffice.create({ name: dto.name, location });
+  async execute(command: CreateOfficePort): Promise<Office> {
+    const newOffice = NewOffice.create({ name: command.name, phone: command.phone });
     return this.officeRepository.create(newOffice);
   }
 }
 ```
 
-Cross-module data via CommandBus — never direct cross-module imports:
+Read use-case — implements `IQueryHandler`:
+
 ```typescript
-const currency = await this.commandBus.execute(new GetCurrencyByIdPort(dto.currencyId));
+// application/use-cases/GetOfficeByIdUseCase.ts
+@QueryHandler(GetOfficeByIdPort)
+export class GetOfficeByIdUseCase implements IQueryHandler<GetOfficeByIdPort> {
+  constructor(private readonly officeRepository: OfficeRepository) {}
+
+  async execute(query: GetOfficeByIdPort): Promise<Office> {
+    const office = await this.officeRepository.findById(query.id);
+    if (!office) throw new OfficeNotFoundError();
+    return office;
+  }
+}
 ```
 
 ## Infrastructure: Repository Adapter
@@ -153,7 +209,7 @@ export class OfficeRepositoryAdapter implements OfficeRepository {
 
 **Guard clauses in update/delete:** if `const [row] = []`, row is `undefined` — always check and return `null`. Adapter returns `null` — the use case checks and throws the appropriate `DomainError`.
 
-**FK violations:** catch PostgreSQL error code `23503` and throw a `DomainError` subclass. Adapters never throw NestJS HTTP exceptions — they throw `DomainError` subclasses:
+**FK violations:** catch PostgreSQL error code `23503` and throw a `DomainError` subclass. Adapters never throw NestJS HTTP exceptions:
 ```typescript
 const PG_FK_VIOLATION = '23503';
 try {
@@ -169,6 +225,8 @@ try {
 
 ## Infrastructure: Controller
 
+Controllers **always** inject `CommandBus` (writes) and `QueryBus` (reads) — never use-cases directly:
+
 ```typescript
 @Controller('offices')
 export class OfficeController {
@@ -180,8 +238,8 @@ export class OfficeController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() body: TCreateOfficeInput): Promise<TOffice> {
-    const parsed = parseOrThrow(createOfficeInput, body);  // always use parseOrThrow
-    const office = await this.commandBus.execute(new CreateOfficePort(parsed));
+    const parsed = parseOrThrow(createOfficeInput, body);
+    const office = await this.commandBus.execute(new CreateOfficePort(parsed.name, parsed.phone));
     return officeFromDomain(office);
   }
 
@@ -201,7 +259,7 @@ export class OfficeController {
   @Get(':id')
   async findOne(@Param() params: { id: string }): Promise<TOffice> {
     const { id } = parseOrThrow(officeIdParamsSchema, params);
-    const office = await this.commandBus.execute(new GetOfficePort(Number(id)));
+    const office = await this.queryBus.execute(new GetOfficeByIdPort(Number(id)));
     return officeFromDomain(office);
   }
 }
@@ -209,17 +267,29 @@ export class OfficeController {
 
 Always use `parseOrThrow` on `@Param()` and `@Body()` — the global `ZodValidationPipe` does not validate when the type is a TypeScript `type`/`interface` (erased at runtime). Without this, an invalid param returns 500 instead of 400.
 
+Static routes (`paginate`, `active`, etc.) must be declared **before** parameterized routes (`:id`) to avoid route shadowing.
+
 ## Infrastructure: DTOs
 
 ```typescript
 // Request DTO — Zod-based
-export class CreateOfficeRequest extends createZodDto(createOfficeInput) {}
+export class CreateOfficeRequest extends createZodDto(createOfficeInput) {
+  // Simple field mapping: static toDto() on the DTO class
+  static toDto(req: CreateOfficeRequest): CreateOfficeCommand {
+    return { name: req.name, phone: req.phone };
+  }
+}
 
 // Response mapper — domain → API shape (never serialize domain objects directly)
 export function officeFromDomain(office: Office): TOffice {
   return { id: office.id.value, name: office.name };
 }
 ```
+
+**Input transformation patterns:**
+
+- **`static toDto()`** — for simple 1:1 field mapping and renaming. Lives on the request DTO class.
+- **Plain utility function** — for complex parsing (CSV/XLSX, multi-step transforms). Lives in `infrastructure/web/utils/<utilityName>.ts`. No DI, throws `BadRequestException` for malformed input.
 
 **`@repo/schemas` only in `infrastructure/web/`** — forbidden in domain, application, or persistence layers.
 
@@ -242,13 +312,14 @@ export const statusEnum = pgEnum('status', ['active', 'inactive']);  // ✓
 
 ```typescript
 @Module({
+  imports: [CqrsModule],
   providers: [
     { provide: OfficeRepository,  useClass: OfficeRepositoryAdapter },
     { provide: CreateOfficePort,  useClass: CreateOfficeUseCase },
     { provide: UpdateOfficePort,  useClass: UpdateOfficeUseCase },
     { provide: DeleteOfficePort,  useClass: DeleteOfficeUseCase },
     { provide: GetOfficesPort,    useClass: GetOfficesUseCase },
-    { provide: GetOfficePort,     useClass: GetOfficeByIdUseCase },
+    { provide: GetOfficeByIdPort, useClass: GetOfficeByIdUseCase },
   ],
   controllers: [OfficeController],
 })
@@ -275,7 +346,7 @@ export class OfficeNotFoundError extends DomainError {
 
 HTTP response:
 ```json
-{ "error": { "code": "officeNotFound", "path": "/api/v1/offices/42" }, "message": "Office not found" }
+{ "error": { "code": "officeNotFound", "path": "/api/v1/offices/42" }, "message": "Oficina no encontrada" }
 ```
 
 No try-catch needed in controllers or use cases — the filter handles it automatically.
@@ -332,13 +403,11 @@ Prefer discriminated unions over boolean flags or string enums when variants hav
 Separate what callers provide from what the system returns. Never use the same type for both:
 
 ```typescript
-// Input: what the caller provides (no server-generated fields)
 interface CreateTaskInput {
   title: string;
   description?: string;
 }
 
-// Output: what the system returns (includes server-generated fields)
 interface Task {
   id: string;
   title: string;
@@ -353,14 +422,11 @@ In NestJS: `Create<Feature>Request.ts` is input; `<Feature>Response.ts` is outpu
 
 ### Branded Types for Domain IDs
 
-Value Objects (see Domain section) already enforce this at the class level. When lightweight branded types are sufficient:
+Value Objects already enforce this at the class level. When lightweight branded types are sufficient:
 
 ```typescript
 type TaskId = string & { readonly __brand: 'TaskId' };
 type UserId = string & { readonly __brand: 'UserId' };
-
-// TypeScript prevents accidentally passing a UserId where a TaskId is expected
-function getTask(id: TaskId): Promise<Task> { ... }
 ```
 
 For NestJS, prefer the `OfficeId`-style Value Object class over branded primitives when validation logic is needed.
@@ -369,23 +435,27 @@ For NestJS, prefer the `OfficeId`-style Value Object class over branded primitiv
 
 1. `domain/` — model entity, value objects, policies (no infrastructure)
 2. `ports/out/` — abstract repository
-3. `application/use-cases/` — orchestrate domain + ports
-4. `infrastructure/persistence/` — Drizzle schema + repository adapter
-5. `infrastructure/web/` — controller + DTOs
-6. `module.ts` — bind port → adapter, register use cases
-7. `app.module.ts` — import the new module
-8. If cross-domain relations: add to `src/infrastructure/database/schema.ts`
+3. `ports/in/` — one `Command<T>` per write, one `Query<T>` per read
+4. `application/use-cases/` — one handler per port (`@CommandHandler` / `@QueryHandler`)
+5. `src/infrastructure/database/schemas/` — Drizzle schema file
+6. `infrastructure/persistence/` — repository adapter
+7. `infrastructure/web/` — controller + DTOs
+8. `module.ts` — bind port → adapter + use cases, import `CqrsModule`
+9. `app.module.ts` — import the new module
+10. If cross-domain relations: add to `src/infrastructure/database/schema.ts`
 
 ## Red Flags
 
 - `console.log` in production code (use structured logger)
 - Direct Drizzle calls in a service or use case (bypass repository)
 - `any` type without explanatory comment
-- Cross-module imports not going through CommandBus/QueryBus
+- Use-case injected directly into a controller — all controller calls must go through `CommandBus` / `QueryBus`
+- `commandBus.execute()` for a GET (read) operation — reads must use `QueryBus`
 - Hard-coded config values (use `ConfigService`)
 - Missing `@UseGuards` on authenticated endpoints
 - Hard delete instead of soft delete (`isActive = false`)
 - Cross-domain Drizzle relations in module schemas
+- Drizzle schema inside the module's `infrastructure/persistence/` — schemas belong in the central `src/infrastructure/database/schemas/` directory
 
 ## Verification Checklist
 
@@ -397,3 +467,4 @@ For NestJS, prefer the `OfficeId`-style Value Object class over branded primitiv
 - [ ] No `console.log` in changed files
 - [ ] All read queries filter `eq(table.isActive, true)`
 - [ ] `parseOrThrow` used on all `@Param()` and `@Body()` in controllers
+- [ ] Write operations use `CommandBus`, read operations use `QueryBus`
