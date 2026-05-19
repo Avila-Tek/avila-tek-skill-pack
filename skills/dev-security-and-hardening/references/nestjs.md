@@ -12,7 +12,7 @@ Every endpoint must declare its access requirements explicitly. An endpoint with
 export class QuoteController {
 
   @Post()
-  @Permissions('quote:write')
+  @Permissions('quote:create')
   async create(@Body() body: TCreateQuoteInput) { ... }
 
   @Get()
@@ -175,7 +175,7 @@ if (!ALLOWED_HOSTS.includes(url.hostname)) throw new BadRequestException('Invali
 ## Verification Checklist
 
 - [ ] Every controller has `@ApiBearerAuth()` + `@UseGuards(JwtAuthGuard, PermissionsGuard)` or is explicitly `@Public()`
-- [ ] Every write endpoint has `@Permissions('<module>:write')`
+- [ ] Every endpoint has `@Permissions('<module>:<action>')` with the appropriate action (`create`, `update`, `delete`, `approve`, `pay`, `send`)
 - [ ] `parseOrThrow` on all `@Param()` and `@Body()`
 - [ ] Zod schemas use `.trim().min(1)`, not `.min(1)` alone
 - [ ] Passwords hashed with bcrypt (rounds ≥ 12)

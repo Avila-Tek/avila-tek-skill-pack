@@ -88,5 +88,5 @@ Every controller method must have:
 - [ ] All read queries filter `eq(table.isActive, true)`
 - [ ] No hard deletes — soft delete everywhere
 - [ ] `parseOrThrow` on all `@Param()` and `@Body()`
-- [ ] New endpoints have `@UseGuards` + `@Permissions()` or explicit `@Public()`
+- [ ] New endpoints have `@ApiBearerAuth()` + `@Permissions()` or explicit `@Public()`
 - [ ] No `console.log` in changed files

@@ -243,7 +243,7 @@ export interface PaginatedResult<T> {
 }
 ```
 
-Every list use-case and repository port returning collections must use `PaginatedResult<T>`.
+Use `PaginatedResult<T>` for paginated endpoints. Non-paginated list endpoints return `Entity[]` directly.
 
 **Key conventions:**
 
@@ -266,7 +266,8 @@ export abstract class OfficeRepository {
   abstract update(id: number, dto: UpdateOfficeBody): Promise<Office | null>;
   abstract delete(id: number): Promise<boolean>;
   abstract findById(id: number): Promise<Office | null>;
-  abstract findAll(page: number, perPage: number): Promise<PaginatedResult<Office>>;
+  abstract findAll(): Promise<Office[]>;
+  abstract findPaginated(page: number, perPage: number): Promise<PaginatedResult<Office>>;
 }
 ```
 
@@ -452,6 +453,12 @@ export class OfficeController {
   }
 
   @Get()
+  async listAll(): Promise<TOffice[]> {
+    const offices = await this.listAllOfficesUseCase.execute();
+    return offices.map(officeFromDomain);
+  }
+
+  @Get('paginate')
   async findAll(@Query() query: GetOfficesRequest): Promise<PaginatedResult<TOffice>> {
     return this.getOfficesUseCase.execute(query);
   }
@@ -673,3 +680,29 @@ export const agentRelations = relations(agents, ({ one }) => ({
 ```
 
 Cross-domain relations belong in `src/infrastructure/database/schema.ts`.
+
+### ❌ Static route declared after dynamic route
+
+```typescript
+// ❌ Bad — NestJS will match GET /offices/paginate as id="paginate"
+@Get(':id')
+async findOne(@Param('id', ParseIntPipe) id: number) { ... }
+
+@Get('paginate')
+async findAll(@Query() query: ...) { ... }
+```
+
+Always declare static segments (`paginate`, `active`, etc.) before parameterized routes (`:id`).
+
+### ❌ In-port importing from out-port
+
+```typescript
+// ❌ Bad — in-port depends on out-port, violating the dependency rule
+import { OfficeFilters } from '../out/OfficeRepository';
+
+export class GetOfficesPaginatedPort extends Query<PaginatedResult<Office>> {
+  constructor(public readonly filters: OfficeFilters) { super(); }
+}
+```
+
+Shared filter types must live in a neutral `application/<module>.types.ts` file. Both in-port and out-port import from there.

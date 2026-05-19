@@ -95,7 +95,8 @@ export abstract class OfficeRepository {
   abstract update(id: number, dto: UpdateOfficeBody): Promise<Office | null>;
   abstract delete(id: number): Promise<boolean>;
   abstract findById(id: number): Promise<Office | null>;
-  abstract findAll(page: number, perPage: number): Promise<PaginatedResult<Office>>;
+  abstract findAll(): Promise<Office[]>;
+  abstract findPaginated(page: number, perPage: number): Promise<PaginatedResult<Office>>;
 }
 ```
 
@@ -142,7 +143,7 @@ export class OfficeRepositoryAdapter implements OfficeRepository {
       .set({ isActive: false })
       .where(and(eq(offices.id, id), eq(offices.isActive, true)))
       .returning();
-    if (!row) throw new NotFoundException(`Office ${id} not found`);
+    if (!row) return null;
     return true;
   }
 }
@@ -150,12 +151,9 @@ export class OfficeRepositoryAdapter implements OfficeRepository {
 
 **Soft deletes always:** set `isActive = false`, never hard delete. Every read query must filter `eq(table.isActive, true)`.
 
-**Guard clauses in update/delete:** if `const [row] = []`, row is `undefined` — always check:
-```typescript
-if (!row) throw new NotFoundException(`Office ${id} not found`);
-```
+**Guard clauses in update/delete:** if `const [row] = []`, row is `undefined` — always check and return `null`. Adapter returns `null` — the use case checks and throws the appropriate `DomainError`.
 
-**FK violations:** catch PostgreSQL error code `23503` and throw `BadRequestException`:
+**FK violations:** catch PostgreSQL error code `23503` and throw a `DomainError` subclass. Adapters never throw NestJS HTTP exceptions — they throw `DomainError` subclasses:
 ```typescript
 const PG_FK_VIOLATION = '23503';
 try {
@@ -163,7 +161,7 @@ try {
   return rowToOffice(row);
 } catch (error) {
   if (error instanceof Error && 'code' in error && error.code === PG_FK_VIOLATION) {
-    throw new BadRequestException(`Referenced entity does not exist`);
+    throw new XxxReferencedEntityNotFoundError();
   }
   throw error;
 }
@@ -175,22 +173,35 @@ try {
 @Controller('offices')
 export class OfficeController {
   constructor(
-    private readonly createOfficeUseCase: CreateOfficeUseCase,
-    private readonly getOfficesUseCase: GetOfficesUseCase,
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() body: TCreateOfficeInput): Promise<TOffice> {
     const parsed = parseOrThrow(createOfficeInput, body);  // always use parseOrThrow
-    const office = await this.createOfficeUseCase.execute(parsed);
+    const office = await this.commandBus.execute(new CreateOfficePort(parsed));
     return officeFromDomain(office);
+  }
+
+  @Get()
+  async findAll(): Promise<TOffice[]> {
+    const offices = await this.queryBus.execute(new GetOfficesPort());
+    return offices.map(officeFromDomain);
+  }
+
+  @Get('paginate')
+  async findPaginated(@Query() query: TPaginateQuery): Promise<PaginatedResult<TOffice>> {
+    const { page, perPage } = parseOrThrow(paginateQuerySchema, query);
+    const result = await this.queryBus.execute(new GetOfficesPaginatedPort(page, perPage));
+    return { ...result, data: result.data.map(officeFromDomain) };
   }
 
   @Get(':id')
   async findOne(@Param() params: { id: string }): Promise<TOffice> {
     const { id } = parseOrThrow(officeIdParamsSchema, params);
-    const office = await this.getOfficeByIdUseCase.execute(Number(id));
+    const office = await this.commandBus.execute(new GetOfficePort(Number(id)));
     return officeFromDomain(office);
   }
 }
@@ -232,12 +243,12 @@ export const statusEnum = pgEnum('status', ['active', 'inactive']);  // ✓
 ```typescript
 @Module({
   providers: [
-    { provide: OfficeRepository, useClass: OfficeRepositoryAdapter },  // bind port → adapter
-    CreateOfficeUseCase,
-    UpdateOfficeUseCase,
-    DeleteOfficeUseCase,
-    GetOfficeByIdUseCase,
-    GetOfficesUseCase,
+    { provide: OfficeRepository,  useClass: OfficeRepositoryAdapter },
+    { provide: CreateOfficePort,  useClass: CreateOfficeUseCase },
+    { provide: UpdateOfficePort,  useClass: UpdateOfficeUseCase },
+    { provide: DeleteOfficePort,  useClass: DeleteOfficeUseCase },
+    { provide: GetOfficesPort,    useClass: GetOfficesUseCase },
+    { provide: GetOfficePort,     useClass: GetOfficeByIdUseCase },
   ],
   controllers: [OfficeController],
 })
@@ -246,14 +257,14 @@ export class OfficeModule {}
 
 ## Error Handling
 
-Domain errors extend `DomainError` — the `DomainExceptionFilter` converts to RFC 7807:
+Domain errors extend `DomainError` — the `DomainExceptionFilter` converts to the project error shape:
 
 ```typescript
 // domain/errors/OfficeErrors.ts
 export class OfficeNotFoundError extends DomainError {
   readonly code = 'officeNotFound';
   readonly status = 404;
-  constructor(id: number) { super(`Office ${id} not found`); }
+  constructor() { super('Office not found'); }
 }
 
 // Add to shared/errors/dictionary.ts
@@ -262,16 +273,20 @@ export class OfficeNotFoundError extends DomainError {
 }
 ```
 
-HTTP response (RFC 7807):
+HTTP response:
 ```json
-{ "type": "officeNotFound", "title": "Office not found", "status": 404, "detail": "404-officeNotFound" }
+{ "error": { "code": "officeNotFound", "path": "/api/v1/offices/42" }, "message": "Office not found" }
 ```
 
 No try-catch needed in controllers or use cases — the filter handles it automatically.
 
 Filter registration order in `main.ts`:
 ```typescript
-app.useGlobalFilters(new DatabaseExceptionFilter(), new DomainExceptionFilter()); // DomainExceptionFilter second
+app.useGlobalFilters(
+  new AllExceptionsFilter(),     // registered first = lowest priority
+  new DatabaseExceptionFilter(),
+  new DomainExceptionFilter(),   // registered last = highest priority
+);
 ```
 
 ## Cross-Domain Relations
@@ -377,7 +392,7 @@ For NestJS, prefer the `OfficeId`-style Value Object class over branded primitiv
 - [ ] `npm run build` passes with no type errors
 - [ ] `npm test` passes, coverage ≥ 80%
 - [ ] No ESLint errors (`npm run lint`)
-- [ ] New endpoints have `@UseGuards` or explicit `@Public()` decorator
+- [ ] New endpoints have `@ApiBearerAuth()` + `@Permissions()` or explicit `@Public()`
 - [ ] Drizzle schema changes have a migration (`npm run db:generate`)
 - [ ] No `console.log` in changed files
 - [ ] All read queries filter `eq(table.isActive, true)`
