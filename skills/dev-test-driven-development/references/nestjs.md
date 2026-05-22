@@ -1,19 +1,16 @@
 # NestJS — Testing Reference
 
 ## Framework
-Vitest (`npm test`) + Supertest for E2E. Test files co-located as `*.spec.ts` next to source. E2E tests in `test/*.e2e-spec.ts`.
+Vitest (`npm test`) + Supertest for E2E. Test files live in `src/test/<module>/` — one file per module. Do not co-locate test files next to source files.
 
 ## Test Pyramid
 
 ```
+src/test/
+  <feature>/
+    <feature>.usecases.test.ts   ← Unit + integration tests per module
 test/
-  *.e2e-spec.ts               ← E2E: full HTTP stack (Supertest)
-
-src/modules/<feature>/
-  domain/entities/*.spec.ts   ← Unit: pure TypeScript, no framework
-  application/use-cases/*.spec.ts  ← Unit: no DI container
-  infrastructure/persistence/*.spec.ts  ← Integration: real DB
-  infrastructure/web/*.spec.ts     ← Integration: NestJS wiring
+  *.e2e-spec.ts                  ← E2E: full HTTP stack (Supertest)
 ```
 
 **Rule:** test domain invariants with unit tests. Test HTTP wiring with integration. Never test business rules through HTTP.
@@ -119,15 +116,19 @@ describe('OfficeModule (wiring)', () => {
 });
 ```
 
-For controller tests: mock `CommandBus`, not individual use-cases:
+For controller tests: mock both `CommandBus` and `QueryBus` — controllers inject both:
 
 ```typescript
 const commandBus = { execute: vi.fn() };
+const queryBus = { execute: vi.fn() };
 
 beforeEach(async () => {
   const module = await Test.createTestingModule({
     controllers: [OfficeController],
-    providers: [{ provide: CommandBus, useValue: commandBus }],
+    providers: [
+      { provide: CommandBus, useValue: commandBus },
+      { provide: QueryBus,   useValue: queryBus },
+    ],
   }).compile();
   controller = module.get(OfficeController);
 });

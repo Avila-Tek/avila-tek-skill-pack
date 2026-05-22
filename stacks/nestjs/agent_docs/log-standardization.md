@@ -116,11 +116,3 @@ Logger.info({ requestMethod: 'login', requestStatus: 200, requestError: 'none', 
 
 ---
 
-## Current state vs. company standard
-
-The company standard (`styles-guides/docs/nestjs/17-log-standardization.md`) defines a structured JSON schema `{ context, request, content }`. Continental currently uses a bracket string format `[level:INFO][request_method:...]`.
-
-**Pending for `telemetry-monitoring` branch:**
-- Migrate `LogContext` to the `{ context, request, content }` schema from the standard
-- Add `requestId` via NestJS interceptor/middleware
-- Complete `RequestLoggerInterceptor` to cover `onRequest`/`onResponse`

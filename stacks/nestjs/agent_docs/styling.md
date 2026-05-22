@@ -87,20 +87,60 @@ export function officeFromDomain(office: Office): TOffice {
 
 ---
 
-## Paginated responses
+## API response contract
 
-All list endpoints return a consistent shape using `TOfficesResponse` (or equivalent per-module type) sourced from `@repo/schemas`.
+The `TransformResponseInterceptor` (global, applied to all routes) automatically wraps every
+controller return value in:
+
+```json
+{ "data": <return value>, "message": "<operation description>" }
+```
+
+**Controllers must return the raw data object directly.** The interceptor handles the envelope.
 
 ```typescript
-// ✅ Good — consistent list response shape
-return {
-  success: true,
-  data: {
+// ✅ Controller returns raw data — interceptor wraps to { data: T, message }
+async findOne(@Param('id', ParseIntPipe) id: number): Promise<TOffice> {
+  const office = await this.commandBus.execute(new GetOfficeByIdPort(id));
+  return officeFromDomain(office);
+}
+
+// ❌ Never wrap manually — double-wrapping: { data: { success, data: T }, message }
+async findOne(...): Promise<unknown> {
+  return { success: true, data: officeFromDomain(office) };
+}
+```
+
+**Errors are thrown, never returned.** Controllers must never return `{ success: false }` shapes. Throw a `DomainError` subclass (preferred — caught and serialized by `DomainExceptionFilter`)
+
+```typescript
+// ✅ Preferred — throw a DomainError subclass
+if (!client) throw new ClientNotFoundError();
+
+// ❌ Never return error shapes
+if (!user) return { success: false, error: 'User not found' };
+```
+
+For the full response envelope spec, see `response-messages.md`.
+
+---
+
+## Paginated responses
+
+All list endpoints return the paginated shape directly using the raw type from `@repo/schemas`.
+The `TransformResponseInterceptor` wraps it in the `{ data, message }` envelope automatically.
+
+```typescript
+// ✅ Return raw paginated data — interceptor wraps it
+async findAll(@Query() query: Record<string, string>): Promise<TOfficesPaginated> {
+  const { page, perPage } = paginationInputSchema.parse(query);
+  const result = await this.queryBus.execute(new GetOfficesPort(page, perPage));
+  return {
     count: result.count,
     items: result.items.map(officeFromDomain),
     pageInfo: result.pageInfo,
-  },
-};
+  };
+}
 ```
 
 Never invent a one-off shape for list endpoints. The `PaginatedResult<T>` type and its `pageInfo` structure are shared across all modules.
@@ -114,7 +154,7 @@ Never invent a one-off shape for list endpoints. The `PaginatedResult<T>` type a
 | `POST` (create) | `201 Created` — use `@HttpCode(HttpStatus.CREATED)` |
 | `GET` (read) | `200 OK` (default) |
 | `PUT` / `PATCH` (update) | `200 OK` (default) |
-| `DELETE` (soft delete) | `204 No Content` — use `@HttpCode(HttpStatus.NO_CONTENT)` |
+| `DELETE` (soft delete) | `200 OK` (default) — returns the soft-deleted entity |
 | Not found | `404 Not Found` — throw `NotFoundException` in the controller |
 | Validation error | `400 Bad Request` — handled by the global Zod validation pipe |
 

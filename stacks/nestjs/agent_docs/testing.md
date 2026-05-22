@@ -18,23 +18,22 @@ Because domain and application logic have zero NestJS imports, unit tests requir
 
 ---
 
-## Test file co-location
+## Test file location
 
-Unit and integration test files live **next to the source file they test**. E2E tests live in `test/` at the project root.
+Unit and integration test files live in **`src/test/<module>/`** (one file per module, grouping all use-case tests together). E2E tests live in `test/` at the project root.
 
-```
-src/modules/office/
-├── domain/
-│   ├── entities/Office.spec.ts               ← unit test
-│   └── value-objects/Location.spec.ts        ← unit test
-├── application/
-│   └── use-cases/CreateOfficeUseCase.spec.ts ← unit test
-├── infrastructure/
-│   ├── persistence/OfficeRepositoryAdapter.spec.ts ← integration test (DB)
-│   └── web/OfficeController.spec.ts          ← integration test (HTTP wiring)
+```plaintext
+src/test/
+├── office/
+│   └── office.usecases.test.ts   ← unit tests (all use cases for the module)
+├── bank/
+│   └── bank.usecases.test.ts
+└── ...
 test/
-└── offices.e2e-spec.ts                       ← E2E test (full HTTP stack)
+└── offices.e2e-spec.ts           ← E2E test (full HTTP stack)
 ```
+
+> Do **not** co-locate test files next to source files.
 
 ---
 

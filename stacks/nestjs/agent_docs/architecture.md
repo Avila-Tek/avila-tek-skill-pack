@@ -243,7 +243,7 @@ export interface PaginatedResult<T> {
 }
 ```
 
-Every list use-case and repository port returning collections must use `PaginatedResult<T>`.
+Use `PaginatedResult<T>` for paginated endpoints. Non-paginated list endpoints return `Entity[]` directly.
 
 **Key conventions:**
 
@@ -266,7 +266,8 @@ export abstract class OfficeRepository {
   abstract update(id: number, dto: UpdateOfficeBody): Promise<Office | null>;
   abstract delete(id: number): Promise<boolean>;
   abstract findById(id: number): Promise<Office | null>;
-  abstract findAll(page: number, perPage: number): Promise<PaginatedResult<Office>>;
+  abstract findAll(): Promise<Office[]>;
+  abstract findPaginated(page: number, perPage: number): Promise<PaginatedResult<Office>>;
 }
 ```
 
@@ -432,33 +433,42 @@ export const agentRelations = relations(agents, ({ one }) => ({
 
 ### Controller (HTTP)
 
-Controllers within the same module inject use-cases directly — no bus needed.
+Controllers always inject `CommandBus` (writes) and `QueryBus` (reads) — never individual use-cases directly:
 
 ```typescript
 // ✅ Good — src/modules/office/infrastructure/web/OfficeController.ts
 @Controller('offices')
 export class OfficeController {
   constructor(
-    private readonly createOfficeUseCase: CreateOfficeUseCase,
-    private readonly getOfficesUseCase: GetOfficesUseCase,
-    private readonly getOfficeByIdUseCase: GetOfficeByIdUseCase,
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() dto: CreateOfficeRequest): Promise<TOffice> {
-    const office = await this.createOfficeUseCase.execute(dto);
+    const parsed = CreateOfficeRequest.toDto(dto);
+    const office = await this.commandBus.execute(new CreateOfficePort(parsed.name, parsed.phone));
     return officeFromDomain(office);
   }
 
   @Get()
-  async findAll(@Query() query: GetOfficesRequest): Promise<PaginatedResult<TOffice>> {
-    return this.getOfficesUseCase.execute(query);
+  async listAll(): Promise<TOffice[]> {
+    const offices = await this.queryBus.execute(new ListAllOfficesPort());
+    return offices.map(officeFromDomain);
+  }
+
+  @Get('paginate')
+  async findPaginated(@Query() query: GetOfficesRequest): Promise<PaginatedResult<TOffice>> {
+    const { page, perPage } = parseOrThrow(paginateQuerySchema, query);
+    const result = await this.queryBus.execute(new GetOfficesPaginatedPort(page, perPage));
+    return { ...result, items: result.items.map(officeFromDomain) };
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: number): Promise<TOffice> {
-    const office = await this.getOfficeByIdUseCase.execute(id);
+  async findOne(@Param() params: { id: string }): Promise<TOffice> {
+    const { id } = parseOrThrow(officeIdParamsSchema, params);
+    const office = await this.queryBus.execute(new GetOfficeByIdPort(Number(id)));
     return officeFromDomain(office);
   }
 }
@@ -493,13 +503,15 @@ The `@Module()` is where ports are bound to adapters. This is the only place tha
 ```typescript
 // ✅ Good — src/modules/office/module.ts
 @Module({
+  imports: [CqrsModule],
   providers: [
-    { provide: OfficeRepository, useClass: OfficeRepositoryAdapter },
-    CreateOfficeUseCase,
-    UpdateOfficeUseCase,
-    DeleteOfficeUseCase,
-    GetOfficeByIdUseCase,
-    GetOfficesUseCase,
+    { provide: OfficeRepository,        useClass: OfficeRepositoryAdapter },
+    { provide: CreateOfficePort,        useClass: CreateOfficeUseCase },
+    { provide: UpdateOfficePort,        useClass: UpdateOfficeUseCase },
+    { provide: DeleteOfficePort,        useClass: DeleteOfficeUseCase },
+    { provide: GetOfficeByIdPort,       useClass: GetOfficeByIdUseCase },
+    { provide: ListAllOfficesPort,      useClass: ListAllOfficesUseCase },
+    { provide: GetOfficesPaginatedPort, useClass: GetOfficesPaginatedUseCase },
   ],
   controllers: [OfficeController],
 })
@@ -510,31 +522,46 @@ export class OfficeModule {}
 
 ## Cross-Module Communication (CQRS)
 
-> **Note:** The current cross-module communication approach uses `@nestjs/cqrs` CommandBus/QueryBus. **This pattern is provisional and will be replaced in the future.** When it changes, this section will be updated. For now, follow this convention.
+All controller-to-use-case calls go through `CommandBus` (writes) or `QueryBus` (reads) — including calls within the same module. Controllers never inject use-cases directly.
 
-CQRS is **only required when a module needs to trigger logic or fetch data from another module**. Within a single module, controllers and use-cases inject their dependencies directly.
-
-| Scenario | Pattern |
+| Scenario | Bus |
 |---|---|
-| Controller calls its own module's use-case | Direct injection |
-| Use-case needs data from another module | `CommandBus` / `QueryBus` |
+| Controller → write use-case (POST / PUT / PATCH / DELETE) | `CommandBus` |
+| Controller → read use-case (GET) | `QueryBus` |
+| Use-case needs data from another module | `QueryBus` (reads) or `CommandBus` (writes) |
 | Guard needs user data from UsersModule | `QueryBus` via shared query |
 
 ```typescript
-// ❌ No bus needed — same module
+// ✅ All controller calls go through the bus
 @Controller('offices')
 export class OfficeController {
-  constructor(private readonly createOffice: CreateOfficeUseCase) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
+
+  @Post()
+  async create(@Body() dto: CreateOfficeRequest) {
+    return this.commandBus.execute(new CreateOfficePort(...));
+  }
+
+  @Get(':id')
+  async findOne(@Param() params: { id: string }) {
+    return this.queryBus.execute(new GetOfficeByIdPort(Number(id)));
+  }
 }
 
-// ✅ Bus required — crossing module boundary
-@Injectable()
-export class CreateAgentUseCase {
-  constructor(private readonly commandBus: CommandBus) {}
+// ✅ Cross-module read — also uses QueryBus
+@CommandHandler(CreateAgentPort)
+export class CreateAgentUseCase implements ICommandHandler<CreateAgentPort> {
+  constructor(
+    private readonly agentRepository: AgentRepository,
+    private readonly queryBus: QueryBus,
+  ) {}
 
-  async execute(dto: CreateAgentDto): Promise<Agent> {
-    const currency = await this.commandBus.execute(
-      new GetCurrencyByIdPort(dto.currencyId),
+  async execute(command: CreateAgentPort): Promise<Agent> {
+    const currency = await this.queryBus.execute(
+      new GetCurrencyByIdPort(command.currencyId),
     );
     // ...
   }
@@ -573,12 +600,14 @@ Keep shared queries minimal — if only one module dispatches a query, it belong
 When adding a new feature, always follow this sequence:
 
 1. **Start in `domain/`** — model the concept, write the entity, value objects, policies, and business rules. No infrastructure.
-2. **Define ports** — add the abstract repository to `ports/out/`. Only add `ports/in/` CQRS commands if other modules will need to call into this feature.
-3. **Write the use-cases** — orchestrate domain + ports in `application/use-cases/`.
-4. **Implement adapters** — make the DB repository adapter and HTTP controller satisfy those contracts.
-5. **Wire in the module** — bind abstract ports to concrete adapters in `module.ts`.
-6. **Register the module** — import it in `app.module.ts`.
-7. **Add cross-domain relations** — if the new schema relates to other domains, declare the relations in `src/infrastructure/database/schema.ts`.
+2. **Define output port** — add the abstract repository to `ports/out/`.
+3. **Define input ports** — one `Command<T>` per write operation, one `Query<T>` per read operation in `ports/in/`.
+4. **Write the use-cases** — one `@CommandHandler` per write port, one `@QueryHandler` per read port in `application/use-cases/`.
+5. **Create the Drizzle schema** — in `src/infrastructure/database/schemas/<feature>.schema.ts`.
+6. **Implement the repository adapter** — in `infrastructure/persistence/`.
+7. **Wire in the module** — import `CqrsModule`, bind `{ provide: Port, useClass: UseCase }` for all ports in `module.ts`.
+8. **Register the module** — import it in `app.module.ts`.
+9. **Add cross-domain relations** — if the new schema relates to other domains, declare the relations in `src/infrastructure/database/schema.ts`.
 
 This order ensures infrastructure never drives domain design.
 
@@ -624,22 +653,38 @@ export class CreateOfficeUseCase {
 }
 ```
 
-### ❌ Using the bus within the same module
+### ❌ Injecting use-cases directly into a controller
 
 ```typescript
-// ❌ Bad — dispatching a command to your own module's handler
+// ❌ Bad — controller bypasses the bus
 @Controller('offices')
 export class OfficeController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(private readonly createOffice: CreateOfficeUseCase) {}
 
   @Post()
   async create(@Body() dto: CreateOfficeRequest) {
-    return this.commandBus.execute(new CreateOfficePort(dto)); // ← unnecessary indirection
+    return this.createOffice.execute(dto); // ← direct injection, not the pattern
   }
 }
 ```
 
-Inject the use-case directly. The bus is only for crossing module boundaries.
+Controllers must use `CommandBus` (writes) and `QueryBus` (reads) for all operations.
+
+### ❌ Using `commandBus` for read operations
+
+```typescript
+// ❌ Bad — read dispatched through CommandBus
+@Get()
+async findAll() {
+  return this.commandBus.execute(new GetOfficesPort()); // ← should be queryBus
+}
+
+// ✅ Correct
+@Get()
+async findAll() {
+  return this.queryBus.execute(new GetOfficesPort());
+}
+```
 
 ### ❌ Direct cross-module imports
 
@@ -673,3 +718,29 @@ export const agentRelations = relations(agents, ({ one }) => ({
 ```
 
 Cross-domain relations belong in `src/infrastructure/database/schema.ts`.
+
+### ❌ Static route declared after dynamic route
+
+```typescript
+// ❌ Bad — NestJS will match GET /offices/paginate as id="paginate"
+@Get(':id')
+async findOne(@Param('id', ParseIntPipe) id: number) { ... }
+
+@Get('paginate')
+async findAll(@Query() query: ...) { ... }
+```
+
+Always declare static segments (`paginate`, `active`, etc.) before parameterized routes (`:id`).
+
+### ❌ In-port importing from out-port
+
+```typescript
+// ❌ Bad — in-port depends on out-port, violating the dependency rule
+import { OfficeFilters } from '../out/OfficeRepository';
+
+export class GetOfficesPaginatedPort extends Query<PaginatedResult<Office>> {
+  constructor(public readonly filters: OfficeFilters) { super(); }
+}
+```
+
+Shared filter types must live in a neutral `application/<module>.types.ts` file. Both in-port and out-port import from there.
