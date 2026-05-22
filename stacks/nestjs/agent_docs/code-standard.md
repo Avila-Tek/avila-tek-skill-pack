@@ -40,6 +40,44 @@ Keep changes consistent with this repo. Prefer clarity, small diffs, and predict
 - Use `@CommandHandler()` + `ICommandHandler` only for cross-module CQRS handlers. Intra-module use-cases are plain `@Injectable()`.
 - Never put `@Module()` logic in `app.module.ts` beyond imports; each feature owns its own `module.ts`.
 
+## Input transformation utilities
+
+Two patterns exist depending on complexity:
+
+**Static DTO method** — use when the mapping is simple and 1:1 with the DTO (Zod-based coercion,
+renaming fields, assembling a command from validated inputs). Lives as a `static toDto()` on the
+request DTO class. Explicit return type required; no side effects.
+
+```typescript
+// ✅ Simple mapping — static method on the DTO
+export class CreateOfficeRequest extends createZodDto(officeDTO.createOfficeInput) {
+  static toDto(req: CreateOfficeRequest): CreateOfficeCommand {
+    return { name: req.name, phone: req.phone, location: req.location };
+  }
+}
+```
+
+**Plain utility function** — use when parsing is complex: CSV/XLSX, multi-step transforms,
+streaming, or heavy error handling that goes beyond what Zod covers. Lives in
+`infrastructure/web/utils/<utilityName>.ts` (e.g. `parseCsvOpeningBalance.ts`).
+
+```typescript
+// ✅ Complex parsing — plain function in infrastructure/web/utils/
+export function parseCsvOpeningBalance(
+  content: string,
+  fileName: string,
+): CsvImportLineInput[] { ... }
+```
+
+Rules for the plain utility:
+- No `@Injectable()` and no DI/injected dependencies.
+- Throw `BadRequestException` for malformed input (infrastructure layer, not domain).
+- Naming: camelCase — `parse<Format><Entity>.ts` (e.g. `parseCsvOpeningBalance.ts`).
+- Explicit return type required.
+- Controller calls the utility and forwards the result to the port — no parsing inline.
+
+Rule of thumb: if the transformation needs external libraries or >10 lines → utility function. If it's a direct field mapping → static method on the DTO.
+
 ---
 
 ## Async & data work

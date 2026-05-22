@@ -5,6 +5,21 @@ description: Builds production-quality UIs. Use when building or modifying user-
 
 # Frontend UI Engineering
 
+## Task Routing Gate
+
+Before proceeding, check whether the task falls under a more specific skill:
+
+| If the task involves… | Activate instead |
+|---|---|
+| A create / edit / view form for an entity (`manage<Entity>` pattern) | **`dev-form-engineering`** |
+| A paginated list or table with URL-driven filters (`view<Entity>` pattern) | **`dev-table-feature`** |
+
+If the task matches either row, **stop** and activate the appropriate skill. Both skills are frontend-only and follow stack-specific patterns that this skill does not cover.
+
+Only continue here for general UI work — components, layouts, state, interactions — that doesn't fit the patterns above.
+
+---
+
 ## Stack Activation Gate
 
 Detect the active stack from the project's package files. State it explicitly: "Active stack: {name}".

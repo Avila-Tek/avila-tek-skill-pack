@@ -19,8 +19,17 @@ We use the `Safe<T>` discriminated union from `@repo/utils` for all fallible ope
 ```typescript
 // From packages/utils/src/safe-functions.ts
 type Safe<T> =
-  | { success: true; data: T }
-  | { success: false; error: string };
+  | { success: true;  data: T;      message?: string }
+  | { success: false; error: string; errorCode?: string; errorDetails?: unknown[]; message?: string };
+```
+
+`message` carries the human-readable text from the backend (e.g. `"Usuario creado exitosamente"`).
+It is optional because `Safe` is also constructed internally (e.g. by `safe()`) where there is no
+backend message. Always use it as a toast title with a fallback:
+
+```typescript
+deps.showToast({ type: 'success', title: result.message ?? 'Operación exitosa' });
+deps.showToast({ type: 'error',   title: result.error }); // error already contains the message
 ```
 
 The `safe()` utility wraps promises or synchronous functions:
@@ -70,50 +79,66 @@ Services check `result.success` and return the error unchanged. The application 
 
 ### Application (queries / mutations)
 
-The application layer is the **throw boundary** — the only place where `Safe<T>` errors are converted to thrown errors for React Query to capture.
+Queries follow the **3-layer standard** (see `data-fetching.md`). The `select` in `useQuery` hooks is the throw boundary — not `queryFn`.
 
 **Queries:**
 
 ```typescript
-// features/habits/application/queries/useHabits.query.ts
-export function habitsQueryOptions() {
+// queryOptions: always Safe<T> passthrough
+export function getUserQueryOptions(userId: number) {
   return queryOptions({
-    queryKey: habitQueryKeys.all,
-    queryFn: async () => {
-      const result = await habitsService.getAll();
-      if (!result.success) throw new Error(result.error); // throw HERE for React Query
-      return result.data;
-    },
+    queryKey: ['manage-user', userId],
+    queryFn: () => ManageUserService.getById(userId),
   });
 }
-```
 
-React Query captures the thrown error and exposes it via `isError` and `error`. Widgets render error states accordingly.
-
-**Mutations:**
-
-```typescript
-// features/habits/application/mutations/useCreateHabit.mutation.ts
-export function useCreateHabit() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (data: TCreateHabitForm) => {
-      const result = await habitsService.create(data);
+// useQuery hook: select throws → consumer gets T + isError
+export function useGetUser(userId: number) {
+  return useQuery({
+    ...getUserQueryOptions(userId),
+    select: (result): ManageUserData => {
       if (!result.success) throw new Error(result.error);
       return result.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: habitQueryKeys.all });
-    },
-    onError: (error) => {
-      toast.error('Failed to create habit');
-    },
   });
+}
+
+// useSuspenseQuery hook: returns Safe<T> for QueryResultGuard
+export function useGetUserSuspense(userId: number) {
+  return useSuspenseQuery(getUserQueryOptions(userId));
 }
 ```
 
-For mutations, use `onError` for user-facing feedback. Check for specific error codes if needed.
+- `useQuery` + select throw → React Query captures the error internally, sets `isError: true`. Does **not** trigger `error.tsx`.
+- `useSuspenseQuery` → returns `Safe<T>` without select. The loader uses `QueryResultGuard` to decide what to render.
+
+**Mutations:**
+
+Mutations are passthrough — error handling is done by the **use case layer**, not the mutation.
+
+```typescript
+// Mutation: passthrough
+export function useCreateUserMutation() {
+  return useMutation({
+    mutationFn: (form: TManageUserForm) => ManageUserService.create(form),
+  });
+}
+
+// Use case: handles errors with toast + navigation
+export async function createUserUseCase(data: TManageUserForm, deps: Deps): Promise<void> {
+  const result = await deps.mutate(data).catch(() => null);
+  if (!result) {
+    deps.showToast({ type: 'error', title: 'Ha ocurrido un error inesperado' });
+    return;
+  }
+  if (!result.success) {
+    deps.showToast({ type: 'error', title: result.error });
+    return;
+  }
+  deps.showToast({ type: 'success', title: result.message ?? 'Usuario creado exitosamente' });
+  deps.push(routeBuilders.users());
+}
+```
 
 **Use cases:**
 
@@ -130,23 +155,60 @@ if (!result.ok) {
 
 ### UI layer
 
+> `QueryResultGuard` and `ErrorState` are shared UI components. Scan the project for equivalents before generating code — see `references/components.md` for contracts and reference implementations if missing.
+
 - **Route-level**: Use `error.tsx` for unrecoverable errors. These are error boundaries for unexpected failures.
-- **Widget-level**: Handle loading/error/empty states via React Query's `isLoading`, `isError`, `data`.
+- **Widget-level (useQuery)**: Handle loading/error/empty states via React Query's `isLoading`, `isError`, `data`.
+- **Loader-level (useSuspenseQuery)**: Use `QueryResultGuard` to handle `Safe<T>` results declaratively.
 - **Never** display raw `error.message` to users. Show safe, user-friendly messages.
 
-```tsx
-// app/(main)/habits/error.tsx
-'use client';
+#### `QueryResultGuard` — for detail/edit loaders with `useSuspenseQuery`
 
-export default function HabitsError({ error, reset }: { error: Error; reset: () => void }) {
+`QueryResultGuard<T>` is a declarative wrapper that inspects a `Safe<T>` result and renders either the children (with data) or an `ErrorState` error page inline.
+
+```tsx
+import { QueryResultGuard } from '@repo/ui/components/QueryResultGuard';
+
+export function UpdateUserFormLoader({ id }: { id: number }) {
+  const { data: result } = useGetUserSuspense(id);
+
   return (
-    <div>
-      <p>Something went wrong loading habits.</p>
-      <Button onClick={reset}>Try again</Button>
-    </div>
+    <QueryResultGuard
+      result={result}
+      title="Usuario no encontrado"
+      redirectTo={routeBuilders.users()}
+    >
+      {(userData) => (
+        <ManageUserForm formType={formTypeEnumObject.update} userData={userData} />
+      )}
+    </QueryResultGuard>
   );
 }
 ```
+
+**How it works:**
+- `result.success === true` → calls `children(result.data)`
+- `result.success === false` → renders `ErrorState` with `result.error` as description (fallback)
+- If `description` is passed explicitly, it takes priority over `result.error`
+- No `useEffect`, no `useRouter`, no side effects — purely declarative
+- Preserves `AdminPageLayout` context (breadcrumbs, title, back button)
+
+#### `ErrorState` — standalone error page
+
+`ErrorState` is a presentational component for inline error states. Can be used independently of `QueryResultGuard`.
+
+```tsx
+import { ErrorState } from '@repo/ui/components/ErrorState';
+
+<ErrorState
+  title="Proveedor no encontrado"
+  description="El proveedor que buscas no existe o fue eliminado."
+  redirectTo="/providers"
+  redirectLabel="Volver a proveedores"
+/>
+```
+
+**Props:** `redirectTo` (required), `title?`, `description?`, `redirectLabel?`, `icon?` (ReactNode, defaults to Lucide `SearchX`).
 
 ---
 
@@ -199,18 +261,6 @@ export const HABIT_LIMIT_EXCEEDED = 'HABIT_LIMIT_EXCEEDED';
 export const HABIT_DUPLICATE_NAME = 'HABIT_DUPLICATE_NAME';
 ```
 
-Match on these in the application layer:
-
-```typescript
-onError: (error) => {
-  if (error.message === HABIT_LIMIT_EXCEEDED) {
-    toast.error('You have reached the maximum number of habits.');
-    return;
-  }
-  toast.error('Something went wrong.');
-},
-```
-
 For use cases, define error constants as objects:
 
 ```typescript
@@ -227,11 +277,14 @@ export const CreateHabitErrors = {
 | Layer | Pattern | Throws? |
 |---|---|---|
 | Infrastructure (services) | Return `Safe<T>` | Never |
-| Application (queryFn / mutationFn) | Unwrap `Safe<T>`, throw on `!success` | Yes — for React Query |
-| Application (use cases) | Return `{ ok, data/error }` | Never |
+| Application (queryOptions) | Passthrough `Safe<T>` from service | Never |
+| Application (useQuery hook select) | Throw on `!success` → `isError: true` | Yes — caught by React Query |
+| Application (useSuspenseQuery hook) | Return `Safe<T>` for `QueryResultGuard` | Never |
+| Application (mutations) | Passthrough `Safe<T>` | Never |
+| Application (use cases) | Check `result.success`, toast + navigate | Never |
 | Server Actions | Return `Safe<T>` | Never |
-| UI (widgets) | Check `isError` / `result.ok` | Never |
-| UI (error.tsx) | Catches thrown errors from React Query | Catches |
+| UI (useQuery widgets) | Check `isError` / `data` | Never |
+| UI (useSuspenseQuery loaders) | `QueryResultGuard` → children or `ErrorState` | Never |
 
 ---
 
@@ -244,3 +297,6 @@ export const CreateHabitErrors = {
 - **try/catch "just in case"** — Don't wrap code that cannot fail. Handle errors at the right boundary.
 - **Catching at every layer** — Catch at the boundary (application layer), not at every call site. Let `Safe<T>` propagate through infrastructure.
 - **Throwing from Server Actions** — Server Actions return `Safe<T>`. Thrown errors lose type information.
+- **`React.useEffect` + `router.replace` for error handling** — Use `QueryResultGuard` (for suspense loaders) or `isError` (for `useQuery` consumers). Never redirect silently on error.
+- **Throwing in `queryOptions.queryFn`** — The throw belongs in the hook's `select`, not in `queryFn`. See `data-fetching.md` for the 3-layer query standard.
+- **Error handling in mutation hooks** — Never put `onError` or toast logic in the mutation. Use the use case layer for all error handling.

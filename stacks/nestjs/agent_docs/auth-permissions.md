@@ -1,6 +1,6 @@
 ---
 description: Backend auth guards and permission decorators — @ApiBearerAuth, @Permissions, role seeds
-globs: "apps/api/src/**/*Controller.ts, apps/api/src/database/seeds/**"
+globs: "apps/api/src/**/*Controller.ts, apps/api/src/infrastructure/database/seeds/**"
 alwaysApply: false
 ---
 
@@ -33,12 +33,20 @@ Every endpoint that modifies or accesses sensitive data must have a `@Permission
 
 ```typescript
 @Post()
-@Permissions('quote:write')
+@Permissions('quote:create')
 async create(...) { ... }
 
 @Get()
 @Permissions('quote:read')
 async findAll(...) { ... }
+
+@Put(':id')
+@Permissions('quote:update')
+async update(...) { ... }
+
+@Delete(':id')
+@Permissions('quote:delete')
+async delete(...) { ... }
 
 @Patch(':id/approve')
 @Permissions('quote:approve')
@@ -57,19 +65,21 @@ async approve(...) { ... }
 
 | Action | When to use |
 |--------|-------------|
-| `read` | Read operations — GET list or by ID |
-| `write` | Create and update — POST, PUT, PATCH |
-| `delete` | Deletion — DELETE (when separated from write) |
-| `approve` | Approval flows — PATCH approve/reject |
-| `manage` | Full module administration |
+| `read` | GET list or GET by ID |
+| `create` | POST — create a new resource |
+| `update` | PUT / PATCH — modify an existing resource |
+| `delete` | DELETE |
+| `approve` | Approval / rejection flows |
+| `pay` | Payment flows |
+| `send` | Send / dispatch actions |
 
-Examples: `quote:read`, `quote:write`, `quote:approve`, `client:read`, `client:write`.
+Examples: `quote:read`, `quote:create`, `quote:update`, `quote:delete`, `quote:approve`, `quote:pay`.
 
 ---
 
 ### 4. Register the permission in the seed
 
-Add the permission in `apps/api/src/database/seeds/roles.seed.ts` under `PERMISSIONS` and assign it to the corresponding roles in `ROLE_PERMISSIONS`:
+Add the permission in `apps/api/src/infrastructure/database/seeds/roles.seed.ts` under `PERMISSIONS` and assign it to the corresponding roles in `ROLE_PERMISSIONS`:
 
 ```typescript
 // In PERMISSIONS:
@@ -92,8 +102,10 @@ Add the permission in `apps/api/src/database/seeds/roles.seed.ts` under `PERMISS
 ## Checklist
 
 - [ ] `@ApiBearerAuth()` on the controller class
-- [ ] Every write endpoint has `@Permissions('<module>:write')`
-- [ ] Every sensitive read endpoint has `@Permissions('<module>:read')`
+- [ ] Every `POST` endpoint uses `@Permissions('<module>:create')` by default; override with the domain-action permission when the endpoint implements a domain action (e.g., `approve`, `pay`, `send`) — see the **Action** table above as the source of truth
+- [ ] Every `PUT`/`PATCH` endpoint uses `@Permissions('<module>:update')` by default; override with `@Permissions('<module>:<domain-action>')` when the endpoint implements a domain action such as `approve`, `pay`, or `send` — see Action table
+- [ ] Every `DELETE` endpoint uses `@Permissions('<module>:delete')` by default; override with `@Permissions('<module>:<domain-action>')` when the endpoint implements a domain action such as `approve`, `pay`, or `send` — see Action table
+- [ ] Every `GET` endpoint that returns user-specific data, exposes PII, accesses tenant-scoped lists, or returns private/internal resources has `@Permissions('<module>:read')`; public listing endpoints for authenticated users do not require it
 - [ ] The permission exists in `PERMISSIONS` in the seed
 - [ ] The permission is assigned to the correct roles in `ROLE_PERMISSIONS`
 - [ ] Truly public endpoints have `@Public()`

@@ -12,7 +12,7 @@ Every endpoint must declare its access requirements explicitly. An endpoint with
 export class QuoteController {
 
   @Post()
-  @Permissions('quote:write')
+  @Permissions('quote:create')
   async create(@Body() body: TCreateQuoteInput) { ... }
 
   @Get()
@@ -153,10 +153,10 @@ Never deserialize untrusted data without schema validation. All `@Body()` must g
 Log once at the boundary, not at every propagation level. Never log sensitive data:
 
 ```typescript
-// ✅ Log the error, not the credentials
-@ExceptionHandler(DomainException.class)
-catch (e: DomainException) {
-  this.logger.error('Domain error', { code: e.code, path: request.url });
+// ✅ Log the error, not the credentials — inside an ExceptionFilter
+catch(exception: DomainError, host: ArgumentsHost): void {
+  const request = host.switchToHttp().getRequest<Request>();
+  this.logger.error('Domain error', { code: exception.code, path: request.url });
   // ❌ never: this.logger.error('Error', { body: request.body })
 }
 ```
@@ -175,7 +175,7 @@ if (!ALLOWED_HOSTS.includes(url.hostname)) throw new BadRequestException('Invali
 ## Verification Checklist
 
 - [ ] Every controller has `@ApiBearerAuth()` + `@UseGuards(JwtAuthGuard, PermissionsGuard)` or is explicitly `@Public()`
-- [ ] Every write endpoint has `@Permissions('<module>:write')`
+- [ ] Every endpoint has `@Permissions('<module>:<action>')` with the appropriate action (`create`, `update`, `delete`, `approve`, `pay`, `send`)
 - [ ] `parseOrThrow` on all `@Param()` and `@Body()`
 - [ ] Zod schemas use `.trim().min(1)`, not `.min(1)` alone
 - [ ] Passwords hashed with bcrypt (rounds ≥ 12)
