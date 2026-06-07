@@ -1,6 +1,7 @@
 ---
 name: spec-driven-development
-description: Creates specs before coding. Use when starting a new project, feature, or significant change and no specification exists yet. Use when requirements are unclear, ambiguous, or only exist as a vague idea. Spanish triggers: "crea el spec", "escribe el spec", "necesito un spec", "empieza con el spec".
+description: >
+  Creates specs before coding. Use when starting a new project, feature, or significant change and no specification exists yet. Use when requirements are unclear, ambiguous, or only exist as a vague idea. Spanish triggers: "crea el spec", "escribe el spec", "necesito un spec", "empieza con el spec".
 ---
 
 # Spec-Driven Development

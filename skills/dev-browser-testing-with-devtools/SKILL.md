@@ -1,6 +1,7 @@
 ---
 name: browser-testing-with-devtools
-description: Tests in real browsers. Use when building or debugging anything that runs in a browser. Use when you need to inspect the DOM, capture console errors, analyze network requests, profile performance, or verify visual output with real runtime data via Chrome DevTools MCP. Spanish triggers: "prueba en el navegador", "inspecciona el DOM", "verifica en el browser".
+description: >
+  Tests in real browsers. Use when building or debugging anything that runs in a browser. Use when you need to inspect the DOM, capture console errors, analyze network requests, profile performance, or verify visual output with real runtime data via Chrome DevTools MCP. Spanish triggers: "prueba en el navegador", "inspecciona el DOM", "verifica en el browser".
 ---
 
 # Browser Testing with DevTools

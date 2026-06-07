@@ -1,6 +1,7 @@
 ---
 name: shipping-and-launch
-description: Prepares production launches. Use when preparing to deploy to production. Use when you need a pre-launch checklist, when setting up monitoring, when planning a staged rollout, or when you need a rollback strategy. Spanish triggers: "despliega a producción", "prepara el lanzamiento", "checklist de deploy".
+description: >
+  Prepares production launches. Use when preparing to deploy to production. Use when you need a pre-launch checklist, when setting up monitoring, when planning a staged rollout, or when you need a rollback strategy. Spanish triggers: "despliega a producción", "prepara el lanzamiento", "checklist de deploy".
 ---
 
 # Shipping and Launch

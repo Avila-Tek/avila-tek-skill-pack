@@ -14,6 +14,19 @@ The **Planning Track** (Tech Lead) transforms a Design Doc into structured story
 
 The **story file** is the bridge. When the planning track is done, the developer reads the story and runs `/spec` → `/plan` → `/build` → `/review` → `/ship`.
 
+## Codex Plugin
+
+This repo includes a repo-local Codex marketplace at `.agents/plugins/marketplace.json`.
+
+Install it locally:
+
+```bash
+codex plugin marketplace add .agents/plugins
+codex plugin add avila-tek-skill-pack@avila-tek
+```
+
+Start a new Codex thread after installing so the skill list is reloaded.
+
 ---
 
 ## The Full Pipeline

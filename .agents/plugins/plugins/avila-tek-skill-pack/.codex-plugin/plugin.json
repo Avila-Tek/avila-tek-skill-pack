@@ -1,0 +1,42 @@
+{
+  "name": "avila-tek-skill-pack",
+  "version": "2.6.0",
+  "description": "Complete Avila Tek software delivery lifecycle — from Design Doc to production code",
+  "author": {
+    "name": "Avila Tek",
+    "email": "dev@avilatek.com",
+    "url": "https://github.com/avila-tek"
+  },
+  "homepage": "https://github.com/avila-tek/avila-tek-skill-pack",
+  "repository": "https://github.com/avila-tek/avila-tek-skill-pack",
+  "license": "MIT",
+  "keywords": [
+    "planning",
+    "development",
+    "workflow",
+    "nestjs",
+    "nextjs",
+    "fastify",
+    "express",
+    "lark"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Avila Tek Skill Pack",
+    "shortDescription": "Planning and development workflows for Avila Tek projects.",
+    "longDescription": "Claude/Codex-compatible skills for Avila Tek software delivery: project context, domain modeling, specs, technical design, epics, stories, implementation, review, testing, shipping, and stack guidance.",
+    "developerName": "Avila Tek",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Generate project context for this repo.",
+      "Turn this story into a dev spec.",
+      "Review this change using Avila Tek standards."
+    ],
+    "brandColor": "#111827"
+  }
+}

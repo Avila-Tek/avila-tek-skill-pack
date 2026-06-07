@@ -1,0 +1,20 @@
+{
+  "name": "avila-tek",
+  "interface": {
+    "displayName": "Avila Tek"
+  },
+  "plugins": [
+    {
+      "name": "avila-tek-skill-pack",
+      "source": {
+        "source": "local",
+        "path": "./plugins/avila-tek-skill-pack"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
