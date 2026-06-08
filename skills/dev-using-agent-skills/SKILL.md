@@ -172,7 +172,13 @@ In a monorepo with multiple stacks (e.g. NestJS + Next.js), all detected STACK.m
 
 ### Where Standards Live
 
-Stack standards live directly inside each skill (e.g. `dev-api-and-interface-design`, `dev-frontend-ui-engineering`). The `stacks/{name}/agent_docs/` folders contain general reference documentation only — skills do not defer to them at runtime.
+Stack standards live in `stacks/{name}/`, loaded with progressive disclosure:
+
+- **`stacks/{name}/STACK.md`** — the entry point, injected by the session-start hook. Holds the summary, key patterns, red flags, and a "Required Reading by Task Type" table.
+- **`stacks/{name}/agent_docs/*`** — the deep standards (architecture, import boundaries, layer guides). Skills **do** read these at runtime, but only the files the current task type calls for — not all of them on every change. Load the minimum the task needs.
+- **`skills/dev-*/references/{stack}.md`** — a condensed, skill-scoped checklist (e.g. a review-specific red-flags list). These are intentionally narrow and are *not* duplicates of `agent_docs` — they are the just-enough view for that one skill.
+
+Rule of thumb: the further a fact is from universal, the closer it lives to the project. Universal process → skill body; framework idiom → `STACK.md`/`agent_docs`; project-specific house style → the target repo's own config and `docs/project_context.md`.
 
 ### Adding a New Stack
 

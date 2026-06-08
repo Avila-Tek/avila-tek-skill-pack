@@ -146,6 +146,7 @@ Scan for these patterns — each one is a concrete signal, not a vague smell:
 | Misleading names | Function named `get` that also mutates state | Rename to reflect actual behavior |
 | Comments explaining "what" | `// increment counter` above `count++` | Delete the comment — the code is clear enough |
 | Comments explaining "why" | `// Retry because the API is flaky under load` | Keep these — they carry intent the code can't express |
+| Doc comment on a `shared/`/`packages/` export | `/** "$1.00" currency formatting */` above `formatMoney` | **Keep — and add it if missing.** A one-line doc comment on a shared/public export is required (it powers the shared inventory and makes the helper discoverable, which prevents duplication). This is the one place the "delete what-comments" rule does not apply. Feature-local code keeps the default rule. |
 
 **Redundancy:**
 

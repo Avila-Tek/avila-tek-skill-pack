@@ -38,6 +38,15 @@ Detect the active stack from the project's package files. State it explicitly: "
 
 Build in thin vertical slices — implement one piece, test it, verify it, then expand. Avoid implementing an entire feature in one pass. Each increment should leave the system in a working, testable state. This is the execution discipline that makes large features manageable.
 
+## Before You Start: Load the Shared Inventory
+
+Each implementation session is stateless — it does not remember helpers written in earlier stories. To substitute for that missing memory, load the shared-code index once at the start:
+
+1. Read `docs/shared-inventory.md` if it exists — a generated, one-line-per-export index of everything in `shared/` and `packages/`. This is cheap (~tens of lines) and tells you what already exists without scanning the repo.
+2. If it does not exist, fall back to a scoped listing of shared locations (`shared/`, `packages/*/src`, `lib/`) — filenames and exports only, not file bodies.
+
+The inventory is your reuse map for the whole session. Consult it during every Reuse Scan before reaching for `rg`. (See `dev-context-engineering` for the inventory format and `dev-harness-eslint` for how it is generated.)
+
 ## When to Use
 
 - Implementing any multi-file change
@@ -72,26 +81,78 @@ If the prototype fails: that's the point. Fail fast, learn, try the next approac
 ## The Increment Cycle
 
 ```
-┌──────────────────────────────────────────┐
-│                                          │
-│   RED ──→ GREEN ──→ CLEAN ──→ Verify ──┐ │
-│    ▲                                   │ │
-│    └──────────── Commit ◄──────────────┘ │
-│                    │                     │
-│                    ▼                     │
-│               Next slice                │
-│                                          │
-└──────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│                                                      │
+│  RED ─→ SCAN ─→ GREEN ─→ CLEAN ─→ Verify ──┐         │
+│   ▲                                        │         │
+│   └──────────────── Commit ◄───────────────┘         │
+│                        │                             │
+│                        ▼                             │
+│                   Next slice                         │
+│                                                      │
+└──────────────────────────────────────────────────────┘
 ```
 
 For each slice:
 
 1. **RED** — write a failing test for the expected behavior. The test must fail before any implementation begins. A test that passes immediately proves nothing.
-2. **GREEN** — write the minimum code to make the test pass. Resist the urge to write more than what the test requires.
-3. **CLEAN** — tidy the implementation without changing behavior: improve names, remove duplication, flatten unnecessary nesting. Run tests after every change to confirm they stay green.
-4. **Verify** — run the full test suite and build to confirm no regressions.
-5. **Commit** — save progress with a descriptive message (see `git-workflow-and-versioning` for atomic commit guidance).
-6. **Move to the next slice** — carry forward, don't restart.
+2. **SCAN** — before writing any helper, util, mapper, validator, formatter, or domain function, run the **Reuse Scan** (see below). Search for an existing implementation, then decide: adopt / extend / promote / build. Emit the evidence. Skip only for code that is obviously unique to this slice.
+3. **GREEN** — write the minimum code to make the test pass, **placed per the Reuse Scan decision** (a new generic helper goes in `shared/`, not the feature folder). Resist the urge to write more than what the test requires.
+4. **CLEAN** — tidy without changing behavior, then run the **Clean Step Checklist** (see below) to catch size/complexity/duplication before it compounds. Run tests after every change to confirm they stay green.
+5. **Verify** — run the project's test, build, and lint commands to confirm no regressions. Lint enforces the mechanical limits (file/function size, layer & cross-feature import boundaries) — a lint failure means the slice is not done.
+6. **Commit** — save progress with a descriptive message (see `git-workflow-and-versioning` for atomic commit guidance). If the slice added or changed a `shared/`/`packages/` export, regenerate the shared inventory first (see below).
+7. **Move to the next slice** — carry forward, don't restart.
+
+## Reuse Scan
+
+The most common duplication failure is a fresh session re-writing a helper that already exists in `shared/` or `packages/`. The fix is a mandatory search before writing any reusable-shaped code (helper, util, mapper, validator, formatter, parser, domain function).
+
+**Run the scan:**
+
+1. Check the shared inventory you loaded at session start.
+2. If not found there, grep the shared locations for the concept (name + likely synonyms), reading signatures, not bodies:
+   ```
+   rg -i "formatcurrency|formatmoney|currency" shared/ packages/ src/lib/
+   ```
+3. Emit the evidence and the decision before writing code:
+   ```
+   REUSE SCAN — before writing `formatCurrency`:
+     inventory: no match
+     rg → packages/utils/money.ts: formatMoney(cents: number): string
+   DECISION: reuse formatMoney. Not writing a new helper.
+   ```
+
+**Decision matrix:**
+
+| Search result | Action |
+|---|---|
+| Exact match exists | Import it. Do not re-implement. |
+| Close match (needs a tweak) | Extend the existing one in place (add a parameter/overload) — don't fork. |
+| No match, **pure technical helper** (formatter, parser, validator — zero feature-specific logic) | Write it **directly in `shared/`/`packages/`** on first use, not in the feature folder. |
+| No match, **UI or domain code** | Keep it colocated in the feature. Promote to `shared/` only when a 2nd feature needs it. |
+| No match, feature-specific anything | Keep it colocated in the feature. |
+
+**Placement rule (why first-write promotion is split):** A pure technical helper has no feature coupling, so the next stateless session will re-create it unless it lives in `shared/` now — promote it on first write. UI and domain code often *looks* generic but carries feature assumptions, so the "wait for the 2nd use" rule still applies there to avoid premature abstraction. When in doubt whether something is a pure helper, keep it colocated and let the next Reuse Scan promote it.
+
+This overrides the "always wait for 2 uses" guidance in `import-boundaries.md` **only** for pure technical helpers. Cross-feature and cross-layer import boundaries are enforced by lint (see `dev-harness-eslint`), so a misplaced import fails the Verify step regardless of session memory.
+
+## Clean Step Checklist
+
+The CLEAN step is where size and complexity get controlled before they compound across slices. The numeric thresholds are defined once in `dev-code-simplification` — this checklist references them; it does not restate the numbers. Lint hard-enforces the mechanical ones during Verify (warn-first on existing repos), so this checklist is the early catch, not the gate.
+
+After GREEN, before Verify, check the slice:
+
+```
+CLEAN CHECKLIST:
+□ Any function over the size threshold?   → split into focused functions (lint: max-lines-per-function)
+□ Any file over its budget?               → extract a module (lint: max-lines)
+□ Nesting deeper than 3 levels?           → guard clauses / early returns (lint: max-depth)
+□ 5+ duplicated lines?                     → extract, then run the Reuse Scan on the extraction target
+□ Generic name (data, result, temp)?       → rename to describe content
+□ New shared/ or packages/ export?         → add a one-line doc comment, regenerate the inventory
+```
+
+See `dev-code-simplification` for the threshold definitions and the over-simplification traps to avoid.
 
 ## Slicing Strategies
 
@@ -265,6 +326,9 @@ After each increment, verify:
 - Multiple unrelated changes in a single increment
 - "Let me just quickly add this too" scope expansion
 - Skipping RED (writing the failing test) and going straight to implementation
+- Writing a helper/util/validator without running the Reuse Scan first
+- A new pure technical helper placed in a feature folder instead of `shared/`/`packages/`
+- A `shared/`/`packages/` export added without a doc comment or without regenerating the inventory
 - Build or tests broken between increments
 - Large uncommitted changes accumulating
 - Building abstractions before the third use case demands it
