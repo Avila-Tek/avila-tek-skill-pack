@@ -178,6 +178,34 @@ Key files: validation.ts, errors.ts, db.ts
 
 Load only the relevant section when working on a specific area.
 
+### The Shared Inventory
+
+A specialization of the project map that targets one problem: a stateless session re-implementing a helper that already exists in `shared/`/`packages/`. The agent has no memory of earlier stories, so it needs a cheap, durable index of what shared code already exists.
+
+`docs/shared-inventory.md` is a generated, one-line-per-export index. It is loaded once at the start of `/build` and `/plan`, and consulted during the Reuse Scan before writing any reusable-shaped code.
+
+**Format** (this is the contract the `shared:inventory` generator in `dev-harness-eslint` produces):
+
+```markdown
+# Shared Inventory (generated — do not edit by hand)
+> Regenerate: `npm run shared:inventory`
+
+## packages/utils
+- formatMoney(cents: number): string — "$1.00" currency formatting
+- slugify(input: string): string — URL-safe slug from arbitrary text
+
+## shared/ui/components
+- <DataTable> — paginated, sortable, server-driven table
+- <ConfirmModal> — destructive-action confirmation dialog
+
+## shared/domain
+- isBusinessDay(date: Date): boolean — excludes weekends + holidays
+```
+
+One line per public export: `signature — one-line purpose`. The purpose comes from the export's doc comment (which the harness lint requires on shared exports). Keep it to signatures and purposes — never file bodies — so the whole index stays in the tens-of-lines range and is cheap to load every session.
+
+When no generator exists yet, maintain it by hand: add or edit the relevant line whenever a `shared/`/`packages/` export changes (this is a step in the `/build` Clean Step Checklist).
+
 ## MCP Integrations
 
 For richer context, use Model Context Protocol servers when available.
@@ -277,6 +305,7 @@ This catches wrong directions before you've built on them. It's a 30-second inve
 | Anti-Pattern | Problem | Fix |
 |---|---|---|
 | Context starvation | Agent invents APIs, ignores conventions | Load rules file + relevant source files before each task |
+| Reinvented shared code | Agent re-implements a helper that already exists in `shared/`/`packages/` because the session has no memory of earlier stories | Load `docs/shared-inventory.md` at session start; run the Reuse Scan before writing any helper (`dev-incremental-implementation`) |
 | Context flooding | Agent loses focus when loaded with >5,000 lines of non-task-specific context. More files does not mean better output. | Include only what is relevant to the current task. Aim for <2,000 lines of focused context per task. |
 | Stale context | Agent references outdated patterns or deleted code | Start fresh sessions when context drifts |
 | Missing examples | Agent invents a new style instead of following yours | Include one example of the pattern to follow |

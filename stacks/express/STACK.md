@@ -95,6 +95,8 @@ app.use(errorHandler)                 ← MUST be last
 
 ## Required Reading by Task Type
 
+Read these progressively, not all at once. For a **small edit** (existing file, no new module/export, no layer crossed) read only `code-standard.md`. Read the full **Any implementation** base tier (plus task-specific rows) when creating a new module/export or crossing a layer. Load the minimum the task needs — over-reading wastes context (see `dev-context-engineering`).
+
 | Task | Required docs |
 |------|--------------|
 | Any implementation | `architecture.md`, `code-standard.md` |

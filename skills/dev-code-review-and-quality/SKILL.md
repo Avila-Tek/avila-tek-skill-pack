@@ -72,6 +72,7 @@ Can another engineer (or agent) understand this code without the author explaini
 - **Could this be done in fewer lines?** (1000 lines where 100 suffice is a failure)
 - **Are abstractions earning their complexity?** (Don't generalize until the third use case)
 - Would comments help clarify non-obvious intent? (But don't comment obvious code.)
+- Does every new `shared/`/`packages/` public export carry a one-line doc comment? (Required — it powers the shared inventory and discoverability. Feature-local code is not held to this.)
 - Are there dead code artifacts: no-op variables (`_unused`), backwards-compat shims, or `// removed` comments?
 
 ### 3. Architecture
@@ -79,10 +80,11 @@ Can another engineer (or agent) understand this code without the author explaini
 Does the change fit the system's design?
 
 - Does it follow existing patterns or introduce a new one? If new, is it justified?
-- Does it maintain clean module boundaries?
-- Is there code duplication that should be shared?
+- Does it maintain clean module boundaries? (Layer/cross-feature boundaries are lint-enforced — if `boundaries/*` rules exist, a passing lint is the evidence. Flag any `// eslint-disable` of a boundary rule as a finding.)
+- Is there code duplication that should be shared? Did a new helper land in a feature folder when it belongs in `shared/`/`packages/`? (Check it against `docs/shared-inventory.md` — a re-implementation of an existing shared export is a required-change finding.)
 - Are dependencies flowing in the right direction (no circular dependencies)?
 - Is the abstraction level appropriate (not over-engineered, not too coupled)?
+- Are files/functions within their size budgets? (Lint-enforced via `max-lines`/`max-lines-per-function`. On warn-first repos, growing an already-oversized file further is a finding even if lint only warns.)
 
 ### 4. Security
 
@@ -426,6 +428,9 @@ Part of code review is dependency review:
 - [ ] Follows existing patterns
 - [ ] No unnecessary coupling or dependencies
 - [ ] Appropriate abstraction level
+- [ ] No re-implementation of an existing `shared/`/`packages/` export (checked vs `docs/shared-inventory.md`)
+- [ ] New pure helpers live in `shared/`/`packages/`, not feature folders; boundary lint passes (no disabled boundary rules)
+- [ ] Files/functions within size budgets (lint)
 
 ### Security
 - [ ] No secrets in code

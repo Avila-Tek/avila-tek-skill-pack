@@ -70,7 +70,13 @@ Standards live in `stacks/react-native/agent_docs/`:
 
 ## Required Reading by Task Type
 
-After reading this file, Read the `agent_docs` files listed for your task type. Do not proceed until those Reads are complete.
+After reading this file, Read the `agent_docs` files listed for your task type — but progressively, not all at once:
+
+- **Small edit** (changing an existing file, no new module/export, no layer crossed): read only the lightest base doc (the code-standard / conventions / naming file). Skip the architecture and boundary docs.
+- **New module, new public export, or crossing a layer**: read the full **Any implementation** base tier below, plus the task-specific rows.
+- Always load the minimum the task needs — over-reading wastes context and degrades output (see `dev-context-engineering`).
+
+Do not proceed until the Reads your task tier requires are complete.
 
 | Task type | Read these files |
 |-----------|-----------------|
